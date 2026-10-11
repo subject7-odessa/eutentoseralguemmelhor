@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arquivo Sombrio</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Special+Elite&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#14110f;--p:#1d1915;--p2:#26211c;--ln:#3a322a;--tx:#efe9db;--mu:#9b9080;--rd:#b3261e;--rd2:#7a1812;--ok:#7fa36b;--ye:#e0b84a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 'Libre Baskerville',Georgia,serif}
+.mono,label,th,nav a,button,.tag{font-family:'Special Elite','Courier New',monospace}
+header{display:flex;align-items:center;gap:20px;padding:12px 24px;background:#0c0a09;border-bottom:2px solid var(--rd2);position:sticky;top:0;z-index:5;flex-wrap:wrap}
+.logo{font-weight:700;font-size:20px;letter-spacing:.12em;line-height:1}.logo small{display:block;font:11px 'Special Elite';color:var(--rd);letter-spacing:.2em}
+nav{display:flex;gap:6px;margin:0 auto}
+nav a{color:var(--mu);padding:6px 14px;cursor:pointer;border-bottom:2px solid transparent;letter-spacing:.08em;text-transform:uppercase;font-size:13px}
+nav a.on{color:var(--tx);border-color:var(--rd)}
+.stamp{border:2px solid var(--rd);color:var(--rd);padding:1px 8px;transform:rotate(-4deg);font:12px 'Special Elite';letter-spacing:.2em}
+main{max-width:1100px;margin:0 auto;padding:24px}
+h2{font-size:22px;margin:0 0 4px}h3{font:13px 'Special Elite';letter-spacing:.18em;color:var(--rd);text-transform:uppercase;margin:0 0 8px}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.sp{flex:1}
+button{background:var(--p2);color:var(--tx);border:1px solid var(--ln);padding:6px 12px;cursor:pointer;font-size:13px}
+button:hover{border-color:var(--rd)}button.pr{background:var(--rd2);border-color:var(--rd)}button.x{color:var(--rd);background:none;border:none;padding:2px 6px}
+input,select,textarea{background:#0f0d0b;color:var(--tx);border:1px solid var(--ln);padding:5px 8px;font:inherit;font-size:14px;width:100%}
+textarea{min-height:110px;resize:vertical}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;margin-top:16px}
+.card{background:var(--p);border:1px solid var(--ln);border-left:3px solid var(--rd2);padding:14px}
+.mu{color:var(--mu);font-size:12px}
+.auth{max-width:380px;margin:60px auto}.auth input{margin-bottom:10px}
+.sheet{display:grid;grid-template-columns:340px 1fr;gap:20px}
+@media(max-width:860px){.sheet{grid-template-columns:1fr}}
+.ro{pointer-events:none;opacity:.8}
+.box{background:var(--p);border:1px solid var(--ln);padding:14px;margin-bottom:16px}
+.attrs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.at{background:var(--p2);border:1px solid var(--ln);padding:8px;text-align:center}
+.at b{display:block;font-size:11px;font-weight:400;color:var(--mu);letter-spacing:.14em;font-family:'Special Elite'}
+.at .n{font-size:28px;line-height:1.1}.at .v{font:12px 'Special Elite';color:var(--rd)}
+.st{display:flex;gap:4px;justify-content:center;align-items:center;margin-top:4px}.st button{padding:0 8px}
+.ex{display:flex;gap:4px;align-items:center;justify-content:center;margin-top:6px;font:11px 'Special Elite';color:var(--mu)}.ex input{width:48px;padding:1px 4px;text-align:center}
+.der{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.der div{background:var(--p2);padding:8px;border:1px solid var(--ln)}.der .n{font-size:22px}
+.bar{height:10px;background:#0f0d0b;border:1px solid var(--ln);margin:6px 0}.bar i{display:block;height:100%;background:var(--rd)}
+table{width:100%;border-collapse:collapse}th{font-weight:400;color:var(--mu);font-size:11px;letter-spacing:.14em;text-align:left;padding:4px}
+td{padding:3px 4px;border-top:1px solid var(--ln)}td input,td select{padding:2px 4px;font-size:13px}
+td.val{font-size:18px;text-align:center;width:56px}
+.d{width:32px;height:28px;padding:0;font-size:15px}
+#toasts{position:fixed;right:16px;bottom:16px;display:flex;flex-direction:column;gap:8px;z-index:20;width:300px;max-width:calc(100vw - 32px)}
+.toast{background:#0c0a09;border:1px solid var(--ln);border-left:4px solid var(--mu);padding:10px 12px;box-shadow:0 2px 8px #0008;animation:in .25s}
+.toast.s{border-left-color:var(--ok)}.toast.f{border-left-color:var(--rd)}.toast.e{border-left-color:var(--ye)}
+.toast .big{font-size:24px;line-height:1.1}.toast .res{font:12px 'Special Elite';letter-spacing:.14em;text-transform:uppercase}
+@keyframes in{from{transform:translateX(30px);opacity:0}}
+#logbtn{position:fixed;left:16px;bottom:16px;z-index:20}
+#log{position:fixed;left:0;top:0;bottom:0;width:360px;max-width:100vw;background:#0c0a09;border-right:2px solid var(--rd2);z-index:30;padding:16px;overflow:auto;transform:translateX(-105%);transition:.2s}
+#log.on{transform:none}#log p{margin:0;border-bottom:1px solid var(--ln);padding:7px 0;font-size:13px}
+.s{color:var(--ok)}.f{color:var(--rd)}.e{color:var(--ye)}
+.mod{width:80px}.err{color:var(--rd);font-size:13px;min-height:20px}
+
+.steps{display:flex;align-items:center;justify-content:center;gap:10px;margin:18px 0;flex-wrap:wrap}.steps a{cursor:pointer;color:var(--tx);font:15px 'Special Elite';letter-spacing:.06em}.steps a.on{color:var(--rd)}.steps i{width:50px;height:1px;background:var(--mu)}
+.wz{max-width:860px;margin:0 auto}.wz label,.sheet label{display:block;margin:10px 0 4px;color:var(--mu);font-size:12px;letter-spacing:.1em}
+.xc{background:var(--p2);border:1px solid var(--ln);margin-bottom:8px}.xc>summary{display:flex;gap:10px;align-items:center;padding:8px 12px;cursor:pointer;list-style:none}.xc>summary::before{content:'▾';color:var(--rd)}.xc[open]>summary{border-bottom:1px solid var(--rd2)}.xb{padding:12px}
+.rd{color:var(--rd)}.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{display:inline-flex!important;gap:6px;align-items:center;margin:0!important;color:var(--tx)!important;font-size:13px!important}.chip input{width:auto}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px;border-bottom:1px solid var(--ln)}.tabs a{padding:6px 12px;cursor:pointer;color:var(--mu);font:13px 'Special Elite';letter-spacing:.08em;text-transform:uppercase;border-bottom:2px solid transparent}.tabs a.on{color:var(--tx);border-color:var(--rd)}
+.cc{min-height:150px;background:linear-gradient(180deg,#0c0a09 0,var(--p) 80%)}button:disabled{opacity:.4;cursor:not-allowed}
+</style></head><body>
+<header>
+ <div class="logo">ARQUIVO SOMBRIO<small>SISTEMA DE INVESTIGAÇÃO</small></div>
+ <nav id="nav"></nav><span class="stamp">CONFIDENCIAL</span><button id="out" style="display:none">Sair</button>
+</header>
+<main id="app"></main>
+<button id="logbtn" class="pr" style="display:none">Log de dados</button>
+<aside id="log"><div class="row"><h3 class="sp">Log de dados</h3><button class="x" id="logx">✕</button></div><div id="logl"></div></aside>
+<div id="toasts"></div>
+<script>
+/* ====== CONFIGURAÇÃO: cole os dados do seu projeto Supabase ====== */
+const SUPABASE_URL='https://hylwmeyaffacifgopyhm.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5bHdtZXlhZmZhY2lmZ29weWhtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2ODE3OTMsImV4cCI6MjEwNzI1Nzc5M30.at8wuv_5hOUztpn4mwB1WdijExpWISLNFOXr6CjP0ws';
+/* ================================================================= */
+
+const $=(s,r=document)=>r.querySelector(s),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ATT=[['FOR','Força'],['COO','Coordenação'],['RES','Resistência'],['RAC','Raciocínio'],['PER','Percepção'],['CON','Controle']];
+const SK=[['Armas de Fogo','COO'],['Corpo a Corpo','COO'],['Defesa','COO'],['Tática','RAC'],['Investigação','RAC'],['Observação','PER'],['Perícia Forense','RAC'],['Pesquisa','RAC'],['Ocultismo','RAC'],['Religião','RAC'],['Medicina','RAC'],['Mecânica','RAC'],['Eletrônica','RAC'],['Computação','RAC'],['Direção','COO'],['Sobrevivência','PER'],['Furtividade','COO'],['Persuasão','RAC'],['Intimidação','CON'],['Enganação','CON'],['Empatia','PER']];
+
+if(SUPABASE_URL.startsWith('COLE')){document.body.innerHTML='<main><h2>Falta configurar</h2><p>Abra o <b>index.html</b> e cole a Project URL e a anon key do Supabase no topo do script (veja o LEIA-ME).</p></main>';throw 0}
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+/* ---------- estado ---------- */
+let user=null,prof=null,camps=[],camp=null,chars=[],threats=[],rolls=[],names={},chan=null;
+let view='agentes',open=null,mod=0,timers={};
+const isMaster=()=>camp&&camp.master===user.id;
+const canEdit=c=>c.owner===user.id||isMaster();
+const typing=()=>/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName||'');
+
+/* ---------- regras ---------- */
+const tot=(c,k)=>(+c.attrs[k]||0)+(+c.extra?.[k]||0);
+const sval=(c,s)=>tot(c,s.attr)*5+(+s.pts||0);
+const calc=c=>{const r={};ATT.forEach(([k])=>r[k]=tot(c,k)*5);r.vida=10+2*tot(c,'RES');r.defv=tot(c,'COO')*5+(+c.defPts||0);r.defp=25+Math.floor(r.defv/2);r.ini=tot(c,'COO')*5;return r};
+const newData=()=>({player:prof.name,prof:'',attrs:{FOR:2,COO:2,RES:2,RAC:2,PER:2,CON:2},extra:{},defPts:0,vidaAtual:14,pressao:0,skills:SK.map(([n,a])=>({n,attr:a,pts:0})),weapons:[],notes:''});
+const toChar=r=>({...r.data,id:r.id,owner:r.owner,name:r.name,created:r.created_at||r.updated_at});
+const grade=(r,t)=>r>=96?['Falha crítica*','f']:r<=5?['Sucesso excepcional','e']:r<=t?['Sucesso','s']:['Falha','f'];
+const d100=()=>1+Math.floor(Math.random()*100);
+function dmg(x){x=String(x||'').replace(/\s/g,'');let m=x.match(/^(\d*)d(\d+)([+-]\d+)?$/i);
+ if(m){let n=+m[1]||1,s=+m[3]||0;for(let i=0;i<n;i++)s+=1+Math.floor(Math.random()*+m[2]);return Math.max(0,s)}
+ return /^\d+$/.test(x)?+x:null}
+
+/* ---------- dados ---------- */
+async function post(c,label,data){
+ const {error}=await sb.from('rolls').insert({campaign_id:camp.id,user_id:user.id,who:c.name,label,data});
+ if(error)alert('Erro ao rolar: '+error.message)}
+function test(t){const T=Math.max(5,Math.min(95,t+mod)),r=d100(),[res,cls]=grade(r,T);return{target:T,mod,roll:r,res,cls}}
+const rollSkill=(c,label,t)=>post(c,label,test(t));
+function rollWeapon(c,w,onlyDmg){
+ if(onlyDmg){const d=dmg(w.dmg);return post(c,w.name+' (dano)',{kind:'dmg',dmg:d,expr:w.dmg,cls:'',res:''})}
+ const s=c.skills.find(x=>x.n===w.skill),t=s?sval(c,s):tot(c,'COO')*5,o=test(t);
+ o.kind='atk';o.expr=w.dmg;o.dmg=(o.cls==='s'||o.cls==='e')?dmg(w.dmg):null;post(c,w.name,o)}
+function toast(o){const d=o.data||{},el=document.createElement('div');el.className='toast '+(d.cls||'');
+ const head=`<div class="mu mono">${esc(o.who)} · ${esc(o.label)}${d.target?` (alvo ${d.target}${d.mod?`, mod ${d.mod>0?'+':''}${d.mod}`:''})`:''}</div>`;
+ el.innerHTML=d.kind==='atk'?head+`<div class="big">ataque=${d.roll} / dano=${d.dmg??'—'}</div><span class="res ${d.cls}">${d.res}${d.dmg==null?'':' · '+esc(d.expr)}</span>`
+  :d.kind==='dmg'?head+`<div class="big">dano=${d.dmg??'?'}</div><span class="res mu">${esc(d.expr)}</span>`
+  :head+`<div class="row"><span class="big">${d.roll}</span><span class="res ${d.cls}">${d.res}</span></div>`;
+ $('#toasts').append(el);setTimeout(()=>el.remove(),8000)}
+function logLine(o){const d=o.data||{},t=new Date(o.created_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+ const r=d.kind==='atk'?`ataque=${d.roll} / dano=${d.dmg??'—'} <span class="${d.cls}">${d.res}</span>`:d.kind==='dmg'?`dano=${d.dmg??'?'}`:`${d.roll} <span class="${d.cls}">${d.res}</span>`;
+ return `<p><span class="mu mono">${t}</span> <b>${esc(o.who)}</b> · ${esc(o.label)}${d.target?` (${d.target})`:''} → ${r}</p>`}
+const renderLog=()=>$('#logl').innerHTML=rolls.map(logLine).join('')||'<p class="mu">Nenhuma rolagem ainda.</p>';
+$('#logbtn').onclick=()=>$('#log').classList.add('on');$('#logx').onclick=()=>$('#log').classList.remove('on');
+
+/* ---------- salvar ---------- */
+function save(c){clearTimeout(timers[c.id]);timers[c.id]=setTimeout(async()=>{
+ const {id,owner,name,...data}=c;
+ const {error}=await sb.from('characters').update({name,data,updated_at:new Date().toISOString()}).eq('id',id);
+ if(error)alert('Erro ao salvar: '+error.message);delete timers[c.id]},350)}
+
+/* ---------- telas ---------- */
+function go(v,id){view=v;open=id||null;render()}
+function render(){
+ const app=$('#app'),nav=$('#nav');
+ $('#out').style.display=user?'':'none';$('#logbtn').style.display=camp?'':'none';
+ if(!user)return authView(app,nav);
+ if(!camp)return campsView(app,nav);
+ nav.innerHTML=[['agentes','Agentes'],['ameacas','Ameaças',1],['mesa','Mesa']].filter(x=>!x[2]||isMaster()).map(([v,t])=>`<a data-v="${v}" class="${view===v||(v==='agentes'&&view==='novo')?'on':''}">${t}</a>`).join('');
+ nav.onclick=e=>{if(e.target.dataset.v)go(e.target.dataset.v)};
+ if(view==='novo')return wizard(app);
+ if(view==='agentes')return open?sheet(app):agentes(app);
+ if(view==='ameacas')return threatsView(app);
+ mesa(app)}
+function authView(app,nav){nav.innerHTML='';let mode='in';
+ const draw=()=>{app.innerHTML=`<div class="auth card"><h2>${mode==='in'?'Entrar':'Criar conta'}</h2><br>
+  ${mode==='up'?'<input id="nm" placeholder="Seu nome de jogador">':''}<input id="em" type="email" placeholder="E-mail"><input id="pw" type="password" placeholder="Senha (mín. 6)">
+  <div class="err" id="er"></div><div class="row"><button class="pr" id="go">${mode==='in'?'Entrar':'Cadastrar'}</button><button id="sw">${mode==='in'?'Criar conta':'Já tenho conta'}</button></div></div>`;
+  $('#sw').onclick=()=>{mode=mode==='in'?'up':'in';draw()};
+  $('#go').onclick=async()=>{const em=$('#em').value.trim(),pw=$('#pw').value;let r;
+   if(mode==='in')r=await sb.auth.signInWithPassword({email:em,password:pw});
+   else r=await sb.auth.signUp({email:em,password:pw,options:{data:{name:$('#nm').value.trim()}}});
+   if(r.error)$('#er').textContent=r.error.message;
+   else if(mode==='up'&&!r.data.session)$('#er').textContent='Conta criada. Confirme o e-mail (se o Supabase pedir) e entre.'}};
+ draw()}
+async function campsView(app,nav){nav.innerHTML='';
+ const {data}=await sb.from('campaigns').select('*').order('created_at');camps=data||[];
+ const ids=camps.map(c=>c.id),mm=ids.length?((await sb.from('members').select('campaign_id').in('campaign_id',ids)).data||[]):[],cnt={};
+ mm.forEach(m=>cnt[m.campaign_id]=(cnt[m.campaign_id]||0)+1);
+ app.innerHTML=`<div class="row"><h2 class="sp">Campanhas: ${camps.length}</h2></div><div class="grid">${camps.map(c=>`<div class="card cc"><div class="mu">👥 ${cnt[c.id]||1} participante(s)</div><h2 style="font-size:20px;margin:36px 0 2px">${esc(c.name)}</h2><div class="mu">Iniciada em ${fmt(c.created_at)} | ${c.master===user.id?'Mestre · código <b>'+c.code+'</b>':'Jogador'}</div><div class="row" style="margin-top:10px"><button class="pr" data-e="${c.id}">Acessar</button><span class="sp"></span>${c.master===user.id?`<button class="x" data-dc="${c.id}" title="Excluir campanha">✕</button>`:''}</div></div>`).join('')||'<p class="mu">Você ainda não está em nenhuma campanha.</p>'}</div><br>
+ <div class="row"><div class="card sp"><h3>Nova campanha (você será o mestre)</h3><div class="row"><input id="cn" placeholder="Nome da campanha" style="flex:1"><button class="pr" id="cc">Criar</button></div></div>
+ <div class="card sp"><h3>Entrar com código</h3><div class="row"><input id="jc" placeholder="Código de 6 letras" style="flex:1"><button id="jj">Entrar</button></div></div></div>`;
+ app.onclick=async e=>{const d=e.target.dataset;if(d.e)enter(d.e);if(d.dc&&confirm('Excluir a campanha e TODAS as fichas dela?')){const r=await sb.from('campaigns').delete().eq('id',d.dc);r.error?alert(r.error.message):campsView(app,nav)}};
+ $('#cc').onclick=async()=>{const n=$('#cn').value.trim();if(!n)return alert('Dê um nome à campanha.');const r=await sb.rpc('create_campaign',{p_name:n});r.error?alert(r.error.message):enter(r.data)};
+ $('#jj').onclick=async()=>{const r=await sb.rpc('join_campaign',{p_code:$('#jc').value});r.error?alert(r.error.message):enter(r.data)}}
+async function enter(id){
+ const {data}=await sb.from('campaigns').select('*').eq('id',id).single();camp=data;view='agentes';open=null;
+ const [c,t,r,m]=await Promise.all([sb.from('characters').select('*').eq('campaign_id',id).order('name'),
+  isMaster()?sb.from('threats').select('*').eq('campaign_id',id):{data:[]},
+  sb.from('rolls').select('*').eq('campaign_id',id).order('created_at',{ascending:false}).limit(100),
+  sb.from('members').select('user_id').eq('campaign_id',id)]);
+ chars=(c.data||[]).map(toChar);threats=t.data||[];rolls=r.data||[];
+ const ids=(m.data||[]).map(x=>x.user_id);const p=await sb.from('profiles').select('*').in('id',ids);names={};(p.data||[]).forEach(x=>names[x.id]=x.name);
+ renderLog();
+ chan&&sb.removeChannel(chan);
+ chan=sb.channel('camp-'+id)
+  .on('postgres_changes',{event:'*',schema:'public',table:'characters',filter:'campaign_id=eq.'+id},p=>{
+   if(p.eventType==='DELETE')chars=chars.filter(x=>x.id!==p.old.id);
+   else{const c=toChar(p.new),i=chars.findIndex(x=>x.id===c.id);if(timers[c.id])return;i<0?chars.push(c):chars[i]=c}
+   if(!typing()||(view==='agentes'&&!open))render()})
+  .on('postgres_changes',{event:'INSERT',schema:'public',table:'rolls',filter:'campaign_id=eq.'+id},p=>{rolls.unshift(p.new);renderLog();toast(p.new)})
+  .on('postgres_changes',{event:'*',schema:'public',table:'threats',filter:'campaign_id=eq.'+id},p=>{
+   if(p.eventType==='DELETE')threats=threats.filter(x=>x.id!==p.old.id);else{const i=threats.findIndex(x=>x.id===p.new.id);i<0?threats.push(p.new):threats[i]=p.new}
+   if(!typing())render()})
+  .subscribe();
+ render()}
+function mesa(app){app.innerHTML=`<h2>${esc(camp.name)}</h2><div class="mu">${isMaster()?'Código para convidar jogadores: <b>'+camp.code+'</b>':'Mestre: '+esc(names[camp.master]||'?')}</div><br>
+ <div class="box"><h3>Jogadores</h3>${Object.values(names).map(esc).join(' · ')}</div>
+ <button id="lv">← Trocar de campanha</button>`;
+ $('#lv').onclick=()=>{camp=null;sb.removeChannel(chan);render()}}
+/* ---------- dados do livro (Cap. 2: Criação do Investigador) ---------- */
+const ESP=[{"n":"Investigador Particular","f":["Investigação","Observação","Pesquisa","Furtividade","Persuasão","Direção"],"v":"Linha Aberta. Uma vez por caso, antes de uma cena de investigação, o jogador declara uma linha de apuração que o personagem já havia começado, como um endereço verificado, um nome pesquisado ou uma testemunha sondada, e o Mestre fornece uma pequena pista, nunca a solução. Em vigilância planejada, o personagem recebe mais dez em Observação e Furtividade.","l":"não possui autoridade legal. Abordagens a funcionários que exigem credencial sofrem menos dez, e sua atividade pode ser denunciada","e":"câmera com lente de alcance, gravador, binóculos, bloco, ferramentas simples de acesso","c":"um funcionário público de baixo escalão ou um informante local","r":"Estáveis"},{"n":"Perito Criminal","f":["Perícia Forense","Investigação","Observação","Medicina","Pesquisa","Computação"],"v":"Cadeia de Evidência. Quando documenta corretamente uma pista, em uma cena que preservou, a evidência não pode ser invalidada por falha técnica, e o personagem recebe mais dez em Perícia Forense sobre ela.","l":"laboratório oficial leva dias, a instituição pode interferir e qualquer evidência retirada da cena sem registro perde o valor de prova","e":"kit de coleta, luvas, lanterna forense, câmera, sacos de evidência","c":"um técnico de laboratório","r":"Estáveis"},{"n":"Policial","f":["Armas de Fogo","Corpo a Corpo","Defesa","Direção","Intimidação","Investigação"],"v":"Autoridade Real. Dentro da jurisdição e com motivo legítimo, o personagem pode exigir cooperação de civis, com mais dez em Persuasão ou Intimidação quando o distintivo importa, acessar registros policiais comuns sem teste e isolar uma cena por um período razoável.","l":"suas ações oficiais deixam registro. Cada uso da autoridade fora do procedimento acumula um ponto de Atenção, nos termos da Parte III (Capítulo 12 )","e":"arma de serviço, algemas, rádio, colete leve, distintivo","c":"um colega de delegacia","r":"Estáveis"},{"n":"Médico","f":["Medicina","Pesquisa","Perícia Forense","Empatia","Observação","Persuasão"],"v":"Prioridade Clínica. Reconhece sem teste situações clínicas comuns fora de pressão. Sob pressão, recebe mais dez em Medicina para estabilizar. Pode solicitar exames e leito hospitalar em até um dia, desde que não precise ocultar o caso.","l":"responsabilidade profissional. Sigilo, licença e prontuário regem suas ações, abandonar um paciente tem consequência e o uso de medicamentos controlados deixa registro","e":"maleta médica avançada, estetoscópio, material de sutura, medicamentos comuns","c":"um colega de hospital","r":"Estáveis ou Confortáveis"},{"n":"Paramédico","f":["Medicina","Direção","Defesa","Observação","Empatia","Sobrevivência"],"v":"Hora de Ouro. Nos primeiros dez minutos depois de um ferimento, recebe mais dez em Medicina e ignora a penalidade por falta de kit. Pode estabilizar um personagem Morrendo mesmo em movimento, com a penalidade normal para pacientes sob ameaça.","l":"age por protocolo. Diagnósticos complexos e procedimentos avançados exigem equipamento que ele raramente carrega, e o Mestre pode negá-los","e":"bolsa de emergência, oxigênio portátil, talas, maca dobrável","c":"um motorista ou um regulador de central","r":"Estáveis"},{"n":"Jornalista","f":["Pesquisa","Persuasão","Enganação","Investigação","Computação","Observação"],"v":"Fonte Cruzada. Quando duas fontes independentes contradizem uma terceira, o personagem identifica sem teste qual ponto merece investigação adicional, desde que tenha acesso aos materiais. Com credencial de imprensa, recebe mais dez em Persuasão para entrevistas.","l":"visibilidade. É reconhecível, sua presença alerta quem tem algo a esconder, e a pressão do prazo de uma redação pode ser usada contra ele","e":"celular com gravador, câmera, notebook, credencial","c":"um editor ou uma fonte em órgão público","r":"Limitados ou Estáveis"},{"n":"Pesquisador Acadêmico","f":["Pesquisa","Ocultismo","Religião","Investigação","Computação","Observação"],"v":"Acesso Acadêmico. Possui Fonte Cruzada, como o jornalista, e recebe mais dez em Pesquisa em acervos institucionais e universitários. Possui um conhecimento especializado adicional na área de sua formação.","l":"a credibilidade profissional depende de método. Afirmar em público o que não pode demonstrar custa reputação, e prazos acadêmicos competem com os do caso","e":"notebook, livros, scanner portátil, acesso a bases de dados","c":"um orientador ou colega de departamento","r":"Limitados ou Estáveis"},{"n":"Engenheiro","f":["Mecânica","Eletrônica","Computação","Pesquisa","Observação","Investigação"],"v":"Leitura Estrutural. Identifica sem teste falhas estruturais evidentes em circunstâncias normais, e recebe mais dez em Mecânica e Eletrônica ao planejar uma improvisação com tempo.","l":"depende de medida. Estimativas sem instrumento sofrem menos dez, e laudos assinados criam responsabilidade técnica","e":"trena, multímetro, lanterna, notebook, caderno técnico","c":"um fornecedor ou um colega de obra","r":"Estáveis ou Confortáveis"},{"n":"Programador","f":["Computação","Eletrônica","Pesquisa","Investigação","Enganação","Observação"],"v":"Infraestrutura. Recebe mais dez em Computação ao trabalhar em sistema que conhece ou ajudou a construir, e reduz em um ponto o Progresso exigido por uma busca digital, com mínimo de um.","l":"pegada digital. Toda ação deixa registro, e o Mestre pode usar os acessos do personagem como prova contra ele","e":"notebook, roteador portátil, dispositivos de armazenamento, carregadores","c":"um colega de infraestrutura","r":"Estáveis"},{"n":"Advogado","f":["Persuasão","Pesquisa","Investigação","Empatia","Enganação","Intimidação"],"v":"Procedimento. Conhece direitos, prazos e formalidades. Recebe mais dez em Persuasão e Intimidação em contexto jurídico, pode interromper um interrogatório oficial que se prolongue além do razoável e, ao fim de um caso, pode reduzir um ponto de Atenção por meio de uma manobra legal.","l":"ética profissional. Forjar evidência ou obstruir a justiça pode custar a habilitação, e todo cliente tem direito ao sigilo que o personagem também deve","e":"pasta, tablet, procurações, cartões","c":"um servidor de cartório","r":"Estáveis ou Confortáveis"},{"n":"Religioso","f":["Religião","Ocultismo","Persuasão","Empatia","Pesquisa","Observação"],"v":"Comunidade. Pertence a uma comunidade que oferece abrigo, doações modestas e uma rede de simpatia. Conhece as liturgias da própria tradição e pode conduzir ritos que exijam um oficiante. Recebe mais dez em Controle diante de situações que a tradição trata, como luto, morte e sofrimento.","l":"hierarquia e dogma. Superiores podem exigir explicações, e agir contra o ensinamento de sua tradição tem custo social e interior","e":"texto sagrado, símbolos, objetos de culto","c":"um colega de ministério","r":"Limitados ou Estáveis"},{"n":"Militar","f":["Armas de Fogo","Corpo a Corpo","Defesa","Tática","Sobrevivência","Furtividade"],"v":"Disciplina de Campo. Uma vez por cena, recebe mais dez em um teste de Controle para manter posição sob fogo ou diante de medo, e seus planos de Tática concedem aos aliados mais cinco, além do bônus normal, em Iniciativa.","l":"reconhecível. Possui registro nas Forças, antigos companheiros e antigas ordens, e sua formação pode ser descoberta","e":"botas, mochila tática, faca de combate, kit de sobrevivência","c":"um antigo companheiro","r":"Estáveis"},{"n":"Criminoso","f":["Furtividade","Enganação","Corpo a Corpo","Armas de Fogo","Intimidação","Mecânica"],"v":"Mercado Paralelo. Pode adquirir equipamento incomum sem teste, e uma vez por caso equipamento raro, pagando um nível a mais de custo. Conhece rotas clandestinas e recebe mais dez em Furtividade para entrar e sair de locais urbanos.","l":"histórico. Possui antecedentes, inimigos e dívidas, e a Atenção inicial do personagem começa em um","e":"ferramentas de arrombamento, celular descartável, faca","c":"um receptador ou um informante","r":"Limitados ou Estáveis"},{"n":"Caçador Rural","f":["Sobrevivência","Armas de Fogo","Furtividade","Observação","Corpo a Corpo","Mecânica"],"v":"Terreno e Presa. Recebe mais dez em Sobrevivência e Observação em ambientes naturais e reconhece rastros de animais, o que lhe permite perceber, sem teste, quando um rastro não pertence a animal nenhum.","l":"estranho nos centros urbanos. Menos dez em testes sociais com autoridades e instituições de cidades grandes","e":"espingarda de caça, faca, binóculos, roupas de campo, lanterna","c":"um guarda-florestal ou um vizinho de sítio","r":"Limitados ou Estáveis"},{"n":"Mecânico","f":["Mecânica","Eletrônica","Direção","Observação","Corpo a Corpo","Sobrevivência"],"v":"Ouvido de Oficina. Diagnostica sem teste o problema de uma máquina ao ouvi-la, e recebe mais dez em Mecânica ao improvisar com sucata.","l":"depende de oficina e peças. Longe delas, perde o bônus, e sua reputação no bairro o torna fácil de encontrar","e":"caixa de ferramentas, lanterna, multímetro, cabos","c":"um dono de ferro-velho ou de autopeças","r":"Limitados ou Estáveis"},{"n":"Caminhoneiro","f":["Direção","Mecânica","Sobrevivência","Observação","Corpo a Corpo","Persuasão"],"v":"Estrada. Recebe mais dez em Direção em longas distâncias, conhece rotas e pontos de apoio por todo o país e pode localizar combustível, comida e abrigo sem teste em rotas que percorreu.","l":"horários. Cargas têm prazo, ausências prolongadas têm custo e um veículo grande é difícil de esconder","e":"veículo de carga ou carro, rádio, kit de ferramentas, garrafa térmica","c":"um radioamador ou um despachante","r":"Estáveis"},{"n":"Bombeiro","f":["Medicina","Sobrevivência","Mecânica","Direção","Defesa","Observação"],"v":"Prontidão. Recebe mais dez em testes de Resistência e Controle diante de fogo, fumaça, desabamento e emergências, e lê plantas, saídas e riscos de um edifício em poucos instantes, usando Tática para estruturas.","l":"compromisso público. Suas ações em emergências são registradas, e o dever de socorro pesa sobre suas escolhas","e":"lanterna tática, machado, kit de primeiros socorros, corda","c":"um colega de quartel","r":"Estáveis"},{"n":"Psicólogo","f":["Empatia","Persuasão","Medicina","Pesquisa","Observação","Investigação"],"v":"Escuta Clínica. Uma vez por sessão, em uma conversa tranquila de pelo menos uma hora, ajuda outro personagem a reduzir um ponto de Pressão, além do que o descanso e os vínculos já oferecem. Recebe mais dez em Empatia para identificar trauma.","l":"sigilo e distância. Não pode usar informação de paciente sem consequência, e não é capaz de tratar a própria Pressão com a mesma técnica","e":"caderno, gravador, livros","c":"um supervisor ou colega","r":"Estáveis ou Confortáveis"},{"n":"Arquivista","f":["Pesquisa","Investigação","Ocultismo","Observação","Computação","Persuasão"],"v":"Catálogo. Reduz em um ponto o Progresso exigido por pesquisas em acervos organizados, com mínimo de um, e recebe mais dez para avaliar a autenticidade de documentos.","l":"acesso. Depende dos acervos de sua instituição, e a rotina do cargo limita sua mobilidade","e":"luvas, lupa, caderno, scanner portátil","c":"um bibliotecário em outra cidade","r":"Limitados"},{"n":"Estudante","f":[],"v":"Aprendiz Veloz. O primeiro aumento de perícia de cada intervalo entre casos custa um ponto de experiência a menos, com mínimo de um, e o personagem tem mais tempo livre do que os demais, o que o Mestre deve respeitar.","l":"sem autoridade e sem dinheiro. Depende de família ou instituição, e responsabilidades acadêmicas competem com o caso","e":"notebook, mochila, carteira estudantil","c":"um professor","r":"Limitados"}];
+const REC=[['Limitados',5],['Estáveis',0],['Confortáveis',-5],['Abastados',-10]];
+const TALS=['Médico de Campo','Improvisador','Motorista Experiente','Leitor de Cena','Pesquisador Meticuloso','Rastreador','Analista','Observador','Memória Visual','Furtivo','Interrogador','Preparador','Sobrevivência Urbana','Sobrevivência Rural','Resistência','Conhecimento Local','Contato Bem Posicionado'];
+const CATS=['Arma','Munição','Proteção','Geral','Item Amaldiçoado'];
+const sum=o=>Object.values(o).reduce((a,b)=>a+(+b||0),0);
+const opened=new Set();
+document.addEventListener('toggle',e=>{const k=e.target.dataset?.dk;if(k)e.target.open?opened.add(k):opened.delete(k)},true);
+const det=(k,sm,body)=>`<details class="xc" data-dk="${k}" ${opened.has(k)?'open':''}><summary>${sm}</summary><div class="xb">${body}</div></details>`;
+const fmt=d=>d?new Date(d).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit'}):'';
+
+/* ---------- assistente de criação ---------- */
+let wz=null;
+const WST=['Atributos','Origem','Perícias','Toques Finais'];
+const wzNew=()=>({step:0,attrs:{FOR:0,COO:0,RES:0,RAC:0,PER:0,CON:0},esp:null,fsel:[],train:{},free:{},rec:'Estáveis',nome:'',jogador:prof.name,idade:'',resid:'',aparencia:'',personalidade:'',historico:'',objetivo:'',talentos:['',''],conEsp:'',conBas:['',''],idiomas:'Português',vinculos:['',''],contatos:['',''],motiv:'',ruptura:''});
+const wEsp=()=>ESP.find(e=>e.n===wz.esp);
+const wForm=()=>!wz.esp||wz.esp==='Amador'?[]:(wEsp().f.length?wEsp().f:wz.fsel);
+const wTMax=()=>!wz.esp||wz.esp==='Amador'?0:(wz.esp==='Estudante'?10:15);
+const wPool=()=>50+(wz.esp==='Amador'?10:0)+REC.find(r=>r[0]===wz.rec)[1];
+function wErr(s){const w=wz;
+ if(s===0){const l=15-sum(w.attrs);if(l!==0)return l>0?`Faltam ${l} ponto(s) de atributo para distribuir (total: 15).`:`Você passou ${-l} ponto(s) de atributo.`}
+ if(s===1){if(!w.esp)return 'Escolha uma especialidade ou comece como amador.';
+  if(w.esp==='Estudante'&&w.fsel.length!==6)return 'O Estudante escolhe seis perícias de formação.';
+  if(sum(w.train)!==wTMax())return `Treinamento profissional: distribua exatamente ${wTMax()} pontos (agora: ${sum(w.train)}).`;
+  if(Object.values(w.train).some(v=>v>10))return 'No máximo 10 pontos de treinamento em cada perícia de formação.'}
+ if(s===2){const f=sum(w.free),p=wPool();if(f!==p)return `Distribua exatamente ${p} pontos de perícia (agora: ${f}).`;
+  if(SK.some(([n])=>(+w.train[n]||0)+(+w.free[n]||0)>30))return 'Nenhuma perícia pode passar de 30 pontos na criação.';
+  const fm=wForm();if(fm.length&&fm.reduce((a,n)=>a+(+w.free[n]||0),0)<20)return 'Pelo menos 20 dos pontos livres devem ir para perícias de formação.'}
+ if(s===3&&!w.nome.trim())return 'Dê um nome ao personagem.';
+ return ''}
+function wizard(app){
+ const w=wz,err=wErr(w.step);let b='';
+ const head=`<div class="steps">${WST.map((t,i)=>`<a data-st="${i}" class="${i===w.step?'on':''}">${t}</a>`).join('<i></i>')}</div>`;
+ if(w.step===0)b=`<p>Distribua <b>15 pontos</b> entre os seis atributos. Nenhum começa acima de <b>4</b>; zero é permitido. O valor de teste de cada atributo é o nível × 5. Fichas equilibradas demais perdem a necessidade do grupo.</p><div class="attrs">${ATT.map(([k,n])=>`<div class="at"><b>${n.toUpperCase()}</b><span class="n">${w.attrs[k]}</span><div class="st"><button data-wa="${k}" data-s="-1">−</button><span class="v">${w.attrs[k]*5}</span><button data-wa="${k}" data-s="1">+</button></div></div>`).join('')}</div><p class="mu">Pontos restantes: <b>${15-sum(w.attrs)}</b></p>`;
+ if(w.step===1){const e=wEsp(),fm=wForm();
+  b=`<p>A especialidade representa anos de ofício. Fornece <b>seis perícias de formação</b>, uma vantagem, uma limitação, equipamento, contato e recursos. Quem prefere uma ficha de amador não recebe o treinamento profissional, mas ganha <b>10 pontos livres</b> a mais.</p>
+  <input id="wq" placeholder="Buscar especialidade…" style="margin:8px 0">
+  <div id="el">${ESP.map(x=>`<div data-n="${esc(x.n.toLowerCase())}">${det('e'+x.n,`<span class="sp"><b>${esc(x.n)}</b></span><button class="pr" data-es="${esc(x.n)}">${w.esp===x.n?'✓ Escolhida':'Escolher'}</button>`,`<p class="mu">Formação: ${x.f.length?x.f.join(', '):'o jogador escolhe seis perícias · treinamento de 10 pontos'}</p><p><b class="rd">Vantagem:</b> ${esc(x.v)}</p><p><b class="rd">Limitação:</b> ${esc(x.l)}</p><p><b class="rd">Equipamento:</b> ${esc(x.e)}</p><p><b class="rd">Contato:</b> ${esc(x.c)} · <b class="rd">Recursos:</b> ${esc(x.r)}</p>`)}</div>`).join('')}</div>
+  <div class="card" style="margin:10px 0"><div class="row"><span class="sp"><b>Amador</b><span class="mu"> — sem especialidade, +10 pontos livres de perícia</span></span><button class="pr" data-es="Amador">${w.esp==='Amador'?'✓ Escolhido':'Escolher'}</button></div></div>`;
+  if(w.esp==='Estudante')b+=`<div class="box"><h3>Estudante: escolha 6 perícias de formação (${w.fsel.length}/6)</h3><div class="chips">${SK.map(([n])=>`<label class="chip"><input type="checkbox" data-fs="${esc(n)}" ${w.fsel.includes(n)?'checked':''}> ${esc(n)}</label>`).join('')}</div></div>`;
+  if(e&&fm.length)b+=`<div class="box"><h3>Treinamento profissional (${sum(w.train)}/${wTMax()}) — máx. 10 por perícia</h3><table>${fm.map(n=>`<tr><td>${esc(n)}</td><td style="width:90px"><input type="number" min="0" max="10" data-tr="${esc(n)}" value="${w.train[n]||0}"></td></tr>`).join('')}</table></div>`;
+  b+=`<div class="box"><h3>Recursos financeiros</h3><select data-w="rec">${REC.map(([n,d])=>`<option ${n===w.rec?'selected':''}>${n}</option>`).join('')}</select><p class="mu">Estáveis é o padrão. Limitados: +5 pontos de perícia. Confortáveis: −5. Abastados: −10 (exigem uma história que explique o dinheiro).${e?' Usual desta especialidade: '+esc(e.r)+'.':''}</p></div>`}
+ if(w.step===2){const fm=wForm(),sp=sum(w.free),fs=fm.reduce((a,n)=>a+(+w.free[n]||0),0);
+  b=`<p>Distribua <b>${wPool()} pontos</b> entre as 21 perícias. Nenhuma pode terminar a criação acima de 30 (treinamento + livres)${fm.length?' e pelo menos 20 pontos livres vão para perícias de formação':''}. Cada ponto deveria ter uma justificativa curta.</p><p class="mu">Gastos: <b>${sp}/${wPool()}</b>${fm.length?` · em formação: <b>${fs}</b>/20 mín.`:''}</p>
+  <div class="box"><table><tr><th>Perícia</th><th>Atrib.</th><th>Treino</th><th>Livres</th><th>Total</th><th>Valor</th></tr>${SK.map(([n,a])=>{const t=+w.train[n]||0,f=+w.free[n]||0;return`<tr><td>${esc(n)}${fm.includes(n)?' <span class="rd">★</span>':''}</td><td>${a}</td><td>${t}</td><td style="width:80px"><input type="number" min="0" max="30" data-fr="${esc(n)}" value="${f}"></td><td>${t+f}</td><td class="val">${w.attrs[a]*5+t+f}</td></tr>`}).join('')}</table></div>`}
+ if(w.step===3){const I=(k,p,t='text')=>`<input data-w="${k}" value="${esc(k.split('.').reduce((o,x)=>o?.[x],w))}" placeholder="${p}">`,T=(k,p)=>`<textarea data-w="${k}" placeholder="${p}">${esc(w[k])}</textarea>`;
+  b=`<datalist id="tl">${TALS.map(t=>`<option>${t}</option>`).join('')}</datalist>
+  <p>Aqui o jogador define a pessoa. Nenhuma idade altera números; ela altera acesso, autoridade e plausibilidade.</p>
+  <div class="row"><div class="sp"><label>Personagem</label>${I('nome','Nome do personagem')}</div><div class="sp"><label>Jogador</label>${I('jogador','Nome do jogador')}</div><div style="width:90px"><label>Idade</label>${I('idade','')}</div></div><br>
+  <label>Residência e origem</label>${I('resid','Cidade onde vive, onde cresceu, família, língua materna')}<br><br>
+  <label>Aparência</label>${T('aparencia','Descrição física…')}<label>Personalidade</label>${T('personalidade','Quem é quando ninguém está olhando? De quem tem medo? O que esconde?')}<label>Histórico</label>${T('historico','Onde nasceu, o que perdeu, primeiro contato com o impossível…')}<label>Objetivo / motivação</label>${T('objetivo','Por que ele continua?')}
+  <div class="box"><h3>Talentos, conhecimentos e idiomas</h3><div class="row"><input list="tl" data-w="talentos.0" value="${esc(w.talentos[0])}" placeholder="Talento 1" style="flex:1"><input list="tl" data-w="talentos.1" value="${esc(w.talentos[1])}" placeholder="Talento 2" style="flex:1"></div><br>${I('conEsp','1 conhecimento especializado')}<br><br><div class="row"><input data-w="conBas.0" value="${esc(w.conBas[0])}" placeholder="Conhecimento básico 1" style="flex:1"><input data-w="conBas.1" value="${esc(w.conBas[1])}" placeholder="Conhecimento básico 2" style="flex:1"></div><br>${I('idiomas','Idiomas')}</div>
+  <div class="box"><h3>Vínculos, contatos e ponto de ruptura</h3><div class="row"><input data-w="vinculos.0" value="${esc(w.vinculos[0])}" placeholder="Vínculo positivo" style="flex:1"><input data-w="vinculos.1" value="${esc(w.vinculos[1])}" placeholder="Vínculo complicado" style="flex:1"></div><br><div class="row"><input data-w="contatos.0" value="${esc(w.contatos[0])}" placeholder="Contato 1: nome, função, confiança, acesso, custo" style="flex:1"><input data-w="contatos.1" value="${esc(w.contatos[1])}" placeholder="Contato 2" style="flex:1"></div><br>${I('motiv','Motivação')}<br><br>${I('ruptura','Ponto de ruptura: o que o faria abandonar tudo?')}</div>`}
+ app.innerHTML=`<div class="row"><button id="wc">Cancelar</button><h2 class="sp">Novo agente</h2></div>${head}<div class="wz">${b}</div><div class="err" id="we">${err&&w.step<3?'':''}</div>
+ <div class="row" style="margin-top:14px"><button id="wp" ${w.step?'':'disabled'}>← Voltar</button><span class="sp mu">${err?esc(err):'Tudo certo nesta etapa.'}</span>${w.step<3?`<button class="pr" id="wn" ${err?'disabled':''}>Próximo →</button>`:`<button class="pr" id="wf" ${err?'disabled':''}>Finalizar</button>`}</div>`;
+ const R=()=>wizard(app);
+ $('#wc').onclick=()=>{if(confirm('Descartar a criação?')){wz=null;go('agentes')}};
+ $('#wp')&&($('#wp').onclick=()=>{w.step--;R()});$('#wn')&&($('#wn').onclick=()=>{w.step++;R()});$('#wf')&&($('#wf').onclick=wzFinish);
+ app.querySelectorAll('.steps a').forEach(a=>a.onclick=()=>{const t=+a.dataset.st;for(let i=0;i<t;i++)if(wErr(i)){w.step=i;return R()}w.step=t;R()});
+ const q=$('#wq');q&&(q.oninput=()=>app.querySelectorAll('#el>div').forEach(d=>d.hidden=!d.dataset.n.includes(q.value.toLowerCase())));
+ app.oninput=e=>{const p=e.target.dataset.w;if(!p||e.target.tagName==='SELECT')return;const k=p.split('.');let o=w;while(k.length>1)o=o[k.shift()];o[k[0]]=e.target.value};
+ app.onchange=e=>{const d=e.target.dataset,v=e.target;
+  if(d.w==='rec'){w.rec=v.value;R()}
+  else if(d.tr){w.train[d.tr]=Math.max(0,Math.min(10,+v.value||0));R()}
+  else if(d.fr){w.free[d.fr]=Math.max(0,Math.min(30,+v.value||0));R()}
+  else if(d.fs){const i=w.fsel.indexOf(d.fs);if(i>=0){w.fsel.splice(i,1);delete w.train[d.fs]}else if(w.fsel.length<6)w.fsel.push(d.fs);R()}};
+ app.onclick=e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+  if(d.wa){const n=w.attrs[d.wa]+ +d.s;if(n<0||n>4||(d.s>0&&sum(w.attrs)>=15))return;w.attrs[d.wa]=n;R()}
+  if(d.es){e.preventDefault();w.esp=d.es;w.train={};w.fsel=[];R()}}}
+async function wzFinish(){const w=wz,e=wEsp(),a=w.attrs;
+ const skills=SK.map(([n,at])=>({n,attr:at,pts:(+w.train[n]||0)+(+w.free[n]||0)}));
+ const hab=[],inv=[{n:'Kit básico',cat:'Geral',esp:1,qtd:1,desc:'Documentação, telefone, roupas adequadas, mochila, lanterna, ferramenta pessoal, kit de primeiros socorros simples, carregador e dinheiro compatível.'}];
+ if(e){const i=e.v.indexOf('. ');hab.push({n:'Vantagem: '+e.v.slice(0,i),desc:e.v.slice(i+2),src:e.n},{n:'Limitação',desc:e.l,src:e.n});e.e.split(',').forEach(x=>inv.push({n:x.trim(),cat:'Geral',esp:1,qtd:1,desc:'Equipamento inicial de '+e.n}))}
+ w.talentos.filter(Boolean).forEach(t=>hab.push({n:'Talento: '+t,desc:'',src:'Talento'}));
+ const d={...newData(),player:w.jogador,prof:w.esp==='Amador'?'Amador':w.esp,esp:w.esp,rec:w.rec,attrs:{...a},skills,habilidades:hab,inventario:inv,
+  vidaAtual:10+2*a.RES,idade:w.idade,resid:w.resid,aparencia:w.aparencia,personalidade:w.personalidade,historico:w.historico,objetivo:w.objetivo,
+  conEsp:w.conEsp,conBas:w.conBas,idiomas:w.idiomas,vinculos:w.vinculos,contatos:w.contatos,motiv:w.motiv,ruptura:w.ruptura};
+ const {data,error}=await sb.from('characters').insert({campaign_id:camp.id,owner:user.id,name:w.nome.trim(),data:d}).select().single();
+ if(error)return alert(error.message);
+ if(!chars.find(x=>x.id===data.id))chars.push(toChar(data));wz=null;go('agentes',data.id)}
+
+/* ---------- agentes ---------- */
+function agentes(app){
+ const sp=[...new Set(chars.map(c=>c.esp).filter(Boolean))];
+ app.innerHTML=`<div class="row"><h2 class="sp">Agentes: ${chars.length}</h2><button class="pr" id="nv">Novo agente</button></div>
+ <div class="row" style="margin-top:12px"><input id="q" placeholder="Buscar…" style="flex:2"><select id="fe" style="flex:1"><option value="">Todas as especialidades</option>${sp.map(s=>`<option>${esc(s)}</option>`).join('')}</select><select id="fo" style="flex:1"><option value="">Todos os agentes</option><option value="m">Só os meus</option></select></div><div class="grid" id="g"></div>`;
+ const draw=()=>{const q=$('#q').value.toLowerCase(),fe=$('#fe').value,fo=$('#fo').value;
+  const l=chars.filter(c=>c.name.toLowerCase().includes(q)&&(!fe||c.esp===fe)&&(!fo||c.owner===user.id));
+  $('#g').innerHTML=l.map(c=>`<div class="card"><h2 style="font-size:18px">${esc(c.name)}</h2><div>${esc(c.esp||c.prof||'Sem especialidade')}</div><div class="mu">${esc(names[c.owner]||c.player||'')}${c.owner===user.id?' · <span class="e">sua</span>':''} · Registrado em ${fmt(c.created)}</div><div class="row" style="margin-top:10px"><button class="pr" data-o="${c.id}">Acessar ficha</button><span class="sp"></span>${canEdit(c)?`<button class="x" data-d="${c.id}" title="Excluir">✕</button>`:''}</div></div>`).join('')||'<p class="mu">Nenhum agente encontrado.</p>'};
+ draw();['q','fe','fo'].forEach(i=>$('#'+i).oninput=draw);
+ $('#nv').onclick=()=>{wz=wzNew();go('novo')};
+ $('#g').onclick=async e=>{const o=e.target.dataset.o,d=e.target.dataset.d;if(o)go('agentes',o);if(d&&confirm('Excluir este agente?')){await sb.from('characters').delete().eq('id',d);chars=chars.filter(x=>x.id!==d);render()}}}
+
+/* ---------- ficha ---------- */
+let stab='combate';
+const TABS=[['combate','Combate'],['habilidades','Habilidades'],['rituais','Rituais'],['inventario','Inventário'],['descricao','Descrição']];
+const num=k=>['esp','qtd'].includes(k);
+function listCard(c,l,i,it,extra){const k=l+i;
+ return det(k,`<span class="sp"><b>${esc(it.n||'(sem nome)')}</b> <span class="mu">${[it.cat,it.custo&&'Custo: '+it.custo,it.dano&&'Dano: '+it.dano,it.src].filter(Boolean).map(esc).join(' · ')}</span></span>`,
+  `<div class="row"><input data-l="${l}" data-i="${i}" data-k="n" value="${esc(it.n)}" placeholder="Nome" style="flex:2">${extra}</div><textarea data-l="${l}" data-i="${i}" data-k="desc" placeholder="Descrição, efeitos…">${esc(it.desc)}</textarea><div class="row"><span class="sp"></span><button class="x" data-rm="${l}:${i}">Remover</button></div>`)}
+let cur=null;
+const fi=(l,i,k,p,v,w)=>`<input data-l="${l}" data-i="${i}" data-k="${k}" value="${esc(v===undefined?cur?.[l]?.[i]?.[k]:v)}" placeholder="${p}" style="flex:1;min-width:${w||90}px">`;
+function sheet(app){
+ const c=chars.find(x=>x.id===open);if(!c){open=null;return agentes(app)}
+ ['habilidades','rituais','inventario','weapons'].forEach(k=>c[k]=c[k]||[]);cur=c;
+ const r=calc(c),ed=canEdit(c),pv=Math.max(0,Math.min(100,100*c.vidaAtual/r.vida));
+ const wp=c.weapons.map((w,i)=>{const s=c.skills.find(x=>x.n===w.skill);
+  return det('w'+i,`<span class="sp"><b>${esc(w.name)}</b> <span class="mu">Dano: ${esc(w.dmg)}${w.crit?' · Crítico: '+esc(w.crit):''} · Ataque ${s?sval(c,s):'—'}</span></span><button class="d pr" data-rw="${i}" title="Atacar">⚔</button>`,
+  `<div class="row"><input data-wn="${i}" value="${esc(w.name)}" placeholder="Nome" style="flex:2"><select data-ws="${i}" style="flex:2">${c.skills.map(s=>`<option ${s.n===w.skill?'selected':''}>${esc(s.n)}</option>`).join('')}</select><input data-wd="${i}" value="${esc(w.dmg)}" placeholder="Dano 1d8+2" style="flex:1">${fi('weapons',i,'crit','Crítico')}</div><div class="row" style="margin-top:6px">${fi('weapons',i,'cat','Categoria')}${fi('weapons',i,'tipo','Tipo (Corte…)')}${fi('weapons',i,'esp','Espaços')}</div><textarea data-l="weapons" data-i="${i}" data-k="desc" placeholder="Descrição">${esc(w.desc)}</textarea><div class="row"><button class="d" data-rd="${i}" title="Só dano">🎲</button><span class="sp"></span><button class="x" data-wx="${i}">Remover</button></div>`)}).join('')||'<h3 style="text-align:center;margin:30px">Você ainda não possui ataques</h3>';
+ const tab={
+ combate:`<div class="row"><h3 class="sp">Ataques</h3><button class="pr" id="aw">Novo ataque</button></div>${wp}<h3 style="margin-top:18px">Perícias — valor de teste</h3><table><tr><th></th><th>Perícia</th><th>Atrib.</th><th>Pts</th><th>Valor</th><th></th></tr>${c.skills.map((s,i)=>`<tr><td><button class="d" data-rs="${i}">🎲</button></td><td><input data-sn="${i}" value="${esc(s.n)}"></td><td><select data-sa="${i}">${ATT.map(([k])=>`<option ${k===s.attr?'selected':''}>${k}</option>`).join('')}</select></td><td style="width:70px"><input type="number" min="0" max="50" data-sp="${i}" value="${s.pts}"></td><td class="val">${sval(c,s)}</td><td><button class="x" data-sx="${i}">✕</button></td></tr>`).join('')}</table><br><button id="as">+ Perícia (Conhecimento, Idioma…)</button>`,
+ habilidades:`<div class="row"><h3 class="sp">Habilidades</h3><button class="pr" data-add="habilidades">Adicionar</button></div>${c.habilidades.map((h,i)=>listCard(c,'habilidades',i,h,fi('habilidades',i,'custo','Custo')+fi('habilidades',i,'req','Requisito'))).join('')||'<p class="mu">Nenhuma habilidade. A vantagem e a limitação da especialidade entram aqui na criação.</p>'}`,
+ rituais:`<div class="row"><h3 class="sp">Rituais</h3><button class="pr" data-add="rituais">Adicionar</button></div>${c.rituais.map((h,i)=>listCard(c,'rituais',i,h,fi('rituais',i,'custo','Custo')+fi('rituais',i,'req','Requisito'))).join('')||'<p class="mu">Nenhum ritual registrado.</p>'}`,
+ inventario:`<div class="der" style="margin-bottom:10px"><div><span class="mu mono">ITENS</span><div class="n">${c.inventario.reduce((a,x)=>a+(+x.qtd||0),0)}</div></div><div><span class="mu mono">ESPAÇOS</span><div class="n">${c.inventario.reduce((a,x)=>a+(+x.esp||0)*(+x.qtd||0),0)}</div></div><div><span class="mu mono">RECURSOS</span><div class="n" style="font-size:15px">${esc(c.rec||'—')}</div></div></div><div class="row"><span class="mono mu">NOVO</span>${CATS.map(k=>`<button data-addi="${k}">${k}</button>`).join('')}</div><br>${c.inventario.map((h,i)=>listCard(c,'inventario',i,h,`<select data-l="inventario" data-i="${i}" data-k="cat" style="flex:1">${CATS.map(k=>`<option ${k===h.cat?'selected':''}>${k}</option>`).join('')}</select>`+fi('inventario',i,'qtd','Qtd',h.qtd,50)+fi('inventario',i,'esp','Espaços',h.esp,60)+(h.cat==='Arma'?fi('inventario',i,'dano','Dano'):''))).join('')||'<p class="mu">Inventário vazio.</p>'}`,
+ descricao:[['aparencia','Aparência'],['personalidade','Personalidade'],['historico','Histórico'],['objetivo','Objetivo / motivação'],['motiv','Motivação'],['ruptura','Ponto de ruptura'],['conEsp','Conhecimento especializado'],['idiomas','Idiomas'],['notes','Anotações']].map(([k,t])=>`<div class="box"><h3>${t}</h3><textarea data-f="${k}" style="min-height:70px">${esc(c[k])}</textarea></div>`).join('')+`<div class="box"><h3>Vínculos e contatos</h3>${(c.vinculos||[]).concat(c.contatos||[]).filter(Boolean).map(x=>`<p>${esc(x)}</p>`).join('')||'<p class="mu">—</p>'}</div>`}[stab];
+ app.innerHTML=`<div class="row"><button id="bk">← Agentes</button><h2 class="sp">${esc(c.name)}</h2>${ed?'':'<span class="mu">somente leitura</span>'}<span class="mono mu">Modificador</span><select id="md" class="mod">${[-20,-10,0,10,20].map(m=>`<option ${m===mod?'selected':''} value="${m}">${m>0?'+':''}${m}</option>`).join('')}</select></div><br>
+ <div class="sheet ${ed?'':'ro'}"><div>
+  <div class="box"><h3>Identificação</h3><input data-f="name" value="${esc(c.name)}" placeholder="Personagem"><br><br><div class="row"><input data-f="esp" value="${esc(c.esp||c.prof)}" placeholder="Especialidade" style="flex:1"><input data-f="player" value="${esc(c.player)}" placeholder="Jogador" style="flex:1"></div></div>
+  <div class="box"><h3>Atributos</h3><div class="attrs">${ATT.map(([k,n])=>`<div class="at"><b>${n.toUpperCase()}</b><span class="n">${tot(c,k)}</span><div class="st"><button data-a="${k}" data-s="-1">−</button><span class="v">${r[k]}</span><button data-a="${k}" data-s="1">+</button><button class="d" data-r="${k}" title="Rolar">🎲</button></div><div class="ex">base ${c.attrs[k]} · adicional <input type="number" data-x="${k}" value="${c.extra?.[k]||0}"></div></div>`).join('')}</div><div class="mu" style="margin-top:8px">Base: ${sum(c.attrs)} pts · "adicional" é para quem ultrapassou os limites humanos.</div></div>
+  <div class="box"><h3>Vida</h3><div class="row"><button data-v="-1">−</button><b class="sp" style="text-align:center;font-size:20px">${c.vidaAtual} / ${r.vida}</b><button data-v="1">+</button></div><div class="bar"><i style="width:${pv}%"></i></div><h3 style="margin-top:12px">Pressão</h3><div class="row"><button data-p="-1">−</button><b class="sp" style="text-align:center;font-size:20px">${c.pressao} / 3</b><button data-p="1">+</button></div></div>
+  <div class="box"><h3>Derivados</h3><div class="der"><div><span class="mu mono">DEFESA</span><div class="n">${r.defv}</div><button class="d" data-r2="Defesa|${r.defv}">🎲</button></div><div><span class="mu mono">PASSIVA</span><div class="n">${r.defp}</div></div><div><span class="mu mono">INICIATIVA</span><div class="n">${r.ini}</div><button class="d" data-r2="Iniciativa|${r.ini}">🎲</button></div></div><div class="row" style="margin-top:8px"><span class="mu mono sp">Pontos de Defesa</span><input type="number" data-f="defPts" value="${c.defPts||0}" style="width:70px"></div>
+  <label>Proteção</label><input data-f="protecao" value="${esc(c.protecao)}"><label>Resistências</label><input data-f="resist" value="${esc(c.resist)}"><label>Proficiências</label><input data-f="profic" value="${esc(c.profic)}"></div>
+ </div><div><div class="tabs">${TABS.map(([k,t])=>`<a data-tab="${k}" class="${k===stab?'on':''}">${t}</a>`).join('')}</div><div class="box">${tab}</div></div></div>`;
+ $('#bk').onclick=()=>go('agentes');$('#md').onchange=e=>{mod=+e.target.value};
+ const W=()=>c.weapons,done=()=>{c.vidaAtual=Math.min(c.vidaAtual,calc(c).vida);save(c)};
+ app.onchange=e=>{if(!ed)return;const t=e.target,d=t.dataset;
+  if(d.f)c[d.f]=d.f==='defPts'?+t.value:t.value;
+  else if(d.l)c[d.l][d.i][d.k]=num(d.k)?(+t.value||0):t.value;
+  else if(d.x){c.extra=c.extra||{};c.extra[d.x]=+t.value||0}
+  else if(d.sn!=null)c.skills[d.sn].n=t.value;else if(d.sa!=null)c.skills[d.sa].attr=t.value;
+  else if(d.sp!=null)c.skills[d.sp].pts=Math.max(0,Math.min(50,+t.value||0));
+  else if(d.wn!=null)W()[d.wn].name=t.value;else if(d.ws!=null)W()[d.ws].skill=t.value;else if(d.wd!=null)W()[d.wd].dmg=t.value;else return;
+  done();sheet(app)};
+ app.onclick=e=>{const b=e.target.closest('button'),tb=e.target.dataset.tab;
+  if(tb){stab=tb;return sheet(app)}
+  if(!b||b.id==='bk'||!ed)return;const d=b.dataset;if(b.closest('summary'))e.preventDefault();
+  if(d.r)return rollSkill(c,ATT.find(a=>a[0]===d.r)[1],r[d.r]);
+  if(d.r2){const[n,v]=d.r2.split('|');return rollSkill(c,n,+v)}
+  if(d.rs!=null){const s=c.skills[d.rs];return rollSkill(c,s.n,sval(c,s))}
+  if(d.rw!=null)return rollWeapon(c,W()[d.rw]);if(d.rd!=null)return rollWeapon(c,W()[d.rd],1);
+  if(d.a)c.attrs[d.a]=Math.max(0,Math.min(5,c.attrs[d.a]+ +d.s));
+  else if(d.v)c.vidaAtual=Math.max(0,Math.min(r.vida,c.vidaAtual+ +d.v));
+  else if(d.p)c.pressao=Math.max(0,Math.min(3,c.pressao+ +d.p));
+  else if(d.sx!=null)c.skills.splice(d.sx,1);else if(d.wx!=null){if(!confirm('Remover ataque?'))return;W().splice(d.wx,1)}
+  else if(d.rm){const[l,i]=d.rm.split(':');if(!confirm('Remover?'))return;c[l].splice(+i,1)}
+  else if(d.add)c[d.add].push({n:'Novo',desc:''});
+  else if(d.addi){c.inventario.push({n:'Novo item',cat:d.addi,esp:1,qtd:1,desc:''});opened.add('inventario'+(c.inventario.length-1))}
+  else if(b.id==='as')c.skills.push({n:'Nova perícia',attr:'RAC',pts:0});
+  else if(b.id==='aw'){W().push({name:'Novo ataque',skill:'Armas de Fogo',dmg:'1d6'});opened.add('w'+(W().length-1))}else return;
+  done();sheet(app)}}
+
+/* ---------- ameaças ---------- */
+let tq='',tc='';
+function threatsView(app){
+ const cats=[...new Set(threats.map(x=>x.data?.cat).filter(Boolean))];
+ app.innerHTML=`<div class="row"><h2 class="sp">Ameaças: ${threats.length}</h2><button class="pr" id="nv">Nova ameaça</button></div><div class="mu">Catálogo do mestre. Só o mestre vê esta aba.</div>
+ <div class="tabs" style="margin-top:10px"><a data-c="" class="${tc?'':'on'}">Todas</a>${cats.map(k=>`<a data-c="${esc(k)}" class="${tc===k?'on':''}">${esc(k)}</a>`).join('')}</div><input id="tq" placeholder="Buscar…" value="${esc(tq)}"><div id="g" style="margin-top:12px"></div>`;
+ const l=threats.filter(x=>x.name.toLowerCase().includes(tq.toLowerCase())&&(!tc||x.data?.cat===tc));
+ $('#g').innerHTML=l.map((x,i)=>det('t'+x.id,`<span class="sp"><b>${esc(x.name)}</b> <span class="mu">${[x.data?.cat,x.data?.nivel&&'Nível: '+x.data.nivel].filter(Boolean).map(esc).join(' · ')}</span></span>`,`<div class="row"><input data-n="${x.id}" value="${esc(x.name)}" style="flex:2;font-weight:700"><input data-c2="${x.id}" value="${esc(x.data?.cat)}" placeholder="Categoria" style="flex:1"><input data-nv="${x.id}" value="${esc(x.data?.nivel)}" placeholder="Nível / VD" style="flex:1"></div><br><textarea data-t="${x.id}" placeholder="Atributos, Vida, ataques, resistências, origem, comportamento, vulnerabilidade…" style="min-height:180px">${esc(x.text)}</textarea><div class="row"><span class="sp"></span><button class="x" data-d="${x.id}">Remover</button></div>`)).join('')||'<p class="mu">Nenhuma ameaça encontrada.</p>';
+ $('#tq').oninput=e=>{tq=e.target.value;const p=e.target.selectionStart;threatsView(app);const q=$('#tq');q.focus();q.setSelectionRange(p,p)};
+ app.querySelector('.tabs').onclick=e=>{if(e.target.dataset.c!=null){tc=e.target.dataset.c;threatsView(app)}};
+ $('#nv').onclick=()=>sb.from('threats').insert({campaign_id:camp.id,name:'Nova ameaça'}).then(r=>r.error&&alert(r.error.message));
+ $('#g').onchange=e=>{const t=e.target.dataset,id=t.n||t.t||t.c2||t.nv,x=threats.find(y=>y.id===id);if(!x)return;x.data=x.data||{};
+  if(t.n)x.name=e.target.value;else if(t.t)x.text=e.target.value;else if(t.c2)x.data.cat=e.target.value;else x.data.nivel=e.target.value;
+  sb.from('threats').update({name:x.name,text:x.text,data:x.data}).eq('id',x.id).then(()=>threatsView(app))};
+ $('#g').onclick=e=>{const d=e.target.dataset.d;if(d&&confirm('Remover esta ameaça?'))sb.from('threats').delete().eq('id',d)}}
+
+/* ---------- sessão ---------- */
+$('#out').onclick=()=>sb.auth.signOut();
+async function setUser(s){
+ if(s?.user){user=s.user;const {data}=await sb.from('profiles').select('*').eq('id',user.id).single();prof=data||{name:'Jogador'}}
+ else{user=null;camp=null;chan&&sb.removeChannel(chan)}
+ render()}
+sb.auth.onAuthStateChange((ev,s)=>{if(ev==='INITIAL_SESSION'||ev==='SIGNED_IN'||ev==='SIGNED_OUT')setTimeout(()=>setUser(s),0)});
+</script></body></html>
