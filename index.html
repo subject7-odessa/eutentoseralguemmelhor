@@ -202,7 +202,7 @@ let libCat='Todos',libQ='';
 const li=(c,n,sub,body)=>({c,n,sub,body,k:(n+' '+sub+' '+body.replace(/<[^>]+>/g,' ')).toLowerCase()});
 const lf=(k,v)=>v==null||v===''?'':`<p><b>${k}:</b> ${esc(String(v))}</p>`;
 function libEntries(){const E=[];
- if(isMaster())BEST.forEach(x=>E.push(li('Bestiário',x.n,[x.fam,x.nv&&'Nível '+x.nv].filter(Boolean).join(' · '),bestLines(x).map(([k,v])=>lf(k,v)).join(''))));
+ if(isMaster())BEST.forEach(x=>E.push(li('Bestiário',x.n,[x.fam,x.tipo,x.nv&&'Nível '+x.nv].filter(Boolean).join(' · '),bestLines(x).map(([k,v])=>lf(k,v)).join(''))));
  TAL.forEach(x=>E.push(li('Talentos',x[0],x[2]||'',lf('Pré-requisito',x[2])+`<p>${esc(x[1])}</p>`)));
  POD.forEach(x=>E.push(li('Poderes',x.n,x.g,lf('Origem',x.o)+lf('Valor do Poder',x.v)+lf('Resistência',x.r)+lf('Custo',x.c)+lf('Marca',x.m)+lf('Limite',x.l))));
  SIG.forEach(x=>E.push(li('Rituais',x.n,(x.g==='Rito'?'Ritual':'Sigilo')+(x.c?' · Complexidade '+x.c:''),(x.efeito?lf('Efeito',x.efeito)+lf('Meio',x.meio):'')+`<p>${esc(x.d)}</p>`)));
@@ -515,19 +515,20 @@ function openCat(c,kind){
  draw()}
 
 /* ---------- bestiário ---------- */
-let tmode='best',tfam='',tlv='',bq='';
+let tmode='best',tfam='',tlv='',ttp='',bq='';
 const modeTabs=()=>`<div class="tabs mtabs"><a data-m="best" class="${tmode==='best'?'on':''}">Bestiário</a><a data-m="mine" class="${tmode==='mine'?'on':''}">Minhas ameaças (${threats.length})</a></div>`;
 const bestLines=x=>(x.cat||x.attrs||x.cap)?[['Nível de Ameaça',x.nvx],['Categoria',x.cat],['Atributos',x.attrs],['Perícias',x.per],['Defesa Passiva',x.dp],['Vida',x.vida],['Ataques',x.atq],['Capacidades',x.cap],['Vulnerabilidades',x.vul],['Âncora',x.anc],['Sinais',x.sin],['Exposição',x.exp],['Notas do Mestre',x.nota],['Fonte',x.pg?'Livro, p. '+x.pg:'']].filter(l=>l[1]):[['Vida',x.vida],['Defesa Passiva',x.dp],['Característica',x.cap],['Fraqueza',x.vul],[' ',x.nota]].filter(l=>l[1]);
 function threatsView(app){
  if(tmode==='mine')return myThreats(app);
- const fams=[...new Set(BEST.map(x=>x.fam))],l=BEST.filter(x=>x.n.toLowerCase().includes(bq)&&(!tfam||x.fam===tfam)&&(!tlv||x.nv===tlv));
- app.innerHTML=`${modeTabs()}<div class="row"><h2 class="sp">Bestiário: ${l.length}/${BEST.length}</h2><button class="pr" id="nv">Nova ameaça</button></div><div class="mu">Fichas do livro. Use + para copiar para a sua campanha e editar à vontade.</div>
+ const fams=FAMS,tipos=[...new Set(BEST.map(x=>x.tipo).filter(Boolean))],l=BEST.filter(x=>(x.n+' '+(x.esp||'')+' '+(x.casos||'')).toLowerCase().includes(bq)&&(!tfam||x.fam===tfam)&&(!tlv||x.nv===tlv)&&(!ttp||x.tipo===ttp)),nesp=new Set(BEST.filter(x=>x.fam!=='Complementar'&&x.esp).map(x=>x.esp)).size;
+ app.innerHTML=`${modeTabs()}<div class="row"><h2 class="sp">Bestiário: ${l.length}/${BEST.length}</h2><button class="pr" id="nv">Nova ameaça</button></div><div class="mu">${nesp} espécies e categorias, com variantes, deuses e entidades únicas. Fichas de NPCs dos casos ficam dentro da espécie (Registros de caso); humanos, grupos, lugares e exemplos ficam em Complementar. Use + para copiar para a sua campanha e editar à vontade.</div>
  <div class="tabs" id="ft" style="margin-top:10px"><a data-f="" class="${tfam?'':'on'}">Todas</a>${fams.map(k=>`<a data-f="${esc(k)}" class="${tfam===k?'on':''}">${esc(k)}</a>`).join('')}</div>
- <div class="row"><input id="bq" placeholder="Buscar…" value="${esc(bq)}" style="flex:3"><select id="lv" style="flex:1"><option value="">Qualquer nível</option>${['Zero','Um','Dois','Três','Quatro','Cinco'].map(n=>`<option ${tlv===n?'selected':''}>${n}</option>`).join('')}</select></div><div id="g" style="margin-top:12px"></div>`;
- $('#g').innerHTML=l.map(x=>det('b'+BEST.indexOf(x),`<span class="sp"><b>${esc(x.n)}</b> <span class="mu">${esc(x.fam)} · Nível ${esc(x.nv)}${x.vida?' · Vida '+esc(x.vida):''}${x.dp?' · DP '+esc(x.dp):''}</span></span><button class="pr" data-ad="${BEST.indexOf(x)}" title="Adicionar à campanha">+</button>`,bestLines(x).map(([k,v])=>`<p><b class="rd">${esc(k)}</b> ${esc(v)}</p>`).join('')+(x.sub?`<p class="mu">${esc(x.sub)}</p>`:''))).join('')||'<p class="mu">Nenhuma criatura encontrada.</p>';
+ <div class="row"><input id="bq" placeholder="Buscar…" value="${esc(bq)}" style="flex:3"><select id="lv" style="flex:1"><option value="">Qualquer nível</option>${['Zero','Um','Dois','Três','Quatro','Cinco'].map(n=>`<option ${tlv===n?'selected':''}>${n}</option>`).join('')}</select><select id="tp" style="flex:1"><option value="">Qualquer tipo</option>${tipos.map(n=>`<option ${ttp===n?'selected':''}>${esc(n)}</option>`).join('')}</select></div><div id="g" style="margin-top:12px"></div>`;
+ $('#g').innerHTML=l.map(x=>det('b'+BEST.indexOf(x),`<span class="sp"><b>${esc(x.n)}</b> <span class="mu">${esc(x.fam)}${x.tipo?' · '+esc(x.tipo):''}${x.nv?' · Nível '+esc(x.nv):''}${x.vida?' · Vida '+esc(x.vida):''}${x.dp?' · DP '+esc(x.dp):''}</span></span><button class="pr" data-ad="${BEST.indexOf(x)}" title="Adicionar à campanha">+</button>`,bestLines(x).map(([k,v])=>`<p><b class="rd">${esc(k)}</b> ${esc(v)}</p>`).join('')+(x.sub?`<p class="mu">${esc(x.sub)}</p>`:'')+(x.casos?`<p class="mu" style="white-space:pre-wrap"><b class="rd">Registros de caso</b>\n\n${esc(x.casos)}</p>`:''))).join('')||'<p class="mu">Nenhuma criatura encontrada.</p>';
  $('.mtabs').onclick=e=>{if(e.target.dataset.m){tmode=e.target.dataset.m;threatsView(app)}};
  $('#ft').onclick=e=>{if(e.target.dataset.f!=null){tfam=e.target.dataset.f;threatsView(app)}};
  $('#lv').onchange=e=>{tlv=e.target.value;threatsView(app)};
+ $('#tp').onchange=e=>{ttp=e.target.value;threatsView(app)};
  $('#bq').oninput=e=>{bq=e.target.value.toLowerCase();const p=e.target.selectionStart;threatsView(app);const i=$('#bq');i.focus();i.setSelectionRange(p,p)};
  $('#nv').onclick=()=>{tmode='mine';sb.from('threats').insert({campaign_id:camp.id,name:'Nova ameaça'}).then(r=>{r.error&&alert(r.error.message);threatsView(app)})};
  $('#g').onclick=async e=>{const b=e.target.closest('button');if(!b||b.dataset.ad==null)return;e.preventDefault();const x=BEST[+b.dataset.ad];
