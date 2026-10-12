@@ -5,11 +5,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Special+Elite&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--bg:#14110f;--p:#1d1915;--p2:#26211c;--ln:#3a322a;--tx:#efe9db;--mu:#9b9080;--rd:#b3261e;--rd2:#7a1812;--ok:#7fa36b;--ye:#e0b84a}
+:root{--hd:#0c0a09;--in:#0f0d0b;--bg:#14110f;--p:#1d1915;--p2:#26211c;--ln:#3a322a;--tx:#efe9db;--mu:#9b9080;--rd:#b3261e;--rd2:#7a1812;--ok:#7fa36b;--ye:#e0b84a}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 'Libre Baskerville',Georgia,serif}
 .mono,label,th,nav a,button,.tag{font-family:'Special Elite','Courier New',monospace}
-header{display:flex;align-items:center;gap:20px;padding:12px 24px;background:#0c0a09;border-bottom:2px solid var(--rd2);position:sticky;top:0;z-index:5;flex-wrap:wrap}
+header{display:flex;align-items:center;gap:20px;padding:12px 24px;background:var(--hd);border-bottom:2px solid var(--rd2);position:sticky;top:0;z-index:5;flex-wrap:wrap}
 .logo{font-weight:700;font-size:20px;letter-spacing:.12em;line-height:1}.logo small{display:block;font:11px 'Special Elite';color:var(--rd);letter-spacing:.2em}
 nav{display:flex;gap:6px;margin:0 auto}
 nav a{color:var(--mu);padding:6px 14px;cursor:pointer;border-bottom:2px solid transparent;letter-spacing:.08em;text-transform:uppercase;font-size:13px}
@@ -20,7 +20,7 @@ h2{font-size:22px;margin:0 0 4px}h3{font:13px 'Special Elite';letter-spacing:.18
 .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.sp{flex:1}
 button{background:var(--p2);color:var(--tx);border:1px solid var(--ln);padding:6px 12px;cursor:pointer;font-size:13px}
 button:hover{border-color:var(--rd)}button.pr{background:var(--rd2);border-color:var(--rd)}button.x{color:var(--rd);background:none;border:none;padding:2px 6px}
-input,select,textarea{background:#0f0d0b;color:var(--tx);border:1px solid var(--ln);padding:5px 8px;font:inherit;font-size:14px;width:100%}
+input,select,textarea{background:var(--in);color:var(--tx);border:1px solid var(--ln);padding:5px 8px;font:inherit;font-size:14px;width:100%}
 textarea{min-height:110px;resize:vertical}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;margin-top:16px}
 .card{background:var(--p);border:1px solid var(--ln);border-left:3px solid var(--rd2);padding:14px}
@@ -38,18 +38,18 @@ textarea{min-height:110px;resize:vertical}
 .ex{display:flex;gap:4px;align-items:center;justify-content:center;margin-top:6px;font:11px 'Special Elite';color:var(--mu)}.ex input{width:48px;padding:1px 4px;text-align:center}
 .der{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
 .der div{background:var(--p2);padding:8px;border:1px solid var(--ln)}.der .n{font-size:22px}
-.bar{height:10px;background:#0f0d0b;border:1px solid var(--ln);margin:6px 0}.bar i{display:block;height:100%;background:var(--rd)}
+.bar{height:10px;background:var(--in);border:1px solid var(--ln);margin:6px 0}.bar i{display:block;height:100%;background:var(--rd)}
 table{width:100%;border-collapse:collapse}th{font-weight:400;color:var(--mu);font-size:11px;letter-spacing:.14em;text-align:left;padding:4px}
 td{padding:3px 4px;border-top:1px solid var(--ln)}td input,td select{padding:2px 4px;font-size:13px}
 td.val{font-size:18px;text-align:center;width:56px}
 .d{width:32px;height:28px;padding:0;font-size:15px}
 #toasts{position:fixed;right:16px;bottom:16px;display:flex;flex-direction:column;gap:8px;z-index:20;width:300px;max-width:calc(100vw - 32px)}
-.toast{background:#0c0a09;border:1px solid var(--ln);border-left:4px solid var(--mu);padding:10px 12px;box-shadow:0 2px 8px #0008;animation:in .25s}
+.toast{background:var(--hd);border:1px solid var(--ln);border-left:4px solid var(--mu);padding:10px 12px;box-shadow:0 2px 8px #0008;animation:in .25s}
 .toast.s{border-left-color:var(--ok)}.toast.f{border-left-color:var(--rd)}.toast.e{border-left-color:var(--ye)}
 .toast .big{font-size:24px;line-height:1.1}.toast .res{font:12px 'Special Elite';letter-spacing:.14em;text-transform:uppercase}
 @keyframes in{from{transform:translateX(30px);opacity:0}}
 #logbtn{position:fixed;left:16px;bottom:16px;z-index:20}
-#log{position:fixed;left:0;top:0;bottom:0;width:360px;max-width:100vw;background:#0c0a09;border-right:2px solid var(--rd2);z-index:30;padding:16px;overflow:auto;transform:translateX(-105%);transition:.2s}
+#log{position:fixed;left:0;top:0;bottom:0;width:360px;max-width:100vw;background:var(--hd);border-right:2px solid var(--rd2);z-index:30;padding:16px;overflow:auto;transform:translateX(-105%);transition:.2s}
 #log.on{transform:none}#log p{margin:0;border-bottom:1px solid var(--ln);padding:7px 0;font-size:13px}
 .s{color:var(--ok)}.f{color:var(--rd)}.e{color:var(--ye)}
 .mod{width:80px}.err{color:var(--rd);font-size:13px;min-height:20px}
@@ -59,7 +59,7 @@ td.val{font-size:18px;text-align:center;width:56px}
 .xc{background:var(--p2);border:1px solid var(--ln);margin-bottom:8px}.xc>summary{display:flex;gap:10px;align-items:center;padding:8px 12px;cursor:pointer;list-style:none}.xc>summary::before{content:'▾';color:var(--rd)}.xc[open]>summary{border-bottom:1px solid var(--rd2)}.xb{padding:12px}
 .rd{color:var(--rd)}.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{display:inline-flex!important;gap:6px;align-items:center;margin:0!important;color:var(--tx)!important;font-size:13px!important}.chip input{width:auto}
 .tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px;border-bottom:1px solid var(--ln)}.tabs a{padding:6px 12px;cursor:pointer;color:var(--mu);font:13px 'Special Elite';letter-spacing:.08em;text-transform:uppercase;border-bottom:2px solid transparent}.tabs a.on{color:var(--tx);border-color:var(--rd)}
-.cc{min-height:150px;background:linear-gradient(180deg,#0c0a09 0,var(--p) 80%)}button:disabled{opacity:.4;cursor:not-allowed}
+.cc{min-height:150px;background:linear-gradient(180deg,var(--hd) 0,var(--p) 80%)}button:disabled{opacity:.4;cursor:not-allowed}
 .modal{position:fixed;inset:0;background:#000a;display:flex;align-items:center;justify-content:center;z-index:50}.modal .card{width:340px;max-width:90vw}
 .modal .mbox{width:760px;max-width:95vw;max-height:88vh;overflow:auto}.modal .xc>summary{align-items:center}
 
@@ -77,7 +77,7 @@ button:active{transform:scale(.96)}button.pr:hover{background:var(--rd);box-shad
 nav a{transition:color .2s,border-color .2s}nav a:hover{color:var(--tx)}nav a.on{text-shadow:0 0 14px #b3261e99}
 .stamp{animation:st 4s ease-in-out infinite}@keyframes st{50%{opacity:.6;transform:rotate(-4deg) scale(1.04)}}
 input:focus,textarea:focus,select:focus{outline:none;border-color:var(--rd);box-shadow:0 0 0 3px #b3261e2a}
-::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-track{background:#0c0a09}::-webkit-scrollbar-thumb{background:#3a322a;border:2px solid #0c0a09}::-webkit-scrollbar-thumb:hover{background:var(--rd2)}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-track{background:var(--hd)}::-webkit-scrollbar-thumb{background:#3a322a;border:2px solid var(--hd)}::-webkit-scrollbar-thumb:hover{background:var(--rd2)}
 ::selection{background:var(--rd2);color:#fff}
 .bar{height:12px;overflow:hidden}.bar i{transition:width .45s cubic-bezier(.2,.8,.2,1),background .3s;box-shadow:0 0 10px #0006 inset}
 .toast.e{box-shadow:0 0 22px #e0b84a55,0 2px 8px #0008}.toast.f{box-shadow:0 0 18px #b3261e44,0 2px 8px #0008}
@@ -91,10 +91,37 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--rd);box-
 kbd{font:11px 'Special Elite';border:1px solid var(--ln);padding:0 5px;color:var(--mu)}
 main{animation:fd .25s}
 @media(max-width:600px){main{padding:14px}header{padding:10px 14px;gap:10px}nav{order:3;width:100%;overflow:auto}}
+
+/* ---- v3: temas e ficha ---- */
+html[data-theme=papel]{--bg:#e8dfc9;--p:#f3ecda;--p2:#e6dcc3;--ln:#c9bb9a;--tx:#2a2118;--mu:#6e6350;--rd:#9c1f17;--rd2:#7a1812;--ok:#3f7a3a;--ye:#a8741a;--hd:#2a2118;--in:#fbf7ea}
+html[data-theme=papel] body{background:var(--bg)}html[data-theme=papel] body::after{opacity:.04}
+html[data-theme=papel] nav a{color:#bfae8a}html[data-theme=papel] nav a.on{color:#fff}html[data-theme=papel] .logo{color:#efe9db}
+html[data-theme=papel] .toast,html[data-theme=papel] #log{color:#efe9db}html[data-theme=papel] .toast .mu{color:#b9aa88}
+html[data-theme=papel] #sk,html[data-theme=papel] header button{background:#3a2f23;color:#efe9db;border-color:#5a4a36}
+html[data-theme=sangue]{--bg:#120708;--p:#1c0d0e;--p2:#2a1214;--ln:#4a2326;--tx:#f1e3df;--mu:#a58a85;--rd:#e0352b;--rd2:#8f1a14;--hd:#090304;--in:#0d0506}
+html[data-theme=sangue] body{background:var(--bg) radial-gradient(ellipse 80% 40% at 50% -5%,#4a0f0c 0,transparent 70%) no-repeat fixed}
+button.pr{color:#fff}
+.logo{text-shadow:0 0 20px #b3261e66}
+.auth{background:var(--p);border:1px solid var(--ln);border-top:3px solid var(--rd);padding:28px;box-shadow:0 24px 60px #000a}
+.at{background:linear-gradient(180deg,var(--p2),var(--p));position:relative}
+.at .n{font-size:36px;text-shadow:0 0 16px #b3261e44}
+.at::before{content:'';position:absolute;left:0;top:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--rd),transparent);opacity:.5}
+.dossier{position:relative;background:linear-gradient(135deg,var(--p) 0,var(--p2) 100%);border:1px solid var(--ln);border-left:4px solid var(--rd);padding:28px 20px 16px;margin:6px 0 20px;box-shadow:0 8px 30px #0006;overflow:hidden}
+.dossier::after{content:'';position:absolute;right:-30px;top:-30px;width:140px;height:140px;border:2px solid var(--rd);border-radius:50%;opacity:.12}
+.dz-tab{position:absolute;top:0;right:18px;background:var(--rd2);color:#fff;font:11px 'Special Elite';letter-spacing:.2em;padding:3px 12px}
+.dz-main{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.dz-av,.av{flex:none;width:64px;height:64px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--rd) 0,var(--rd2) 70%);color:#fff;display:flex;align-items:center;justify-content:center;font:700 24px 'Libre Baskerville',serif;letter-spacing:.04em;box-shadow:0 0 0 3px var(--p),0 0 0 4px var(--rd2),0 6px 16px #0007}
+.dz-id{flex:1;min-width:200px}.dz-name{font-size:30px;font-weight:700;line-height:1.1}.dz-sub{color:var(--mu);font:13px 'Special Elite';letter-spacing:.1em;margin-top:4px;text-transform:uppercase}
+.dz-stats{display:flex;gap:10px;flex-wrap:wrap}.dzs{background:var(--hd);border:1px solid var(--ln);padding:6px 14px;text-align:center;min-width:76px}
+html[data-theme=papel] .dzs{background:var(--in)}
+.dzs b{display:block;font:400 10px 'Special Elite';letter-spacing:.18em;color:var(--mu)}.dzs span{font-size:22px}
+.dzs.lo span{color:var(--rd)}.dzs.hi span{color:var(--ye)}
+.ag{display:flex;gap:14px;align-items:flex-start}.ag .av{width:48px;height:48px;font-size:18px}.ag>div:last-child{flex:1;min-width:0}
+.th-btn{padding:4px 9px}
 </style></head><body>
 <header>
  <div class="logo">ARQUIVO SOMBRIO<small>SISTEMA DE INVESTIGAÇÃO</small></div>
- <nav id="nav"></nav><button id="sk" title="Busca rápida (Ctrl+K)">🔍 <kbd>Ctrl K</kbd></button><span class="stamp">CONFIDENCIAL</span><button id="out" style="display:none">Sair</button>
+ <nav id="nav"></nav><button id="th" class="th-btn" title="Trocar tema">🎨</button><button id="sk" title="Busca rápida (Ctrl+K)">🔍 <kbd>Ctrl K</kbd></button><span class="stamp">CONFIDENCIAL</span><button id="out" style="display:none">Sair</button>
 </header>
 <main id="app"></main>
 <button id="logbtn" class="pr" style="display:none">Log de dados</button>
@@ -202,6 +229,9 @@ function palette(){if(!camp||document.querySelector('.pal'))return;const E=libEn
  o.onclick=e=>{if(e.target===o)o.remove();if(e.target.id==='pall'){libQ=q.value;libCat='Todos';o.remove();go('biblioteca')}}}
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();palette()}if(e.key==='Escape')document.querySelector('.pal')?.remove()});
 $('#sk').onclick=palette;
+const THEMES=[['','Noir'],['papel','Papel'],['sangue','Sangue']];
+try{document.documentElement.dataset.theme=localStorage.getItem('as-theme')||''}catch(e){}
+$('#th').onclick=()=>{const i=(THEMES.findIndex(t=>t[0]===(document.documentElement.dataset.theme||''))+1)%THEMES.length;document.documentElement.dataset.theme=THEMES[i][0];try{localStorage.setItem('as-theme',THEMES[i][0])}catch(e){}note('Tema: '+THEMES[i][1])};
 new MutationObserver(()=>{document.querySelectorAll('.box').forEach(b=>{const h=b.querySelector('h3');if(h&&h.textContent.trim()==='Vida'){const i=b.querySelector('.bar i');if(i){const w=parseFloat(i.style.width)||0;i.style.background=w>60?'var(--ok)':w>30?'var(--ye)':'var(--rd)'}}})}).observe($('#app'),{childList:true,subtree:true});
 function go(v,id){view=v;open=id||null;render()}
 function render(){
@@ -360,7 +390,7 @@ function agentes(app){
  <div class="row" style="margin-top:12px"><input id="q" placeholder="Buscar…" style="flex:2"><select id="fe" style="flex:1"><option value="">Todas as especialidades</option>${sp.map(s=>`<option>${esc(s)}</option>`).join('')}</select><select id="fo" style="flex:1"><option value="">Todos os agentes</option><option value="m">Só os meus</option></select></div><div class="grid" id="g"></div>`;
  const draw=()=>{const q=$('#q').value.toLowerCase(),fe=$('#fe').value,fo=$('#fo').value;
   const l=chars.filter(c=>c.name.toLowerCase().includes(q)&&(!fe||c.esp===fe)&&(!fo||c.owner===user.id));
-  $('#g').innerHTML=l.map(c=>`<div class="card"><h2 style="font-size:18px">${esc(c.name)}</h2><div>${esc(c.esp||c.prof||'Sem especialidade')}</div><div class="mu">${esc(names[c.owner]||c.player||'')}${c.owner===user.id?' · <span class="e">sua</span>':''} · Registrado em ${fmt(c.created)}</div><div class="row" style="margin-top:10px"><button class="pr" data-o="${c.id}">Acessar ficha</button><span class="sp"></span>${canEdit(c)?`<button class="x" data-d="${c.id}" title="Excluir">✕</button>`:''}</div></div>`).join('')||'<p class="mu">Nenhum agente encontrado.</p>'};
+  $('#g').innerHTML=l.map(c=>`<div class="card ag"><div class="av">${esc(ini(c.name))}</div><div><h2 style="font-size:18px">${esc(c.name)}</h2><div>${esc(c.esp||c.prof||'Sem especialidade')}</div><div class="mu">${esc(names[c.owner]||c.player||'')}${c.owner===user.id?' · <span class="e">sua</span>':''} · Registrado em ${fmt(c.created)}</div><div class="row" style="margin-top:10px"><button class="pr" data-o="${c.id}">Acessar ficha</button><span class="sp"></span>${canEdit(c)?`<button class="x" data-d="${c.id}" title="Excluir">✕</button>`:''}</div></div></div>`).join('')||'<p class="mu">Nenhum agente encontrado.</p>'};
  draw();['q','fe','fo'].forEach(i=>$('#'+i).oninput=draw);
  $('#nv').onclick=()=>{wz=wzNew();go('novo')};
  $('#g').onclick=async e=>{const o=e.target.dataset.o,d=e.target.dataset.d;if(o)go('agentes',o);if(d&&await ask('Excluir este agente? Isso não pode ser desfeito.')){if(await delRow('characters',d)){chars=chars.filter(x=>x.id!==d);render()}}}}
@@ -374,6 +404,8 @@ function listCard(c,l,i,it,extra){const k=l+i;
   `<div class="row"><input data-l="${l}" data-i="${i}" data-k="n" value="${esc(it.n)}" placeholder="Nome" style="flex:2">${extra}</div><textarea data-l="${l}" data-i="${i}" data-k="desc" placeholder="Descrição, efeitos…">${esc(it.desc)}</textarea><div class="row"><span class="sp"></span><button class="x" data-rm="${l}:${i}">Remover</button></div>`)}
 let cur=null;
 const fi=(l,i,k,p,v,w)=>`<input data-l="${l}" data-i="${i}" data-k="${k}" value="${esc(v===undefined?cur?.[l]?.[i]?.[k]:v)}" placeholder="${p}" style="flex:1;min-width:${w||90}px">`;
+const ini=n=>String(n||'?').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+const dossier=(c,r)=>{const lo=c.vidaAtual<=r.vida*.3?' lo':'';return `<div class="dossier"><div class="dz-tab">ARQ-${esc(String(c.id).slice(0,4).toUpperCase())}</div><div class="dz-main"><div class="dz-av">${esc(ini(c.name))}</div><div class="dz-id"><div class="dz-name">${esc(c.name)}</div><div class="dz-sub">${esc(c.esp||c.prof||'Sem especialidade')}${c.player?' · '+esc(c.player):''}</div></div><div class="dz-stats"><div class="dzs${lo}"><b>VIDA</b><span>${c.vidaAtual}/${r.vida}</span></div><div class="dzs${(c.pressao||0)>=2?' hi':''}"><b>PRESSÃO</b><span>${c.pressao||0}</span></div><div class="dzs"><b>DEFESA</b><span>${r.defv}</span></div><div class="dzs"><b>INICIATIVA</b><span>${r.ini}</span></div></div></div></div>`};
 function sheet(app){
  const c=chars.find(x=>x.id===open);if(!c){open=null;return agentes(app)}
  ['habilidades','rituais','inventario','weapons'].forEach(k=>c[k]=c[k]||[]);cur=c;
@@ -387,7 +419,7 @@ function sheet(app){
  rituais:`<div class="row"><h3 class="sp">Rituais</h3><button class="pr" data-cat="rit">Adicionar</button></div>${c.rituais.map((h,i)=>listCard(c,'rituais',i,h,fi('rituais',i,'custo','Custo')+fi('rituais',i,'req','Requisito'))).join('')||'<p class="mu">Nenhum ritual registrado.</p>'}`,
  inventario:`<div class="der" style="margin-bottom:10px"><div><span class="mu mono">ITENS</span><div class="n">${c.inventario.reduce((a,x)=>a+(+x.qtd||0),0)}</div></div><div><span class="mu mono">ESPAÇOS</span><div class="n">${c.inventario.reduce((a,x)=>a+(+x.esp||0)*(+x.qtd||0),0)}</div></div><div><span class="mu mono">RECURSOS</span><div class="n" style="font-size:15px">${esc(c.rec||'—')}</div></div></div><div class="row"><button class="pr" data-cat="itens">Adicionar do livro</button><span class="mono mu">NOVO</span>${CATS.map(k=>`<button data-addi="${k}">${k}</button>`).join('')}</div><br>${c.inventario.map((h,i)=>listCard(c,'inventario',i,h,`<select data-l="inventario" data-i="${i}" data-k="cat" style="flex:1">${CATS.map(k=>`<option ${k===h.cat?'selected':''}>${k}</option>`).join('')}</select>`+fi('inventario',i,'qtd','Qtd',h.qtd,50)+fi('inventario',i,'esp','Espaços',h.esp,60)+(h.cat==='Arma'||h.cat==='Arma Especial'?fi('inventario',i,'dano','Dano'):''))).join('')||'<p class="mu">Inventário vazio.</p>'}`,
  descricao:[['aparencia','Aparência'],['personalidade','Personalidade'],['historico','Histórico'],['objetivo','Objetivo / motivação'],['motiv','Motivação'],['ruptura','Ponto de ruptura'],['conEsp','Conhecimento especializado'],['idiomas','Idiomas'],['notes','Anotações']].map(([k,t])=>`<div class="box"><h3>${t}</h3><textarea data-f="${k}" style="min-height:70px">${esc(c[k])}</textarea></div>`).join('')+`<div class="box"><h3>Vínculos e contatos</h3>${(c.vinculos||[]).concat(c.contatos||[]).filter(Boolean).map(x=>`<p>${esc(x)}</p>`).join('')||'<p class="mu">—</p>'}</div>`+`<div class="box"><div class="row"><h3 class="sp">Cicatrizes de Caso (máx. 3 ativas)</h3><button class="pr" data-cat="cic">Adicionar</button></div>${(c.cicatrizes||[]).map((h,i)=>listCard(c,'cicatrizes',i,h,'')).join('')||'<p class="mu">Nenhuma cicatriz.</p>'}</div>`}[stab];
- app.innerHTML=`<div class="row"><button id="bk">← Agentes</button><h2 class="sp">${esc(c.name)}</h2>${ed?'':'<span class="mu">somente leitura</span>'}<span class="mono mu">Modificador</span><select id="md" class="mod">${[-20,-10,0,10,20].map(m=>`<option ${m===mod?'selected':''} value="${m}">${m>0?'+':''}${m}</option>`).join('')}</select></div><br>
+ app.innerHTML=`<div class="row"><button id="bk">← Agentes</button><span class="sp"></span>${ed?'':'<span class="mu">somente leitura</span>'}<span class="mono mu">Modificador</span><select id="md" class="mod">${[-20,-10,0,10,20].map(m=>`<option ${m===mod?'selected':''} value="${m}">${m>0?'+':''}${m}</option>`).join('')}</select></div>${dossier(c,r)}
  <div class="sheet ${ed?'':'ro'}"><div>
   <div class="box"><h3>Identificação</h3><input data-f="name" value="${esc(c.name)}" placeholder="Personagem"><br><br><div class="row"><input data-f="esp" value="${esc(c.esp||c.prof)}" placeholder="Especialidade" style="flex:1"><input data-f="player" value="${esc(c.player)}" placeholder="Jogador" style="flex:1"></div></div>
   <div class="box"><h3>Atributos</h3><div class="attrs">${ATT.map(([k,n])=>`<div class="at"><b>${n.toUpperCase()}</b><span class="n">${tot(c,k)}</span><div class="st"><button data-a="${k}" data-s="-1">−</button><span class="v">${r[k]}</span><button data-a="${k}" data-s="1">+</button><button class="d" data-r="${k}" title="Rolar">🎲</button></div><div class="ex">base ${c.attrs[k]} · adicional <input type="number" data-x="${k}" value="${c.extra?.[k]||0}"></div></div>`).join('')}</div><div class="mu" style="margin-top:8px">Base: ${sum(c.attrs)} pts · "adicional" é para quem ultrapassou os limites humanos.</div></div>
