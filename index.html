@@ -62,10 +62,39 @@ td.val{font-size:18px;text-align:center;width:56px}
 .cc{min-height:150px;background:linear-gradient(180deg,#0c0a09 0,var(--p) 80%)}button:disabled{opacity:.4;cursor:not-allowed}
 .modal{position:fixed;inset:0;background:#000a;display:flex;align-items:center;justify-content:center;z-index:50}.modal .card{width:340px;max-width:90vw}
 .modal .mbox{width:760px;max-width:95vw;max-height:88vh;overflow:auto}.modal .xc>summary{align-items:center}
+
+/* ---- visual v2 ---- */
+body{background:var(--bg) radial-gradient(ellipse 80% 40% at 50% -5%,#2b1511 0,transparent 70%) no-repeat fixed}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:60;opacity:.07;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E")}
+header{box-shadow:0 6px 24px #000a}
+.card,.box,.xc,.at,.der div{transition:border-color .2s,box-shadow .2s,transform .2s,background .2s}
+.card:hover{border-color:#5a2a24;box-shadow:0 6px 20px #0008;transform:translateY(-2px)}
+.xc:hover{border-color:#5a2a24}.xc[open]{border-color:var(--rd2);box-shadow:0 0 0 1px #7a181233}
+.xb{padding:10px 14px 12px;font-size:14px;line-height:1.55;animation:fd .2s}.xb p{margin:0 0 6px}
+@keyframes fd{from{opacity:0;transform:translateY(-4px)}}
+button{transition:border-color .15s,background .15s,box-shadow .15s,transform .1s}
+button:active{transform:scale(.96)}button.pr:hover{background:var(--rd);box-shadow:0 0 14px #b3261e66}
+nav a{transition:color .2s,border-color .2s}nav a:hover{color:var(--tx)}nav a.on{text-shadow:0 0 14px #b3261e99}
+.stamp{animation:st 4s ease-in-out infinite}@keyframes st{50%{opacity:.6;transform:rotate(-4deg) scale(1.04)}}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--rd);box-shadow:0 0 0 3px #b3261e2a}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-track{background:#0c0a09}::-webkit-scrollbar-thumb{background:#3a322a;border:2px solid #0c0a09}::-webkit-scrollbar-thumb:hover{background:var(--rd2)}
+::selection{background:var(--rd2);color:#fff}
+.bar{height:12px;overflow:hidden}.bar i{transition:width .45s cubic-bezier(.2,.8,.2,1),background .3s;box-shadow:0 0 10px #0006 inset}
+.toast.e{box-shadow:0 0 22px #e0b84a55,0 2px 8px #0008}.toast.f{box-shadow:0 0 18px #b3261e44,0 2px 8px #0008}
+.toast .big{font-variant-numeric:tabular-nums}
+.tag{font-size:11px;letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--ln);color:var(--mu);padding:1px 7px}
+.lt{white-space:nowrap}
+.lq{font-size:16px!important;padding:10px 14px!important;margin:12px 0}
+.lcs{margin-bottom:16px}.lc{font-size:12px!important;padding:4px 10px!important}.lc.on{background:var(--rd2);border-color:var(--rd)}
+#sk{padding:4px 10px}
+.pal .mbox{margin-top:-10vh}
+kbd{font:11px 'Special Elite';border:1px solid var(--ln);padding:0 5px;color:var(--mu)}
+main{animation:fd .25s}
+@media(max-width:600px){main{padding:14px}header{padding:10px 14px;gap:10px}nav{order:3;width:100%;overflow:auto}}
 </style></head><body>
 <header>
  <div class="logo">ARQUIVO SOMBRIO<small>SISTEMA DE INVESTIGAÇÃO</small></div>
- <nav id="nav"></nav><span class="stamp">CONFIDENCIAL</span><button id="out" style="display:none">Sair</button>
+ <nav id="nav"></nav><button id="sk" title="Busca rápida (Ctrl+K)">🔍 <kbd>Ctrl K</kbd></button><span class="stamp">CONFIDENCIAL</span><button id="out" style="display:none">Sair</button>
 </header>
 <main id="app"></main>
 <button id="logbtn" class="pr" style="display:none">Log de dados</button>
@@ -125,7 +154,8 @@ function toast(o){const d=o.data||{},el=document.createElement('div');el.classNa
  el.innerHTML=d.kind==='atk'?head+`<div class="big">ataque=${d.roll} / dano=${d.dmg??'—'}</div><span class="res ${d.cls}">${d.res}${d.dmg==null?'':' · '+esc(d.expr)}</span>`
   :d.kind==='dmg'?head+`<div class="big">dano=${d.dmg??'?'}</div><span class="res mu">${esc(d.expr)}</span>`
   :head+`<div class="row"><span class="big">${d.roll}</span><span class="res ${d.cls}">${d.res}</span></div>`;
- $('#toasts').append(el);setTimeout(()=>el.remove(),8000)}
+ $('#toasts').append(el);setTimeout(()=>el.remove(),8000);
+ const bg=el.querySelector('.big');if(bg&&!d.kind&&d.roll!=null){const fin=bg.textContent;let n=0;const iv=setInterval(()=>{bg.textContent=String(1+Math.floor(Math.random()*100));if(++n>9){clearInterval(iv);bg.textContent=fin}},45)}}
 function logLine(o){const d=o.data||{},t=new Date(o.created_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
  const r=d.kind==='atk'?`ataque=${d.roll} / dano=${d.dmg??'—'} <span class="${d.cls}">${d.res}</span>`:d.kind==='dmg'?`dano=${d.dmg??'?'}`:`${d.roll} <span class="${d.cls}">${d.res}</span>`;
  return `<p><span class="mu mono">${t}</span> <b>${esc(o.who)}</b> · ${esc(o.label)}${d.target?` (${d.target})`:''} → ${r}</p>`}
@@ -139,17 +169,52 @@ function save(c){clearTimeout(timers[c.id]);timers[c.id]=setTimeout(async()=>{
  if(error)alert('Erro ao salvar: '+error.message);delete timers[c.id]},350)}
 
 /* ---------- telas ---------- */
+
+/* ---------- biblioteca ---------- */
+let libCat='Todos',libQ='';
+const li=(c,n,sub,body)=>({c,n,sub,body,k:(n+' '+sub+' '+body.replace(/<[^>]+>/g,' ')).toLowerCase()});
+const lf=(k,v)=>v==null||v===''?'':`<p><b>${k}:</b> ${esc(String(v))}</p>`;
+function libEntries(){const E=[];
+ if(isMaster())BEST.forEach(x=>E.push(li('Bestiário',x.n,[x.fam,x.nv&&'Nível '+x.nv].filter(Boolean).join(' · '),bestLines(x).map(([k,v])=>lf(k,v)).join(''))));
+ TAL.forEach(x=>E.push(li('Talentos',x[0],x[2]||'',lf('Pré-requisito',x[2])+`<p>${esc(x[1])}</p>`)));
+ POD.forEach(x=>E.push(li('Poderes',x.n,x.g,lf('Origem',x.o)+lf('Valor do Poder',x.v)+lf('Resistência',x.r)+lf('Custo',x.c)+lf('Marca',x.m)+lf('Limite',x.l))));
+ SIG.forEach(x=>E.push(li('Rituais',x.n,(x.g==='Rito'?'Ritual':'Sigilo')+(x.c?' · Complexidade '+x.c:''),(x.efeito?lf('Efeito',x.efeito)+lf('Meio',x.meio):'')+`<p>${esc(x.d)}</p>`)));
+ TRAD.forEach(x=>E.push(li('Rituais',x.n,'Proteção de tradição',lf('Perícia',x['Perícia'])+lf('Preparação',x['Preparação'])+lf('Valor',x['Valor'])+lf('Efeito',x['Efeito'])+lf('Duração',x['Duração']))));
+ ITENS.forEach(x=>E.push(li('Itens',x.n,[x.cat,x.sub].filter(Boolean).join(' · '),lf('Dano',x.dano)+lf('Alcance',x.alc)+lf('Capacidade',x.cap)+lf('Armadura',x.arm)+lf('Custo',x.custo)+lf('Disponibilidade',x.disp)+(x.txt?`<p>${esc(x.txt)}</p>`:''))));
+ COND.forEach(x=>E.push(li('Condições e perigos',x.n,'Condição',lf('Causa',x.causa)+lf('Efeito',x.efeito)+lf('Recuperação',x.rec)+lf('Duração',x.dur))));
+ PERIGOS.forEach(x=>E.push(li('Condições e perigos',x.n,x.g,`<p>${esc(x.d)}</p>`)));
+ CICAT.forEach(x=>E.push(li('Cicatrizes',x.n,'Gatilho: '+x.Gatilho,lf('Gatilho',x.Gatilho)+lf('Vantagem',x.Vantagem)+lf('Custo',x.Custo)+lf('Recuperação',x['Recuperação']))));
+ REF.forEach(x=>E.push(li('Regras',x.n,x.g,`<p>${esc(x.d)}</p>`)));
+ return E}
+const libFilter=(E,cat,q)=>{const ts=(q||'').toLowerCase().split(/\s+/).filter(Boolean),sc=x=>ts.length&&ts.every(t=>x.n.toLowerCase().includes(t))?0:x.sub.toLowerCase().includes(ts[0]||'\u0000')?1:2;return E.filter(x=>(cat==='Todos'||x.c===cat)&&ts.every(t=>x.k.includes(t))).map((x,i)=>[sc(x),i,x]).sort((u,v)=>u[0]-v[0]||u[1]-v[1]).map(z=>z[2])};
+const libCards=(l,max)=>l.slice(0,max).map(x=>`<details class="xc"><summary><span class="sp"><b>${esc(x.n)}</b><br><span class="mu">${esc(x.sub)}</span></span><span class="tag lt">${esc(x.c)}</span></summary><div class="xb">${x.body}</div></details>`).join('')||'<p class="mu">Nada encontrado.</p>';
+function libView(app){const E=libEntries(),cats=['Todos',...new Set(E.map(x=>x.c))];
+ app.innerHTML=`<div class="row"><h2 class="sp">Biblioteca</h2><span class="mu" id="lcount"></span></div><input id="lq" class="lq" placeholder="Buscar em talentos, poderes, rituais, itens, regras${isMaster()?', bestiário':''}…" value="${esc(libQ)}"><div class="chips lcs">${cats.map(c=>`<button class="lc" data-c="${esc(c)}">${esc(c)}${c==='Todos'?'':' <span class="mu">'+E.filter(x=>x.c===c).length+'</span>'}</button>`).join('')}</div><div id="ll"></div>`;
+ const upd=()=>{const l=libFilter(E,libCat,libQ);$('#ll').innerHTML=libCards(l,60)+(l.length>60?`<p class="mu">Mostrando 60 de ${l.length}. Refine a busca.</p>`:'');$('#lcount').textContent=l.length+' de '+E.length+' entradas';app.querySelectorAll('.lc').forEach(b=>b.classList.toggle('on',b.dataset.c===libCat))};
+ app.oninput=e=>{if(e.target.id==='lq'){libQ=e.target.value;upd()}};
+ app.onclick=e=>{const b=e.target.closest('.lc');if(b){libCat=b.dataset.c;upd()}};
+ upd()}
+function palette(){if(!camp||document.querySelector('.pal'))return;const E=libEntries();
+ const o=document.createElement('div');o.className='modal pal';o.innerHTML=`<div class="card mbox"><input id="pq" class="lq" placeholder="Buscar em tudo… (Esc fecha)" autocomplete="off"><div id="pl"></div><div class="row" style="margin-top:10px"><span class="mu sp" id="pn"></span><button class="pr" id="pall">Ver tudo na Biblioteca</button></div></div>`;
+ document.body.append(o);const q=o.querySelector('#pq');q.focus();
+ const upd=()=>{const l=q.value.trim()?libFilter(E,'Todos',q.value):[];o.querySelector('#pl').innerHTML=q.value.trim()?libCards(l,12):'<p class="mu">Digite para buscar talentos, poderes, rituais, itens, condições e regras.</p>';o.querySelector('#pn').textContent=q.value.trim()?(l.length>12?'12 de '+l.length+' resultados':l.length+' resultado(s)'):''};
+ q.oninput=upd;upd();
+ o.onclick=e=>{if(e.target===o)o.remove();if(e.target.id==='pall'){libQ=q.value;libCat='Todos';o.remove();go('biblioteca')}}}
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();palette()}if(e.key==='Escape')document.querySelector('.pal')?.remove()});
+$('#sk').onclick=palette;
+new MutationObserver(()=>{document.querySelectorAll('.box').forEach(b=>{const h=b.querySelector('h3');if(h&&h.textContent.trim()==='Vida'){const i=b.querySelector('.bar i');if(i){const w=parseFloat(i.style.width)||0;i.style.background=w>60?'var(--ok)':w>30?'var(--ye)':'var(--rd)'}}})}).observe($('#app'),{childList:true,subtree:true});
 function go(v,id){view=v;open=id||null;render()}
 function render(){
  const app=$('#app'),nav=$('#nav');app.onclick=app.onchange=app.oninput=null;
  $('#out').style.display=user?'':'none';$('#logbtn').style.display=camp?'':'none';
  if(!user)return authView(app,nav);
  if(!camp)return campsView(app,nav);
- nav.innerHTML=[['agentes','Agentes'],['ameacas','Ameaças',1],['mesa','Mesa']].filter(x=>!x[2]||isMaster()).map(([v,t])=>`<a data-v="${v}" class="${view===v||(v==='agentes'&&view==='novo')?'on':''}">${t}</a>`).join('');
+ nav.innerHTML=[['agentes','Agentes'],['ameacas','Ameaças',1],['biblioteca','Biblioteca'],['mesa','Mesa']].filter(x=>!x[2]||isMaster()).map(([v,t])=>`<a data-v="${v}" class="${view===v||(v==='agentes'&&view==='novo')?'on':''}">${t}</a>`).join('');
  nav.onclick=e=>{if(e.target.dataset.v)go(e.target.dataset.v)};
  if(view==='novo')return wizard(app);
  if(view==='agentes')return open?sheet(app):agentes(app);
  if(view==='ameacas')return threatsView(app);
+ if(view==='biblioteca')return libView(app);
  mesa(app)}
 function authView(app,nav){nav.innerHTML='';let mode='in';
  const draw=()=>{app.innerHTML=`<div class="auth card"><h2>${mode==='in'?'Entrar':'Criar conta'}</h2><br>
