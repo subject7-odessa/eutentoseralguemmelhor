@@ -124,11 +124,11 @@ html[data-theme=papel] .dzs{background:var(--in)}
 /* ---- v4: efeitos, foto e animações ---- */
 .fog{position:fixed;inset:-20%;pointer-events:none;z-index:0;opacity:.55;background:radial-gradient(40% 30% at 20% 30%,#b3261e16,transparent 70%),radial-gradient(35% 30% at 80% 60%,#ffffff09,transparent 70%),radial-gradient(45% 35% at 50% 100%,#7a181228,transparent 70%);animation:fog 38s ease-in-out infinite alternate}
 @keyframes fog{to{transform:translate3d(6%,-4%,0) scale(1.15)}}
-#em{position:fixed;inset:0;pointer-events:none;z-index:0}
+#embers{position:fixed;inset:0;pointer-events:none;z-index:0}
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:55;background:radial-gradient(ellipse at center,transparent 60%,#0007 100%);animation:candle 5s ease-in-out infinite}
 @keyframes candle{50%{opacity:.82}}
 header,main{position:relative}main{z-index:1}
-html[data-theme=papel] .fog,html[data-theme=papel] #em,html[data-theme=papel] body::before{display:none}
+html[data-theme=papel] .fog,html[data-theme=papel] #embers,html[data-theme=papel] body::before{display:none}
 .logo{animation:flick 7s infinite}@keyframes flick{0%,92%,100%{opacity:1}93%{opacity:.55}94%{opacity:1}96%{opacity:.7}97%{opacity:1}}
 @keyframes rise{from{opacity:0;transform:translateY(16px) scale(.98)}}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -165,7 +165,7 @@ td.val{transition:color .2s,text-shadow .2s}tr:hover td.val{color:var(--ye);text
 @keyframes fxf{0%{opacity:0}15%{opacity:1}100%{opacity:0}}
 main.shk{animation:shk .5s}@keyframes shk{10%,50%,90%{transform:translateX(-5px)}30%,70%{transform:translateX(5px)}}
 .mtabs a,.lc{transition:all .2s}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}#em,.fog{display:none}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}#embers,.fog{display:none}}
 
 /* ---- v5: controles próprios (sem checkbox/radio/select crus) ---- */
 .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}
@@ -259,7 +259,7 @@ input[type=checkbox]:checked::after{content:'';position:absolute;left:4px;top:1p
 }
 @media(hover:none){.d:hover,button.pr:hover::after{transform:none}.tile:hover:not(:disabled){transform:none}}
 </style></head><body>
-<div class="fog"></div><canvas id="em"></canvas><div id="fx"></div>
+<div class="fog"></div><canvas id="embers"></canvas><div id="fx"></div>
 <header>
  <div class="logo">ARQUIVO SOMBRIO<small>SISTEMA DE INVESTIGAÇÃO</small></div>
  <nav id="nav"></nav><button id="th" class="th-btn" title="Trocar tema">🎨</button><button id="sk" title="Busca rápida (Ctrl+K)">🔍 <kbd>Ctrl K</kbd></button><span class="stamp">CONFIDENCIAL</span><button id="out" style="display:none">Sair</button>
@@ -702,7 +702,7 @@ function threatsView(app){
   const r=await sb.from('threats').insert({campaign_id:camp.id,name:x.n,text,data:{cat:x.fam,nivel:x.nv}});r.error?alert(r.error.message):note('Adicionada à campanha: '+x.n)}}
 
 /* ---------- brasas (efeito de fundo) ---------- */
-(function(){const cv=$('#em'),x=cv.getContext('2d'),reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;let W,H;const P=[];
+(function(){const cv=$('#embers'),x=cv.getContext('2d'),reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;let W,H;const P=[];
  const rs=()=>{W=cv.width=innerWidth;H=cv.height=innerHeight};rs();addEventListener('resize',rs);
  const mk=i=>({x:Math.random()*W,y:i?Math.random()*H:H+10,r:.6+Math.random()*1.7,v:.15+Math.random()*.45,dx:(Math.random()-.5)*.25,a:.15+Math.random()*.45,ph:Math.random()*6.28});
  for(let i=0;i<(innerWidth<700?14:34);i++)P.push(mk(1));
