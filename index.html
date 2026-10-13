@@ -89,7 +89,7 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--rd);box-
 #sk{padding:4px 10px}
 .pal .mbox{margin-top:-10vh}
 kbd{font:11px 'Special Elite';border:1px solid var(--ln);padding:0 5px;color:var(--mu)}
-main{animation:fd .25s}
+main{animation:none}
 @media(max-width:600px){main{padding:14px}header{padding:10px 14px;gap:10px}nav{order:3;width:100%;overflow:auto}}
 
 /* ---- v3: temas e ficha ---- */
@@ -129,7 +129,6 @@ header,main{position:relative}main{z-index:1}
 html[data-theme=papel] .fog,html[data-theme=papel] #em,html[data-theme=papel] body::before{display:none}
 .logo{animation:flick 7s infinite}@keyframes flick{0%,92%,100%{opacity:1}93%{opacity:.55}94%{opacity:1}96%{opacity:.7}97%{opacity:1}}
 @keyframes rise{from{opacity:0;transform:translateY(16px) scale(.98)}}
-.grid>*{animation:rise .5s both cubic-bezier(.2,.8,.2,1)}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes pop{from{opacity:0;transform:scale(.92) translateY(8px)}}
 @keyframes fadeIn{from{opacity:0}}
@@ -143,8 +142,6 @@ html[data-theme=papel] .fog,html[data-theme=papel] #em,html[data-theme=papel] bo
 .dz-av .cam{position:absolute;inset:0;border-radius:50%;background:#000b;display:flex;align-items:center;justify-content:center;font-size:24px;opacity:0;transition:opacity .2s}.dz-av.up:hover .cam{opacity:1}
 .dossier::before{content:'';position:absolute;left:0;right:0;top:-70px;height:70px;background:linear-gradient(transparent,#b3261e18,transparent);animation:scan 8s linear infinite;pointer-events:none}
 @keyframes scan{to{transform:translateY(340px)}}
-.dz-tab{animation:tabin .6s .1s both cubic-bezier(.2,1.3,.3,1)}@keyframes tabin{from{transform:translateY(-100%)}}
-.dz-name{animation:rise .5s both}.dzs{animation:rise .5s both}.dzs:nth-child(2){animation-delay:.07s}.dzs:nth-child(3){animation-delay:.14s}.dzs:nth-child(4){animation-delay:.21s}
 .dzs.lo{animation:lo 1.3s ease-in-out infinite}@keyframes lo{50%{box-shadow:0 0 16px #b3261e99;border-color:var(--rd)}}
 .bar i{background-image:linear-gradient(90deg,transparent,#ffffff26,transparent);background-size:60% 100%;background-repeat:no-repeat;background-color:var(--rd);animation:shine 2.6s linear infinite}
 @keyframes shine{from{background-position:-100% 0}to{background-position:220% 0}}
@@ -167,18 +164,28 @@ td.val{transition:color .2s,text-shadow .2s}tr:hover td.val{color:var(--ye);text
 main.shk{animation:shk .5s}@keyframes shk{10%,50%,90%{transform:translateX(-5px)}30%,70%{transform:translateX(5px)}}
 .mtabs a,.lc{transition:all .2s}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}#em,.fog{display:none}}
-.grid>:nth-child(1){animation-delay:0.045s}
-.grid>:nth-child(2){animation-delay:0.090s}
-.grid>:nth-child(3){animation-delay:0.135s}
-.grid>:nth-child(4){animation-delay:0.180s}
-.grid>:nth-child(5){animation-delay:0.225s}
-.grid>:nth-child(6){animation-delay:0.270s}
-.grid>:nth-child(7){animation-delay:0.315s}
-.grid>:nth-child(8){animation-delay:0.360s}
-.grid>:nth-child(9){animation-delay:0.405s}
-.grid>:nth-child(10){animation-delay:0.450s}
-.grid>:nth-child(11){animation-delay:0.495s}
-.grid>:nth-child(12){animation-delay:0.540s}
+
+/* ---- v5: controles próprios (sem checkbox/radio/select crus) ---- */
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}
+.tile{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:left;background:var(--p2);border:1px solid var(--ln);padding:9px 12px;font:14px 'Libre Baskerville',Georgia,serif;position:relative;overflow:hidden}
+.tile small{font-size:11px;margin-left:4px}
+.tile .mk{flex:none;width:16px;height:16px;border:1px solid var(--ln);background:var(--in);position:relative;transition:.15s}
+.tile:hover:not(:disabled){border-color:var(--rd);transform:translateY(-1px)}
+.tile.on{border-color:var(--rd);background:linear-gradient(90deg,#7a181244,var(--p2));box-shadow:inset 3px 0 0 var(--rd)}
+.tile.on .mk{background:var(--rd);border-color:var(--rd)}
+.tile.on .mk::after{content:'';position:absolute;left:4px;top:1px;width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.seg{display:inline-flex;border:1px solid var(--ln);background:var(--in)}
+.seg .sg{border:0;border-right:1px solid var(--ln);background:none;padding:5px 12px;min-width:40px}
+.seg .sg:last-child{border-right:0}
+.seg .sg:hover{background:#b3261e22}
+.seg .sg.on{background:var(--rd2);color:#fff;box-shadow:inset 0 -2px 0 var(--rd)}
+.stb{width:34px;height:30px;padding:0;font-size:16px;color:var(--mu);background:var(--in)}
+.stb.on{color:var(--ye);border-color:var(--ye);background:#e0b84a18;text-shadow:0 0 10px #e0b84a88}
+select{appearance:none;-webkit-appearance:none;padding-right:28px;cursor:pointer;background-image:linear-gradient(45deg,transparent 50%,var(--rd) 50%),linear-gradient(135deg,var(--rd) 50%,transparent 50%);background-position:calc(100% - 15px) 55%,calc(100% - 10px) 55%;background-size:5px 5px;background-repeat:no-repeat}
+input[type=checkbox],input[type=radio]{appearance:none;-webkit-appearance:none;width:16px!important;height:16px;border:1px solid var(--ln);background:var(--in);cursor:pointer;position:relative;vertical-align:middle;padding:0}
+input[type=radio]{border-radius:50%}
+input[type=checkbox]:checked,input[type=radio]:checked{background:var(--rd);border-color:var(--rd)}
+input[type=checkbox]:checked::after{content:'';position:absolute;left:4px;top:1px;width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
 </style></head><body>
 <div class="fog"></div><canvas id="em"></canvas><div id="fx"></div>
 <header>
@@ -219,7 +226,7 @@ async function delRow(t,id){const {data,error}=await sb.from(t).delete().eq('id'
 const tot=(c,k)=>(+c.attrs[k]||0)+(+c.extra?.[k]||0);
 /* Perícias (modelo v2): valor-base percentual próprio + valor inicial da criação + investimentos da progressão. O atributo NÃO entra no cálculo. */
 const BASE={'Armas de Fogo':20,'Corpo a Corpo':25,'Defesa':20,'Tática':10,'Investigação':25,'Observação':25,'Perícia Forense':5,'Pesquisa':20,'Ocultismo':5,'Religião':10,'Medicina':5,'Mecânica':10,'Eletrônica':10,'Computação':5,'Direção':20,'Sobrevivência':10,'Furtividade':20,'Persuasão':10,'Intimidação':15,'Enganação':10,'Empatia':10};
-const PRO=[70,60,60,50,50,40],INT_BONUS=20,INT_PRO=4,INT_AMA=8;
+const ATT_PTS=18,PRO=[70,60,60,50,50,40],INT_BONUS=20,INT_PRO=4,INT_AMA=8;
 const baseOf=n=>BASE[n]??10;
 const sval=(c,s)=>(+(s.ini??baseOf(s.n))||0)+(+s.pts||0);
 /* Conversão não destrutiva das fichas antigas (atributo×5 + pontos): o valor efetivo vira o valor inicial, os pontos de progressão recomeçam em 0 e o original fica guardado em c.legado. Só é gravada no banco quando a ficha for salva. */
@@ -305,7 +312,7 @@ const THEMES=[['','Noir'],['papel','Papel'],['sangue','Sangue']];
 try{document.documentElement.dataset.theme=localStorage.getItem('as-theme')||''}catch(e){}
 $('#th').onclick=()=>{const i=(THEMES.findIndex(t=>t[0]===(document.documentElement.dataset.theme||''))+1)%THEMES.length;document.documentElement.dataset.theme=THEMES[i][0];try{localStorage.setItem('as-theme',THEMES[i][0])}catch(e){}note('Tema: '+THEMES[i][1])};
 new MutationObserver(()=>{document.querySelectorAll('.box').forEach(b=>{const h=b.querySelector('h3');if(h&&h.textContent.trim()==='Vida'){const i=b.querySelector('.bar i');if(i){const w=parseFloat(i.style.width)||0;i.style.background=w>60?'var(--ok)':w>30?'var(--ye)':'var(--rd)'}}})}).observe($('#app'),{childList:true,subtree:true});
-function go(v,id){view=v;open=id||null;render();const a=$('#app');a.style.animation='none';void a.offsetWidth;a.style.animation=''}
+function go(v,id){view=v;open=id||null;render()}
 function render(){
  const app=$('#app'),nav=$('#nav');app.onclick=app.onchange=app.oninput=null;
  $('#out').style.display=user?'':'none';$('#logbtn').style.display=camp?'':'none';
@@ -387,7 +394,7 @@ const pvSet=(w,n,v)=>{const o=Object.keys(w.pv).find(k=>k!==n&&w.pv[k]===v);if(o
 const wFin=(w,n)=>{const b=baseOf(n),f=wForm();return f.includes(n)?Math.max(b,w.pv[n]||0):w.int.includes(n)?b+INT_BONUS:b};
 const wSync=()=>{const f=wForm();wz.int=wz.int.filter(n=>!f.includes(n)).slice(0,wIntN());wz.pv=f.length===6?(f.every(n=>wz.pv[n]!=null)?wz.pv:pvAuto(f)):{}};
 function wErr(s){const w=wz;
- if(s===0){const l=15-sum(w.attrs);if(l!==0)return l>0?`Faltam ${l} ponto(s) de atributo para distribuir (total: 15).`:`Você passou ${-l} ponto(s) de atributo.`}
+ if(s===0){const l=ATT_PTS-sum(w.attrs);if(l!==0)return l>0?`Faltam ${l} ponto(s) de atributo para distribuir (total: ${ATT_PTS}).`:`Você passou ${-l} ponto(s) de atributo.`}
  if(s===1){if(!w.esp)return 'Escolha uma especialidade ou comece como amador.';
   if(w.esp==='Estudante'&&w.fsel.length!==6)return 'O Estudante escolhe seis perícias de formação.'}
  if(s===2){const f=wForm();
@@ -408,18 +415,18 @@ function pickTalent(w,slot,R){
 function wizard(app){
  const w=wz,err=wErr(w.step);let b='';
  const head=`<div class="steps">${WST.map((t,i)=>`<a data-st="${i}" class="${i===w.step?'on':''}">${t}</a>`).join('<i></i>')}</div>`;
- if(w.step===0)b=`<p>Distribua <b>15 pontos</b> entre os seis atributos. Nenhum começa acima de <b>4</b>; zero é permitido. O valor de teste de cada atributo é o nível × 5. Fichas equilibradas demais perdem a necessidade do grupo.</p><div class="attrs">${ATT.map(([k,n])=>`<div class="at"><b>${n.toUpperCase()}</b><span class="n">${w.attrs[k]}</span><div class="st"><button data-wa="${k}" data-s="-1">−</button><span class="v">${w.attrs[k]*5}</span><button data-wa="${k}" data-s="1">+</button></div></div>`).join('')}</div><p class="mu">Pontos restantes: <b>${15-sum(w.attrs)}</b></p>`;
+ if(w.step===0)b=`<p>Distribua <b>${ATT_PTS} pontos</b> entre os seis atributos. Nenhum começa acima de <b>4</b>; zero é permitido. O valor de teste de cada atributo é o nível × 5. Fichas equilibradas demais perdem a necessidade do grupo.</p><div class="attrs">${ATT.map(([k,n])=>`<div class="at"><b>${n.toUpperCase()}</b><span class="n">${w.attrs[k]}</span><div class="st"><button data-wa="${k}" data-s="-1">−</button><span class="v">${w.attrs[k]*5}</span><button data-wa="${k}" data-s="1">+</button></div></div>`).join('')}</div><p class="mu">Pontos restantes: <b>${ATT_PTS-sum(w.attrs)}</b></p>`;
  if(w.step===1){const e=wEsp(),fm=wForm();
   b=`<p>A especialidade representa anos de ofício. Fornece <b>seis perícias de formação</b>, uma vantagem, uma limitação, equipamento, contato e recursos. As seis recebem os valores iniciais <b>70, 60, 60, 50, 50 e 40</b> (você escolhe quais, na etapa seguinte). Quem prefere uma ficha de amador não tem formação nem benefícios profissionais, mas escolhe <b>${INT_AMA} interesses pessoais</b> em vez de quatro.</p>
   <input id="wq" placeholder="Buscar especialidade…" style="margin:8px 0">
   <div id="el">${ESP.map(x=>`<div data-n="${esc(x.n.toLowerCase())}">${det('e'+x.n,`<span class="sp"><b>${esc(x.n)}</b></span><button class="pr" data-es="${esc(x.n)}">${w.esp===x.n?'✓ Escolhida':'Escolher'}</button>`,`<p class="mu">Formação: ${x.f.length?x.f.join(', '):'o jogador escolhe seis perícias'}</p><p><b class="rd">Vantagem:</b> ${esc(x.v)}</p><p><b class="rd">Limitação:</b> ${esc(x.l)}</p><p><b class="rd">Equipamento:</b> ${esc(x.e)}</p><p><b class="rd">Contato:</b> ${esc(x.c)} · <b class="rd">Recursos:</b> ${esc(x.r)}</p>`)}</div>`).join('')}</div>
   <div class="card" style="margin:10px 0"><div class="row"><span class="sp"><b>Amador</b><span class="mu"> — sem especialidade, ${INT_AMA} interesses pessoais (+20 sobre o valor-base)</span></span><button class="pr" data-es="Amador">${w.esp==='Amador'?'✓ Escolhido':'Escolher'}</button></div></div>`;
-  if(w.esp==='Estudante')b+=`<div class="box"><h3>Estudante: escolha 6 perícias de formação (${w.fsel.length}/6)</h3><div class="chips">${SK.map(([n])=>`<label class="chip"><input type="checkbox" data-fs="${esc(n)}" ${w.fsel.includes(n)?'checked':''}> ${esc(n)}</label>`).join('')}</div></div>`;
-  b+=`<div class="box"><h3>Recursos financeiros</h3><select data-w="rec">${REC.map(([n,d])=>`<option ${n===w.rec?'selected':''}>${n}</option>`).join('')}</select><p class="mu">Estáveis é o padrão. Abastados exigem uma história que explique o dinheiro.${e?' Usual desta especialidade: '+esc(e.r)+'.':''}</p></div>`}
+  if(w.esp==='Estudante')b+=`<div class="box"><h3>Estudante: escolha 6 perícias de formação (${w.fsel.length}/6)</h3><div class="tiles">${SK.map(([n])=>`<button class="tile${w.fsel.includes(n)?' on':''}" data-fs="${esc(n)}" ${!w.fsel.includes(n)&&w.fsel.length>=6?'disabled':''}><span>${esc(n)}</span><i class="mk"></i></button>`).join('')}</div></div>`;
+  b+=`<div class="box"><h3>Recursos financeiros</h3><div class="seg">${REC.map(([n])=>`<button class="sg${n===w.rec?' on':''}" data-rec="${n}">${n}</button>`).join('')}</div><p class="mu">Estáveis é o padrão. Abastados exigem uma história que explique o dinheiro.${e?' Usual desta especialidade: '+esc(e.r)+'.':''}</p></div>`}
  if(w.step===2){const fm=wForm(),am=!fm.length,IN=wIntN(),others=SK.filter(([n])=>!fm.includes(n)),org=n=>fm.includes(n)?(w.pv[n]===70?'★ principal':'formação'):w.int.includes(n)?'interesse +'+INT_BONUS:'base';
   b=(am?`<p>Como amador, você não tem formação profissional. Escolha <b>${IN} interesses pessoais</b>: experiências, hobbies ou estudos fora de ofício. Cada um recebe <b>+${INT_BONUS}</b> sobre o valor-base. As demais perícias ficam no valor-base.</p>`
-  :`<p>Suas seis perícias de formação começam em <b>70, 60, 60, 50, 50 e 40</b>. Escolha a <b>competência principal</b> (70) e a posição das outras. Esses números já são o valor de teste inicial, não pontos a somar. Depois escolha <b>${IN} interesses pessoais</b> fora da formação, cada um com <b>+${INT_BONUS}</b> sobre o valor-base.</p><div class="box"><h3>Formação: ${esc(w.esp)}</h3><table><tr><th>Principal</th><th>Perícia</th><th>Base</th><th>Valor</th><th>Final</th></tr>${fm.map(n=>`<tr><td style="width:70px;text-align:center"><input type="radio" name="pr" data-pr="${esc(n)}" ${w.pv[n]===70?'checked':''} style="width:auto"></td><td>${esc(n)}${w.pv[n]===70?' <span class="rd">★</span>':''}</td><td class="mu">${baseOf(n)}</td><td style="width:90px"><select data-pv="${esc(n)}">${[70,60,50,40].map(v=>`<option ${v===w.pv[n]?'selected':''}>${v}</option>`).join('')}</select></td><td class="val">${wFin(w,n)}</td></tr>`).join('')}</table><p class="mu">Ao escolher um valor já usado por outra perícia, as duas trocam de posição. Se a base natural for maior que o valor atribuído, vale a base.</p></div>`)
-  +`<div class="box"><h3>Interesses pessoais (${w.int.length}/${IN})</h3><div class="chips">${others.map(([n])=>`<label class="chip"><input type="checkbox" data-in="${esc(n)}" ${w.int.includes(n)?'checked':''} ${!w.int.includes(n)&&w.int.length>=IN?'disabled':''}> ${esc(n)} <span class="mu">(${baseOf(n)} → ${baseOf(n)+INT_BONUS})</span></label>`).join('')}</div>${am?'':'<p class="mu">As seis perícias de formação não aparecem aqui: o pacote profissional já as cobre.</p>'}</div>`
+  :`<p>Suas seis perícias de formação começam em <b>70, 60, 60, 50, 50 e 40</b>. Escolha a <b>competência principal</b> (70) e a posição das outras. Esses números já são o valor de teste inicial, não pontos a somar. Depois escolha <b>${IN} interesses pessoais</b> fora da formação, cada um com <b>+${INT_BONUS}</b> sobre o valor-base.</p><div class="box"><h3>Formação: ${esc(w.esp)}</h3><table><tr><th>Principal</th><th>Perícia</th><th>Base</th><th>Valor</th><th>Final</th></tr>${fm.map(n=>`<tr><td style="width:70px;text-align:center"><button class="stb${w.pv[n]===70?' on':''}" data-pr="${esc(n)}" title="Competência principal">★</button></td><td>${esc(n)}${w.pv[n]===70?' <span class="rd">★</span>':''}</td><td class="mu">${baseOf(n)}</td><td><div class="seg">${[70,60,50,40].map(v=>`<button class="sg${v===w.pv[n]?' on':''}" data-pvv="${esc(n)}|${v}">${v}</button>`).join('')}</div></td><td class="val">${wFin(w,n)}</td></tr>`).join('')}</table><p class="mu">Ao escolher um valor já usado por outra perícia, as duas trocam de posição. Se a base natural for maior que o valor atribuído, vale a base.</p></div>`)
+  +`<div class="box"><h3>Interesses pessoais (${w.int.length}/${IN})</h3><div class="tiles">${others.map(([n])=>`<button class="tile${w.int.includes(n)?' on':''}" data-in="${esc(n)}" ${!w.int.includes(n)&&w.int.length>=IN?'disabled':''}><span>${esc(n)} <small class="mu">${baseOf(n)} → ${baseOf(n)+INT_BONUS}</small></span><i class="mk"></i></button>`).join('')}</div>${am?'':'<p class="mu">As seis perícias de formação não aparecem aqui: o pacote profissional já as cobre.</p>'}</div>`
   +`<div class="box"><h3>Valores iniciais</h3><table><tr><th>Perícia</th><th>Origem</th><th>Valor</th></tr>${SK.map(([n])=>`<tr><td>${esc(n)}</td><td class="mu">${org(n)}</td><td class="val">${wFin(w,n)}</td></tr>`).join('')}</table></div>`}
  if(w.step===3){const I=(k,p,t='text')=>`<input data-w="${k}" value="${esc(k.split('.').reduce((o,x)=>o?.[x],w))}" placeholder="${p}">`,T=(k,p)=>`<textarea data-w="${k}" placeholder="${p}">${esc(w[k])}</textarea>`;
   b=`
@@ -440,14 +447,15 @@ function wizard(app){
  app.oninput=e=>{const p=e.target.dataset.w;if(!p||e.target.tagName==='SELECT')return;const k=p.split('.');let o=w;while(k.length>1)o=o[k.shift()];o[k[0]]=e.target.value;
   const er=wErr(w.step),bt=$('#wf')||$('#wn'),wm=$('#wm');if(bt)bt.disabled=!!er;if(wm)wm.textContent=er||'Tudo certo nesta etapa.'};
  app.onchange=e=>{const d=e.target.dataset,v=e.target;
-  if(d.w==='rec'){w.rec=v.value;R()}
-  else if(d.pv){pvSet(w,d.pv,+v.value);R()}
-  else if(d.pr){pvSet(w,d.pr,70);R()}
-  else if(d.in){const i=w.int.indexOf(d.in);if(i>=0)w.int.splice(i,1);else if(w.int.length<wIntN()&&!wForm().includes(d.in))w.int.push(d.in);R()}
-  else if(d.fs){const i=w.fsel.indexOf(d.fs);if(i>=0)w.fsel.splice(i,1);else if(w.fsel.length<6)w.fsel.push(d.fs);w.pv={};wSync();R()}
+  if(false){}
   else if(v.id==='wfi'&&v.files[0]){fotoResize(v.files[0]).then(u=>{w.foto=u;R()}).catch(er=>alert(er.message))}};
  app.onclick=e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
-  if(d.wa){const n=w.attrs[d.wa]+ +d.s;if(n<0||n>4||(d.s>0&&sum(w.attrs)>=15))return;w.attrs[d.wa]=n;R()}
+  if(d.rec){w.rec=d.rec;R();return}
+  if(d.pr){pvSet(w,d.pr,70);R();return}
+  if(d.pvv){const[n,v]=d.pvv.split('|');pvSet(w,n,+v);R();return}
+  if(d.in){const i=w.int.indexOf(d.in);if(i>=0)w.int.splice(i,1);else if(w.int.length<wIntN()&&!wForm().includes(d.in))w.int.push(d.in);R();return}
+  if(d.fs){const i=w.fsel.indexOf(d.fs);if(i>=0)w.fsel.splice(i,1);else if(w.fsel.length<6)w.fsel.push(d.fs);w.pv={};wSync();R();return}
+  if(d.wa){const n=w.attrs[d.wa]+ +d.s;if(n<0||n>4||(d.s>0&&sum(w.attrs)>=ATT_PTS))return;w.attrs[d.wa]=n;R()}
   if(d.pt!=null){e.preventDefault();pickTalent(w,+d.pt,R);return}
   if(d.wfoto){e.preventDefault();$('#wfi').click();return}
   if(d.wfx){w.foto='';R();return}
