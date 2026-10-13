@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0c0a09">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Arquivo Sombrio</title>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Special+Elite&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -186,6 +188,76 @@ input[type=checkbox],input[type=radio]{appearance:none;-webkit-appearance:none;w
 input[type=radio]{border-radius:50%}
 input[type=checkbox]:checked,input[type=radio]:checked{background:var(--rd);border-color:var(--rd)}
 input[type=checkbox]:checked::after{content:'';position:absolute;left:4px;top:1px;width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+
+/* ---- v6: versão mobile (responsivo) ---- */
+.bsm{display:none}
+@media(max-width:700px){
+ html{-webkit-text-size-adjust:100%}
+ body{font-size:15px;padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+ input,select,textarea{font-size:16px!important}
+ button{min-height:38px}
+ header{padding:calc(8px + env(safe-area-inset-top)) 12px 8px;gap:8px;flex-wrap:nowrap}
+ .logo{font-size:15px;letter-spacing:.1em;flex:1;min-width:0}.logo small{font-size:9px;letter-spacing:.14em}
+ .stamp,#sk kbd{display:none}
+ #sk,.th-btn,#out{min-height:36px;padding:4px 10px}
+ nav{position:fixed;left:0;right:0;bottom:0;z-index:40;margin:0;gap:0;background:var(--hd);border-top:2px solid var(--rd2);padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -8px 24px #000a;order:0;width:auto;overflow:visible}
+ nav:empty{display:none}
+ nav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 4px 8px;font-size:11px;letter-spacing:.06em;border-bottom:0;border-top:2px solid transparent;margin-top:-2px}
+ nav a::before{font-size:18px;line-height:1;filter:grayscale(.6)}
+ nav a.on{border-top-color:var(--rd);background:linear-gradient(180deg,#b3261e22,transparent)}nav a.on::before{filter:none}
+ nav a[data-v=agentes]::before{content:'🗂'}nav a[data-v=ameacas]::before{content:'☠'}nav a[data-v=biblioteca]::before{content:'📖'}nav a[data-v=mesa]::before{content:'🕯'}
+ main{padding:12px 12px 24px}
+ h2{font-size:19px}
+ #logbtn{left:auto;right:12px;bottom:calc(76px + env(safe-area-inset-bottom));min-height:40px;border-radius:20px;padding:0 14px;box-shadow:0 4px 16px #000a}
+ #toasts{top:calc(56px + env(safe-area-inset-top));bottom:auto;right:8px;left:8px;width:auto;max-width:none}
+ #log{width:100vw;padding-top:calc(16px + env(safe-area-inset-top))}
+ .grid{grid-template-columns:1fr}
+ .card:hover,.at:hover{transform:none}
+ .ag{padding:12px}
+ .modal{align-items:flex-end}.modal .card,.modal .mbox{width:100vw;max-width:100vw;border-radius:14px 14px 0 0;max-height:92vh;margin:0;padding-bottom:calc(14px + env(safe-area-inset-bottom))}
+ .pal .mbox{margin-top:0}
+ .tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}.tabs::-webkit-scrollbar{display:none}.tabs a{white-space:nowrap;padding:10px 14px}
+ .row{gap:8px}
+ /* assistente */
+ .steps{gap:6px;margin:10px 0}.steps a{font-size:12px}.steps i{width:14px}
+ .tiles{grid-template-columns:1fr 1fr;gap:6px}.tile{padding:10px;font-size:13px;min-height:44px}.tile small{display:block;margin:2px 0 0}
+ .seg{flex-wrap:wrap}.seg .sg{flex:1;padding:9px 10px}
+ .ft tr:first-child{display:none}.ft,.ft tbody{display:block}
+ .ft tr{display:grid;grid-template-columns:44px 1fr 52px;grid-template-areas:"st nm fn" "st sg sg";gap:6px 10px;align-items:center;padding:10px 0;border-top:1px solid var(--ln)}
+ .ft td{border:0;padding:0;width:auto!important}.ft td:nth-child(1){grid-area:st}.ft td:nth-child(2){grid-area:nm}.ft td:nth-child(3){display:none}.ft td:nth-child(4){grid-area:sg}.ft td:nth-child(5){grid-area:fn;text-align:right}
+ .ft .bsm{display:block}.ft .seg{display:flex;width:100%}
+ .stb{width:40px;height:40px}
+ .wzf{position:sticky;bottom:calc(66px + env(safe-area-inset-bottom));background:linear-gradient(180deg,transparent,var(--bg) 30%);padding:12px 0 6px;z-index:6;flex-wrap:nowrap}
+ .wzf .sp{font-size:11px;line-height:1.3}
+ .attrs{gap:8px}.at .n{font-size:30px}.st button{padding:4px 12px;min-height:34px}
+ /* ficha */
+ .dossier{padding:26px 14px 14px}
+ .dz-main{gap:12px}.dz-av{width:64px;height:64px;font-size:20px}
+ .dz-id{min-width:0;flex:1 1 140px}.dz-name{font-size:22px}.dz-sub{font-size:11px}
+ .dz-stats{width:100%;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.dzs{min-width:0;padding:6px 2px}.dzs span{font-size:18px}.dzs b{font-size:9px;letter-spacing:.1em}
+ .sheet{display:flex;flex-direction:column;gap:12px}
+ .sheet>div:first-child{display:contents}
+ .sheet .box{margin-bottom:0;padding:12px}
+ .bx-vi{order:1}.sh-main{order:2}.bx-at{order:3}.bx-de{order:4}.bx-id{order:5}
+ .sh-main>.box{padding:12px}
+ .skt,.skt tbody{display:block}
+ .skt tr:first-child{display:none}
+ .skt tr{display:grid;grid-template-columns:44px 1fr 1fr 1fr 58px 34px;grid-template-areas:"d n n n v x" ". b i p p p";gap:6px 8px;align-items:center;padding:9px 0;border-top:1px solid var(--ln)}
+ .skt td{border:0;padding:0;width:auto!important}
+ .skt td:nth-child(1){grid-area:d}.skt td:nth-child(2){grid-area:n}.skt td:nth-child(6){grid-area:v;text-align:center}.skt td:nth-child(7){grid-area:x}
+ .skt td:nth-child(3){grid-area:b}.skt td:nth-child(4){grid-area:i}.skt td:nth-child(5){grid-area:p}
+ .skt td[data-l]{font-size:13px;display:flex;align-items:center;gap:5px;flex-wrap:nowrap;white-space:nowrap}
+ .skt td[data-l]::before{content:attr(data-l);font:10px 'Special Elite';letter-spacing:.1em;color:var(--mu);text-transform:uppercase}
+ .skt td[data-l] input{width:58px}
+ .skt .d{width:40px;height:38px}
+ .skt td.val{font-size:22px}
+ .der{gap:6px}.der div{padding:6px}
+ .xc>summary{padding:10px}
+ .lq{font-size:16px!important}
+ .row>.sp{min-width:0}
+ #bq,#q{flex:1 1 100%!important}#lv,#tp,#fe,#fo{flex:1 1 calc(50% - 4px)!important;min-width:0}
+}
+@media(hover:none){.d:hover,button.pr:hover::after{transform:none}.tile:hover:not(:disabled){transform:none}}
 </style></head><body>
 <div class="fog"></div><canvas id="em"></canvas><div id="fx"></div>
 <header>
@@ -425,7 +497,7 @@ function wizard(app){
   b+=`<div class="box"><h3>Recursos financeiros</h3><div class="seg">${REC.map(([n])=>`<button class="sg${n===w.rec?' on':''}" data-rec="${n}">${n}</button>`).join('')}</div><p class="mu">Estáveis é o padrão. Abastados exigem uma história que explique o dinheiro.${e?' Usual desta especialidade: '+esc(e.r)+'.':''}</p></div>`}
  if(w.step===2){const fm=wForm(),am=!fm.length,IN=wIntN(),others=SK.filter(([n])=>!fm.includes(n)),org=n=>fm.includes(n)?(w.pv[n]===70?'★ principal':'formação'):w.int.includes(n)?'interesse +'+INT_BONUS:'base';
   b=(am?`<p>Como amador, você não tem formação profissional. Escolha <b>${IN} interesses pessoais</b>: experiências, hobbies ou estudos fora de ofício. Cada um recebe <b>+${INT_BONUS}</b> sobre o valor-base. As demais perícias ficam no valor-base.</p>`
-  :`<p>Suas seis perícias de formação começam em <b>70, 60, 60, 50, 50 e 40</b>. Escolha a <b>competência principal</b> (70) e a posição das outras. Esses números já são o valor de teste inicial, não pontos a somar. Depois escolha <b>${IN} interesses pessoais</b> fora da formação, cada um com <b>+${INT_BONUS}</b> sobre o valor-base.</p><div class="box"><h3>Formação: ${esc(w.esp)}</h3><table><tr><th>Principal</th><th>Perícia</th><th>Base</th><th>Valor</th><th>Final</th></tr>${fm.map(n=>`<tr><td style="width:70px;text-align:center"><button class="stb${w.pv[n]===70?' on':''}" data-pr="${esc(n)}" title="Competência principal">★</button></td><td>${esc(n)}${w.pv[n]===70?' <span class="rd">★</span>':''}</td><td class="mu">${baseOf(n)}</td><td><div class="seg">${[70,60,50,40].map(v=>`<button class="sg${v===w.pv[n]?' on':''}" data-pvv="${esc(n)}|${v}">${v}</button>`).join('')}</div></td><td class="val">${wFin(w,n)}</td></tr>`).join('')}</table><p class="mu">Ao escolher um valor já usado por outra perícia, as duas trocam de posição. Se a base natural for maior que o valor atribuído, vale a base.</p></div>`)
+  :`<p>Suas seis perícias de formação começam em <b>70, 60, 60, 50, 50 e 40</b>. Escolha a <b>competência principal</b> (70) e a posição das outras. Esses números já são o valor de teste inicial, não pontos a somar. Depois escolha <b>${IN} interesses pessoais</b> fora da formação, cada um com <b>+${INT_BONUS}</b> sobre o valor-base.</p><div class="box"><h3>Formação: ${esc(w.esp)}</h3><table class="ft"><tr><th>Principal</th><th>Perícia</th><th>Base</th><th>Valor</th><th>Final</th></tr>${fm.map(n=>`<tr><td style="width:70px;text-align:center"><button class="stb${w.pv[n]===70?' on':''}" data-pr="${esc(n)}" title="Competência principal">★</button></td><td>${esc(n)}${w.pv[n]===70?' <span class="rd">★</span>':''}<small class="mu bsm">base ${baseOf(n)}</small></td><td class="mu">${baseOf(n)}</td><td><div class="seg">${[70,60,50,40].map(v=>`<button class="sg${v===w.pv[n]?' on':''}" data-pvv="${esc(n)}|${v}">${v}</button>`).join('')}</div></td><td class="val">${wFin(w,n)}</td></tr>`).join('')}</table><p class="mu">Ao escolher um valor já usado por outra perícia, as duas trocam de posição. Se a base natural for maior que o valor atribuído, vale a base.</p></div>`)
   +`<div class="box"><h3>Interesses pessoais (${w.int.length}/${IN})</h3><div class="tiles">${others.map(([n])=>`<button class="tile${w.int.includes(n)?' on':''}" data-in="${esc(n)}" ${!w.int.includes(n)&&w.int.length>=IN?'disabled':''}><span>${esc(n)} <small class="mu">${baseOf(n)} → ${baseOf(n)+INT_BONUS}</small></span><i class="mk"></i></button>`).join('')}</div>${am?'':'<p class="mu">As seis perícias de formação não aparecem aqui: o pacote profissional já as cobre.</p>'}</div>`
   +`<div class="box"><h3>Valores iniciais</h3><table><tr><th>Perícia</th><th>Origem</th><th>Valor</th></tr>${SK.map(([n])=>`<tr><td>${esc(n)}</td><td class="mu">${org(n)}</td><td class="val">${wFin(w,n)}</td></tr>`).join('')}</table></div>`}
  if(w.step===3){const I=(k,p,t='text')=>`<input data-w="${k}" value="${esc(k.split('.').reduce((o,x)=>o?.[x],w))}" placeholder="${p}">`,T=(k,p)=>`<textarea data-w="${k}" placeholder="${p}">${esc(w[k])}</textarea>`;
@@ -438,7 +510,7 @@ function wizard(app){
   <div class="box"><h3>Talentos, conhecimentos e idiomas</h3><div class="row"><button data-pt="0" style="flex:1;text-align:left">${w.talentos[0]?esc(w.talentos[0]):'Escolher talento 1'}</button><button data-pt="1" style="flex:1;text-align:left">${w.talentos[1]?esc(w.talentos[1]):'Escolher talento 2'}</button></div><br>${I('conEsp','1 conhecimento especializado')}<br><br><div class="row"><input data-w="conBas.0" value="${esc(w.conBas[0])}" placeholder="Conhecimento básico 1" style="flex:1"><input data-w="conBas.1" value="${esc(w.conBas[1])}" placeholder="Conhecimento básico 2" style="flex:1"></div><br>${I('idiomas','Idiomas')}</div>
   <div class="box"><h3>Vínculos, contatos e ponto de ruptura</h3><div class="row"><input data-w="vinculos.0" value="${esc(w.vinculos[0])}" placeholder="Vínculo positivo" style="flex:1"><input data-w="vinculos.1" value="${esc(w.vinculos[1])}" placeholder="Vínculo complicado" style="flex:1"></div><br><div class="row"><input data-w="contatos.0" value="${esc(w.contatos[0])}" placeholder="Contato 1: nome, função, confiança, acesso, custo" style="flex:1"><input data-w="contatos.1" value="${esc(w.contatos[1])}" placeholder="Contato 2" style="flex:1"></div><br>${I('motiv','Motivação')}<br><br>${I('ruptura','Ponto de ruptura: o que o faria abandonar tudo?')}</div>`}
  app.innerHTML=`<div class="row"><button id="wc">Cancelar</button><h2 class="sp">Novo agente</h2></div>${head}<div class="wz">${b}</div><div class="err" id="we">${err&&w.step<3?'':''}</div>
- <div class="row" style="margin-top:14px"><button id="wp" ${w.step?'':'disabled'}>← Voltar</button><span class="sp mu" id="wm">${err?esc(err):'Tudo certo nesta etapa.'}</span>${w.step<3?`<button class="pr" id="wn" ${err?'disabled':''}>Próximo →</button>`:`<button class="pr" id="wf" ${err?'disabled':''}>Finalizar</button>`}</div>`;
+ <div class="row wzf" style="margin-top:14px"><button id="wp" ${w.step?'':'disabled'}>← Voltar</button><span class="sp mu" id="wm">${err?esc(err):'Tudo certo nesta etapa.'}</span>${w.step<3?`<button class="pr" id="wn" ${err?'disabled':''}>Próximo →</button>`:`<button class="pr" id="wf" ${err?'disabled':''}>Finalizar</button>`}</div>`;
  const R=()=>wizard(app);
  $('#wc').onclick=async()=>{if(await ask('Descartar a criação?')){wz=null;go('agentes')}};
  $('#wp')&&($('#wp').onclick=()=>{w.step--;R()});$('#wn')&&($('#wn').onclick=()=>{w.step++;R()});$('#wf')&&($('#wf').onclick=wzFinish);
@@ -505,19 +577,19 @@ function sheet(app){
   return det('w'+i,`<span class="sp"><b>${esc(w.name)}</b> <span class="mu">Dano: ${esc(w.dmg)}${w.crit?' · Crítico: '+esc(w.crit):''} · Ataque ${s?sval(c,s):'—'}</span></span><button class="d pr" data-rw="${i}" title="Atacar">⚔</button>`,
   `<div class="row"><input data-wn="${i}" value="${esc(w.name)}" placeholder="Nome" style="flex:2"><select data-ws="${i}" style="flex:2">${c.skills.map(s=>`<option ${s.n===w.skill?'selected':''}>${esc(s.n)}</option>`).join('')}</select><input data-wd="${i}" value="${esc(w.dmg)}" placeholder="Leve, Moderado, 1d10…" style="flex:1">${fi('weapons',i,'crit','Crítico')}</div><div class="row" style="margin-top:6px">${fi('weapons',i,'cat','Categoria')}${fi('weapons',i,'tipo','Tipo (Corte…)')}${fi('weapons',i,'esp','Espaços')}</div><textarea data-l="weapons" data-i="${i}" data-k="desc" placeholder="Descrição">${esc(w.desc)}</textarea><div class="row"><button class="d" data-rd="${i}" title="Só dano">🎲</button><span class="sp"></span><button class="x" data-wx="${i}">Remover</button></div>`)}).join('')||'<h3 style="text-align:center;margin:30px">Você ainda não possui ataques</h3>';
  const tab={
- combate:`<div class="row"><h3 class="sp">Condições</h3><button class="pr" data-cat="cond">Adicionar</button></div>${(c.condicoes||[]).map((h,i)=>listCard(c,'condicoes',i,h,'')).join('')||'<p class="mu">Nenhuma condição ativa.</p>'}<div style="height:18px"></div><div class="row"><h3 class="sp">Ataques</h3><button class="pr" id="aw">Novo ataque</button></div>${wp}<h3 style="margin-top:18px">Perícias — valor de teste</h3><table><tr><th></th><th>Perícia</th><th>Base</th><th>Inicial</th><th>Inv.</th><th>Valor</th><th></th></tr>${c.skills.map((s,i)=>{const std=SK.some(x=>x[0]===s.n),mk={principal:'★',formacao:'formação',interesse:'+20'}[s.src]||'';return`<tr><td><button class="d" data-rs="${i}">🎲</button></td><td><input data-sn="${i}" value="${esc(s.n)}"></td><td class="mu">${std?baseOf(s.n):'—'}</td><td style="width:92px">${std?`${s.ini??baseOf(s.n)} <span class="rd mono" style="font-size:10px">${mk}</span>`:`<input type="number" min="0" max="99" data-si="${i}" value="${s.ini??baseOf(s.n)}">`}</td><td style="width:64px"><input type="number" min="0" max="50" data-sp="${i}" value="${s.pts||0}"></td><td class="val">${sval(c,s)}</td><td><button class="x" data-sx="${i}">✕</button></td></tr>`}).join('')}</table><p class="mu" style="margin-top:8px">Valor = Inicial + Inv. (investimentos da progressão). O atributo não entra no cálculo das perícias; só nos testes diretos de atributo.${c.migrou?' Esta ficha foi convertida ao modelo novo mantendo os valores efetivos; os dados originais estão guardados em <i>legado</i>.':''}</p><br><button id="as">+ Perícia (Conhecimento, Idioma…)</button>`,
+ combate:`<div class="row"><h3 class="sp">Condições</h3><button class="pr" data-cat="cond">Adicionar</button></div>${(c.condicoes||[]).map((h,i)=>listCard(c,'condicoes',i,h,'')).join('')||'<p class="mu">Nenhuma condição ativa.</p>'}<div style="height:18px"></div><div class="row"><h3 class="sp">Ataques</h3><button class="pr" id="aw">Novo ataque</button></div>${wp}<h3 style="margin-top:18px">Perícias — valor de teste</h3><table class="skt"><tr><th></th><th>Perícia</th><th>Base</th><th>Inicial</th><th>Inv.</th><th>Valor</th><th></th></tr>${c.skills.map((s,i)=>{const std=SK.some(x=>x[0]===s.n),mk={principal:'★',formacao:'formação',interesse:'+20'}[s.src]||'';return`<tr><td><button class="d" data-rs="${i}">🎲</button></td><td><input data-sn="${i}" value="${esc(s.n)}"></td><td class="mu" data-l="Base">${std?baseOf(s.n):'—'}</td><td style="width:92px" data-l="Inicial">${std?`${s.ini??baseOf(s.n)} <span class="rd mono" style="font-size:10px">${mk}</span>`:`<input type="number" min="0" max="99" data-si="${i}" value="${s.ini??baseOf(s.n)}">`}</td><td style="width:64px" data-l="Inv."><input type="number" min="0" max="50" data-sp="${i}" value="${s.pts||0}"></td><td class="val">${sval(c,s)}</td><td><button class="x" data-sx="${i}">✕</button></td></tr>`}).join('')}</table><p class="mu" style="margin-top:8px">Valor = Inicial + Inv. (investimentos da progressão). O atributo não entra no cálculo das perícias; só nos testes diretos de atributo.${c.migrou?' Esta ficha foi convertida ao modelo novo mantendo os valores efetivos; os dados originais estão guardados em <i>legado</i>.':''}</p><br><button id="as">+ Perícia (Conhecimento, Idioma…)</button>`,
  habilidades:`<div class="row"><h3 class="sp">Habilidades</h3><button class="pr" data-cat="hab">Adicionar</button></div>${c.habilidades.map((h,i)=>listCard(c,'habilidades',i,h,fi('habilidades',i,'custo','Custo')+fi('habilidades',i,'req','Requisito'))).join('')||'<p class="mu">Nenhuma habilidade. A vantagem e a limitação da especialidade entram aqui na criação.</p>'}`,
  rituais:`<div class="row"><h3 class="sp">Rituais</h3><button class="pr" data-cat="rit">Adicionar</button></div>${c.rituais.map((h,i)=>listCard(c,'rituais',i,h,fi('rituais',i,'custo','Custo')+fi('rituais',i,'req','Requisito'))).join('')||'<p class="mu">Nenhum ritual registrado.</p>'}`,
  inventario:`<div class="der" style="margin-bottom:10px"><div><span class="mu mono">ITENS</span><div class="n">${c.inventario.reduce((a,x)=>a+(+x.qtd||0),0)}</div></div><div><span class="mu mono">ESPAÇOS</span><div class="n">${c.inventario.reduce((a,x)=>a+(+x.esp||0)*(+x.qtd||0),0)}</div></div><div><span class="mu mono">RECURSOS</span><div class="n" style="font-size:15px">${esc(c.rec||'—')}</div></div></div><div class="row"><button class="pr" data-cat="itens">Adicionar do livro</button><span class="mono mu">NOVO</span>${CATS.map(k=>`<button data-addi="${k}">${k}</button>`).join('')}</div><br>${c.inventario.map((h,i)=>listCard(c,'inventario',i,h,`<select data-l="inventario" data-i="${i}" data-k="cat" style="flex:1">${CATS.map(k=>`<option ${k===h.cat?'selected':''}>${k}</option>`).join('')}</select>`+fi('inventario',i,'qtd','Qtd',h.qtd,50)+fi('inventario',i,'esp','Espaços',h.esp,60)+(h.cat==='Arma'||h.cat==='Arma Especial'?fi('inventario',i,'dano','Dano'):''))).join('')||'<p class="mu">Inventário vazio.</p>'}`,
  descricao:[['aparencia','Aparência'],['personalidade','Personalidade'],['historico','Histórico'],['objetivo','Objetivo / motivação'],['motiv','Motivação'],['ruptura','Ponto de ruptura'],['conEsp','Conhecimento especializado'],['idiomas','Idiomas'],['notes','Anotações']].map(([k,t])=>`<div class="box"><h3>${t}</h3><textarea data-f="${k}" style="min-height:70px">${esc(c[k])}</textarea></div>`).join('')+`<div class="box"><h3>Vínculos e contatos</h3>${(c.vinculos||[]).concat(c.contatos||[]).filter(Boolean).map(x=>`<p>${esc(x)}</p>`).join('')||'<p class="mu">—</p>'}</div>`+`<div class="box"><div class="row"><h3 class="sp">Cicatrizes de Caso (máx. 3 ativas)</h3><button class="pr" data-cat="cic">Adicionar</button></div>${(c.cicatrizes||[]).map((h,i)=>listCard(c,'cicatrizes',i,h,'')).join('')||'<p class="mu">Nenhuma cicatriz.</p>'}</div>`}[stab];
  app.innerHTML=`<div class="row"><button id="bk">← Agentes</button><span class="sp"></span>${ed?'':'<span class="mu">somente leitura</span>'}<span class="mono mu">Modificador</span><select id="md" class="mod">${[-20,-10,0,10,20].map(m=>`<option ${m===mod?'selected':''} value="${m}">${m>0?'+':''}${m}</option>`).join('')}</select></div>${dossier(c,r,ed)}
  <div class="sheet ${ed?'':'ro'}"><div>
-  <div class="box"><h3>Identificação</h3><input data-f="name" value="${esc(c.name)}" placeholder="Personagem"><br><br><div class="row"><input data-f="esp" value="${esc(c.esp||c.prof)}" placeholder="Especialidade" style="flex:1"><input data-f="player" value="${esc(c.player)}" placeholder="Jogador" style="flex:1"></div><div class="row" style="margin-top:10px"><span class="mu mono sp">Foto do personagem</span><button id="fotoBtn">${c.foto?'Trocar':'Enviar'}</button>${c.foto?'<button class="x" data-fx="1">Remover</button>':''}</div></div>
-  <div class="box"><h3>Atributos</h3><div class="attrs">${ATT.map(([k,n])=>`<div class="at"><b>${n.toUpperCase()}</b><span class="n">${tot(c,k)}</span><div class="st"><button data-a="${k}" data-s="-1">−</button><span class="v">${r[k]}</span><button data-a="${k}" data-s="1">+</button><button class="d" data-r="${k}" title="Rolar">🎲</button></div><div class="ex">base ${c.attrs[k]} · adicional <input type="number" data-x="${k}" value="${c.extra?.[k]||0}"></div></div>`).join('')}</div><div class="mu" style="margin-top:8px">Base: ${sum(c.attrs)} pts · "adicional" é para quem ultrapassou os limites humanos.</div></div>
-  <div class="box"><h3>Vida</h3><div class="row"><button data-v="-1">−</button><b class="sp" style="text-align:center;font-size:20px">${c.vidaAtual} / ${r.vida}</b><button data-v="1">+</button></div><div class="bar"><i style="width:${pv}%"></i></div><h3 style="margin-top:12px">Pressão</h3><div class="row"><button data-p="-1">−</button><b class="sp" style="text-align:center;font-size:20px">${c.pressao} / 3</b><button data-p="1">+</button></div></div>
-  <div class="box"><h3>Derivados</h3><div class="der"><div><span class="mu mono">DEFESA</span><div class="n">${r.defv}</div><button class="d" data-r2="Defesa|${r.defv}">🎲</button></div><div><span class="mu mono">PASSIVA</span><div class="n">${r.defp}</div></div><div><span class="mu mono">INICIATIVA</span><div class="n">${r.ini}</div><button class="d" data-r2="Iniciativa|${r.ini}">🎲</button></div></div><div class="row" style="margin-top:8px"><span class="mu mono sp">Pontos de Defesa</span><input type="number" data-f="defPts" value="${c.defPts||0}" style="width:70px"></div>
+  <div class="box bx-id"><h3>Identificação</h3><input data-f="name" value="${esc(c.name)}" placeholder="Personagem"><br><br><div class="row"><input data-f="esp" value="${esc(c.esp||c.prof)}" placeholder="Especialidade" style="flex:1"><input data-f="player" value="${esc(c.player)}" placeholder="Jogador" style="flex:1"></div><div class="row" style="margin-top:10px"><span class="mu mono sp">Foto do personagem</span><button id="fotoBtn">${c.foto?'Trocar':'Enviar'}</button>${c.foto?'<button class="x" data-fx="1">Remover</button>':''}</div></div>
+  <div class="box bx-at"><h3>Atributos</h3><div class="attrs">${ATT.map(([k,n])=>`<div class="at"><b>${n.toUpperCase()}</b><span class="n">${tot(c,k)}</span><div class="st"><button data-a="${k}" data-s="-1">−</button><span class="v">${r[k]}</span><button data-a="${k}" data-s="1">+</button><button class="d" data-r="${k}" title="Rolar">🎲</button></div><div class="ex">base ${c.attrs[k]} · adicional <input type="number" data-x="${k}" value="${c.extra?.[k]||0}"></div></div>`).join('')}</div><div class="mu" style="margin-top:8px">Base: ${sum(c.attrs)} pts · "adicional" é para quem ultrapassou os limites humanos.</div></div>
+  <div class="box bx-vi"><h3>Vida</h3><div class="row"><button data-v="-1">−</button><b class="sp" style="text-align:center;font-size:20px">${c.vidaAtual} / ${r.vida}</b><button data-v="1">+</button></div><div class="bar"><i style="width:${pv}%"></i></div><h3 style="margin-top:12px">Pressão</h3><div class="row"><button data-p="-1">−</button><b class="sp" style="text-align:center;font-size:20px">${c.pressao} / 3</b><button data-p="1">+</button></div></div>
+  <div class="box bx-de"><h3>Derivados</h3><div class="der"><div><span class="mu mono">DEFESA</span><div class="n">${r.defv}</div><button class="d" data-r2="Defesa|${r.defv}">🎲</button></div><div><span class="mu mono">PASSIVA</span><div class="n">${r.defp}</div></div><div><span class="mu mono">INICIATIVA</span><div class="n">${r.ini}</div><button class="d" data-r2="Iniciativa|${r.ini}">🎲</button></div></div><div class="row" style="margin-top:8px"><span class="mu mono sp">Pontos de Defesa</span><input type="number" data-f="defPts" value="${c.defPts||0}" style="width:70px"></div>
   <label>Proteção</label><input data-f="protecao" value="${esc(c.protecao)}"><label>Resistências</label><input data-f="resist" value="${esc(c.resist)}"><label>Proficiências</label><input data-f="profic" value="${esc(c.profic)}"></div>
- </div><div><div class="tabs">${TABS.map(([k,t])=>`<a data-tab="${k}" class="${k===stab?'on':''}">${t}</a>`).join('')}</div><div class="box">${tab}</div></div></div>`;
+ </div><div class="sh-main"><div class="tabs">${TABS.map(([k,t])=>`<a data-tab="${k}" class="${k===stab?'on':''}">${t}</a>`).join('')}</div><div class="box">${tab}</div></div></div>`;
  $('#bk').onclick=()=>go('agentes');$('#md').onchange=e=>{mod=+e.target.value};
  if(ed&&$('#fotoIn')){const pick=()=>$('#fotoIn').click();$('#dzav').onclick=pick;$('#fotoBtn').onclick=pick;
   $('#fotoIn').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{c.foto=await fotoResize(f);c.vidaAtual=Math.min(c.vidaAtual,calc(c).vida);save(c);sheet(app)}catch(er){alert(er.message)}}}
@@ -633,7 +705,7 @@ function threatsView(app){
 (function(){const cv=$('#em'),x=cv.getContext('2d'),reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;let W,H;const P=[];
  const rs=()=>{W=cv.width=innerWidth;H=cv.height=innerHeight};rs();addEventListener('resize',rs);
  const mk=i=>({x:Math.random()*W,y:i?Math.random()*H:H+10,r:.6+Math.random()*1.7,v:.15+Math.random()*.45,dx:(Math.random()-.5)*.25,a:.15+Math.random()*.45,ph:Math.random()*6.28});
- for(let i=0;i<34;i++)P.push(mk(1));
+ for(let i=0;i<(innerWidth<700?14:34);i++)P.push(mk(1));
  function tick(t){if(!document.hidden&&!reduce&&document.documentElement.dataset.theme!=='papel'){x.clearRect(0,0,W,H);P.forEach((p,i)=>{p.y-=p.v;p.x+=p.dx+Math.sin(t/1800+p.ph)*.25;if(p.y<-10)P[i]=mk();const g=x.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*4);g.addColorStop(0,'rgba(224,90,60,'+(p.a*.8)+')');g.addColorStop(1,'rgba(224,90,60,0)');x.fillStyle=g;x.beginPath();x.arc(p.x,p.y,p.r*4,0,6.28);x.fill()})}requestAnimationFrame(tick)}
  requestAnimationFrame(tick)})();
 
