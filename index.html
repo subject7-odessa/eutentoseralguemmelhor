@@ -263,6 +263,62 @@ input[type=checkbox]:checked::after{content:'';position:absolute;left:4px;top:1p
 .ag.hid{border-left-color:var(--ye);background:repeating-linear-gradient(135deg,var(--p) 0 12px,#e0b84a0a 12px 24px)}
 .hidt{color:var(--ye);border-color:var(--ye);display:inline-block;margin:2px 0 4px;white-space:nowrap;align-self:flex-start}
 .eye{font-size:12px}.eye.on{background:#e0b84a1f;border-color:var(--ye);color:var(--ye)}
+
+/* ---- evolução (XP) ---- */
+.xpl{display:flex;flex-direction:column;gap:6px}
+.xpr{display:flex;align-items:center;gap:12px;background:var(--p2);border:1px solid var(--ln);padding:8px 12px}
+.xpr.off{opacity:.55}.xpv{font:600 20px 'Libre Baskerville',serif;min-width:34px;text-align:right}
+.xph{margin:4px 0;font-size:14px}
+
+/* ---- impressão / PDF ---- */
+#pr{display:none}
+@media print{
+ @page{size:A4;margin:10mm}
+ html,body{background:#fff!important;color:#1b1512!important;font-size:10.5pt}
+ body>*:not(#pr){display:none!important}
+ body::before,body::after{display:none!important}
+ #pr{display:block!important;font-family:'Libre Baskerville',Georgia,serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ #pr *{box-sizing:border-box}
+ .pf-doc{break-after:page}.pf-doc:last-child{break-after:auto}
+ .pf-page{break-after:page;min-height:272mm;position:relative}.pf-page:last-child{break-after:auto}
+ .pf-top{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2.2pt solid #8f1d17;padding-bottom:3mm;margin-bottom:4mm}
+ .pf-k{font:7.5pt 'Special Elite',monospace;letter-spacing:.18em;text-transform:uppercase;color:#8f1d17}
+ .pf-t{font-size:19pt;letter-spacing:.14em;text-transform:uppercase;font-weight:700}
+ .pf-code{font:9pt 'Special Elite',monospace;text-align:right;border:1.2pt solid #8f1d17;color:#8f1d17;padding:1.5mm 3mm;transform:rotate(-2deg)}.pf-code small{display:block;font-size:6.5pt;color:#6b625c}
+ .pf-id{display:flex;gap:5mm;align-items:center;margin-bottom:4mm}
+ .pf-ph{width:30mm;height:30mm;flex:none;border:1.4pt solid #8f1d17;background:#1b1512;color:#f1e9df;display:flex;align-items:center;justify-content:center;font-size:20pt;overflow:hidden}.pf-ph img{width:100%;height:100%;object-fit:cover}
+ .pf-idt h1{margin:0;font-size:20pt;line-height:1.1}.pf-sub{font-size:11pt;color:#8f1d17;text-transform:uppercase;letter-spacing:.1em;margin:1mm 0}.pf-meta{font-size:8.5pt;color:#6b625c}
+ .pf-vit{display:grid;grid-template-columns:repeat(5,1fr);gap:2.5mm;margin-bottom:2mm}
+ .pf-vit>div,.pf-att>div{border:1pt solid #cfc6bd;background:#f6f1ea;padding:2mm;text-align:center}
+ .pf-vit b,.pf-att b{display:block;font:6.5pt 'Special Elite',monospace;letter-spacing:.14em;text-transform:uppercase;color:#6b625c}
+ .pf-vit span{font-size:15pt;font-weight:700}
+ #pr h2{font:700 8pt 'Special Elite',monospace;letter-spacing:.2em;text-transform:uppercase;color:#8f1d17;border-bottom:.8pt solid #cfc6bd;margin:4.5mm 0 2mm;padding-bottom:1mm}
+ .pf-att{display:grid;grid-template-columns:repeat(6,1fr);gap:2.5mm}.pf-att span{display:block;font-size:19pt;font-weight:700;line-height:1.1}.pf-att i{font-size:7pt;color:#6b625c;font-style:normal}
+ .pf-cols{display:grid;grid-template-columns:1fr 1fr;gap:6mm}
+ .pf-sk{width:100%;border-collapse:collapse}.pf-sk td{padding:.9mm 1mm;border-bottom:.5pt solid #e3dbd2;font-size:9.5pt}.pf-sk .m{width:5mm;color:#8f1d17;text-align:center}.pf-sk .v{text-align:right;font-weight:700;width:10mm}
+ .pf-leg{font-size:7pt;color:#6b625c;margin:1.5mm 0 0}
+ .pf-wp{width:100%;border-collapse:collapse;font-size:9pt}.pf-wp th{font:6.5pt 'Special Elite',monospace;letter-spacing:.12em;text-transform:uppercase;text-align:left;color:#6b625c;border-bottom:.8pt solid #cfc6bd;padding:1mm}.pf-wp td{padding:1.2mm 1mm;border-bottom:.5pt solid #e3dbd2;vertical-align:top}
+ .pf-it{border-left:2pt solid #8f1d17;padding:.8mm 0 .8mm 2.5mm;margin-bottom:2mm;font-size:9pt;break-inside:avoid}.pf-it i{color:#6b625c;font-size:7.5pt}.pf-it p,.pf-p{margin:.8mm 0 0;white-space:pre-wrap;font-size:9pt;line-height:1.35}.pf-d{font-size:8pt;color:#6b625c}
+ .pf-foot{position:absolute;bottom:0;left:0;right:0;text-align:center;font:7pt 'Special Elite',monospace;color:#9b8f86;border-top:.5pt solid #cfc6bd;padding-top:2mm}
+}
+
+/* ---- Mesa: combate, pistas, notas ---- */
+.cbl{display:flex;flex-direction:column;gap:6px}
+.cbi{display:flex;align-items:center;gap:12px;background:var(--p2);border:1px solid var(--ln);padding:8px 12px;transition:border-color .2s,box-shadow .2s,transform .2s}
+.cbi.on{border-color:var(--rd);box-shadow:inset 4px 0 0 var(--rd),0 0 18px #b3261e44;transform:translateX(4px)}
+.cbi.me{background:linear-gradient(90deg,#e0b84a14,var(--p2))}.cbi.sec{opacity:.7;border-style:dashed}
+.cbn{width:54px;text-align:center;font:600 20px 'Libre Baskerville',serif}.cbn input{width:56px;text-align:center;padding:4px}
+.av.sm{width:38px;height:38px;font-size:13px;flex:none}.av.sm::before{display:none}
+.cbi .bar{margin:4px 0 2px;height:6px}.cbc{display:flex;gap:6px;flex-wrap:wrap}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-top:12px}
+.pst{background:var(--p2);border:1px solid var(--ln);border-top:3px solid var(--rd);padding:14px;position:relative}
+.pst.draft{border-style:dashed;border-top-style:solid;opacity:.85}
+.pst-h{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}.pst h3{margin:4px 0 8px}
+.pst-img{width:100%;max-height:260px;object-fit:cover;border:1px solid var(--ln);margin-bottom:8px;filter:contrast(1.05) saturate(.85)}
+.pst-t{white-space:pre-wrap;line-height:1.5}
+.toast.s{border-left-color:var(--ye)}
+.sqlp{white-space:pre-wrap;font:12px/1.5 ui-monospace,monospace;max-height:320px;overflow:auto;background:var(--in);padding:10px;border:1px solid var(--ln)}
+.tiles.pick{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));max-height:180px;overflow:auto}
 </style></head><body>
 <div class="fog"></div><canvas id="embers"></canvas><div id="fx"></div>
 <header>
@@ -307,6 +363,14 @@ const tot=(c,k)=>(+c.attrs[k]||0)+(+c.extra?.[k]||0);
 const BASE={'Armas de Fogo':20,'Corpo a Corpo':25,'Defesa':20,'Tática':10,'Investigação':25,'Observação':25,'Perícia Forense':5,'Pesquisa':20,'Ocultismo':5,'Religião':10,'Medicina':5,'Mecânica':10,'Eletrônica':10,'Computação':5,'Direção':20,'Sobrevivência':10,'Furtividade':20,'Persuasão':10,'Intimidação':15,'Enganação':10,'Empatia':10};
 const ATT_PTS=18,PRO=[70,60,60,50,50,40],INT_BONUS=20,INT_PRO=4,INT_AMA=8;
 const baseOf=n=>BASE[n]??10;
+/* Progressão por XP. AJUSTE AQUI as regras da sua mesa: cada compra soma XP_PASSO ao valor da perícia e custa XP_CUSTO conforme o valor atual. */
+const XP_PASSO=5,XP_PTS_MAX=50,XP_VAL_MAX=95,XP_CUSTO=[[40,2],[60,3],[80,5],[999,8]];
+const xpCusto=v=>(XP_CUSTO.find(([m])=>v<m)||[0,8])[1];
+const xpOf=c=>c.xp=c.xp||{saldo:0,total:0,hist:[]};
+const xpLog=(c,t,qtd,txt)=>{const x=xpOf(c);x.hist.unshift({ts:new Date().toISOString(),t,qtd,txt});x.hist=x.hist.slice(0,100)};
+const xpGrant=(c,q,motivo)=>{const x=xpOf(c);x.saldo+=q;if(q>0)x.total+=q;xpLog(c,q>=0?'ganho':'ajuste',q,motivo||(q>=0?'XP concedido':'Ajuste do mestre'))};
+function xpPode(c,s){const v=sval(c,s),k=xpCusto(v);return {v,k,ok:xpOf(c).saldo>=k&&(+s.pts||0)+XP_PASSO<=XP_PTS_MAX&&v+XP_PASSO<=XP_VAL_MAX}}
+function xpEvoluir(c,i){const s=c.skills[i],p=xpPode(c,s);if(!p.ok)return false;const x=xpOf(c);x.saldo-=p.k;s.pts=(+s.pts||0)+XP_PASSO;xpLog(c,'gasto',-p.k,`${s.n}: ${p.v} → ${p.v+XP_PASSO}`);return true}
 const sval=(c,s)=>(+(s.ini??baseOf(s.n))||0)+(+s.pts||0);
 /* Conversão não destrutiva das fichas antigas (atributo×5 + pontos): o valor efetivo vira o valor inicial, os pontos de progressão recomeçam em 0 e o original fica guardado em c.legado. Só é gravada no banco quando a ficha for salva. */
 const migrate=c=>{if((c.fv||1)>=2)return c;
@@ -346,6 +410,60 @@ function logLine(o){const d=o.data||{},t=new Date(o.created_at).toLocaleTimeStri
  return `<p><span class="mu mono">${t}</span> <b>${esc(o.who)}</b> · ${esc(o.label)}${d.target?` (${d.target})`:''} → ${r}</p>`}
 const renderLog=()=>$('#logl').innerHTML=rolls.map(logLine).join('')||'<p class="mu">Nenhuma rolagem ainda.</p>';
 $('#logbtn').onclick=()=>$('#log').classList.add('on');$('#logx').onclick=()=>$('#log').classList.remove('on');
+
+
+/* ---------- exportar ficha em PDF (impressão do navegador: "Salvar como PDF") ---------- */
+function printHTML(c){
+ const r=calc(c),code='ARQ-'+String(c.id).slice(0,4).toUpperCase(),mk={principal:'★',formacao:'●',interesse:'+'};
+ const arr=k=>Array.isArray(c[k])?c[k]:[];
+ const item=h=>`<div class="pf-it"><b>${esc(h.n||'(sem nome)')}</b>${[h.cat,h.custo&&'Custo: '+h.custo,h.req&&'Req.: '+h.req,h.dano&&'Dano: '+h.dano].filter(Boolean).map(x=>` <i>${esc(x)}</i>`).join('')}${h.desc?`<p>${esc(h.desc)}</p>`:''}</div>`;
+ const sec=(t,html)=>html?`<h2>${t}</h2>${html}`:'';
+ const wp=arr('weapons').map(w=>{const s=c.skills.find(x=>x.n===w.skill);return `<tr><td><b>${esc(w.name)}</b></td><td>${s?sval(c,s):'—'}</td><td>${esc(w.dmg)}${w.crit?' · crít. '+esc(w.crit):''}</td></tr>`}).join('');
+ const inv=arr('inventario');
+ const texts=[['aparencia','Aparência'],['personalidade','Personalidade'],['historico','Histórico'],['objetivo','Objetivo'],['motiv','Motivação'],['ruptura','Ponto de ruptura'],['conEsp','Conhecimento especializado'],['idiomas','Idiomas'],['notes','Anotações']].filter(([k])=>c[k]);
+ const ties=(c.vinculos||[]).concat(c.contatos||[]).filter(Boolean);
+ return `<section class="pf-doc"><div class="pf-page">
+ <div class="pf-top"><div><div class="pf-k">Arquivo Sombrio · Sistema de Investigação</div><div class="pf-t">Dossiê de Agente</div></div><div class="pf-code">${code}<small>${esc(camp?.name||'')}</small></div></div>
+ <div class="pf-id"><div class="pf-ph">${c.foto?`<img src="${esc(c.foto)}" alt="">`:esc(ini(c.name))}</div><div class="pf-idt"><h1>${esc(c.name)}</h1><div class="pf-sub">${esc(c.esp||c.prof||'Sem especialidade')}</div><div class="pf-meta">${[c.player&&'Jogador: '+c.player,c.idade&&'Idade: '+c.idade,c.resid&&'Residência: '+c.resid,c.rec&&'Recursos: '+c.rec].filter(Boolean).map(esc).join(' &nbsp;·&nbsp; ')}</div></div></div>
+ <div class="pf-vit"><div><b>Vida</b><span>${c.vidaAtual}/${r.vida}</span></div><div><b>Pressão</b><span>${c.pressao||0}/3</span></div><div><b>Defesa</b><span>${r.defv}</span></div><div><b>Passiva</b><span>${r.defp}</span></div><div><b>Iniciativa</b><span>${r.ini}</span></div></div>
+ <h2>Atributos</h2><div class="pf-att">${ATT.map(([k,n])=>`<div><b>${esc(n)}</b><span>${tot(c,k)}</span><i>teste ${r[k]}</i></div>`).join('')}</div>
+ <div class="pf-cols"><div><h2>Perícias</h2><table class="pf-sk">${c.skills.map(s=>`<tr><td class="m">${mk[s.src]||''}</td><td>${esc(s.n)}</td><td class="v">${sval(c,s)}</td></tr>`).join('')}</table><p class="pf-leg">★ principal · ● formação · + interesse pessoal</p></div>
+ <div>${sec('Ataques',wp?`<table class="pf-wp"><tr><th>Arma</th><th>Ataque</th><th>Dano</th></tr>${wp}</table>`:'')}${sec('Condições',arr('condicoes').map(item).join(''))}${sec('Proteção e resistências',[c.protecao&&'<p><b>Proteção:</b> '+esc(c.protecao)+'</p>',c.resist&&'<p><b>Resistências:</b> '+esc(c.resist)+'</p>',c.profic&&'<p><b>Proficiências:</b> '+esc(c.profic)+'</p>'].filter(Boolean).join(''))}${sec('Habilidades',arr('habilidades').map(item).join(''))}</div></div>
+ </div><div class="pf-page">
+ ${sec('Rituais',arr('rituais').map(item).join(''))}
+ ${inv.length?`<h2>Inventário</h2><table class="pf-wp"><tr><th>Item</th><th>Qtd</th><th>Esp.</th></tr>${inv.map(h=>`<tr><td><b>${esc(h.n)}</b>${h.cat?` <i>${esc(h.cat)}</i>`:''}${h.dano?` · dano ${esc(h.dano)}`:''}${h.desc?`<br><span class="pf-d">${esc(h.desc)}</span>`:''}</td><td>${h.qtd||0}</td><td>${h.esp||0}</td></tr>`).join('')}</table>`:''}
+ ${texts.map(([k,t])=>`<h2>${t}</h2><p class="pf-p">${esc(c[k])}</p>`).join('')}
+ ${sec('Vínculos e contatos',ties.map(x=>`<p class="pf-p">${esc(x)}</p>`).join(''))}
+ ${sec('Cicatrizes de Caso',arr('cicatrizes').map(item).join(''))}
+ <div class="pf-foot">${code} · gerado em ${new Date().toLocaleDateString('pt-BR')} · uso restrito à mesa</div></div></section>`}
+function printFichas(list){
+ document.getElementById('pr')?.remove();
+ const el=document.createElement('div');el.id='pr';el.innerHTML=list.map(printHTML).join('');document.body.append(el);document.body.classList.add('printing');
+ const end=()=>{document.body.classList.remove('printing');el.remove();removeEventListener('afterprint',end)};addEventListener('afterprint',end);
+ Promise.all([...el.querySelectorAll('img')].map(i=>i.decode?i.decode().catch(()=>0):0)).then(()=>setTimeout(()=>window.print(),80))}
+
+
+/* ---------- backup e importação (JSON) ---------- */
+function backupData(){const M=isMaster();
+ const fichas=chars.filter(c=>M||c.owner===user.id).map(c=>{const {id,owner,name,created,migrou,...data}=c;return {id,name,owner,data}});
+ const out={app:'arquivo-sombrio',v:1,exportado:new Date().toISOString(),campanha:{id:camp.id,nome:camp.name},fichas};
+ if(M){out.ameacas=threats.map(t=>({name:t.name,text:t.text,data:t.data}));out.sessao=sess.filter(x=>x.kind!=='combate').map(x=>({kind:x.kind,data:x.data,revealed:x.revealed,created_at:x.created_at}))}
+ return out}
+function backupDownload(){const j=backupData(),slug=String(camp.name||'campanha').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/gi,'-').replace(/^-|-$/g,'').toLowerCase();
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(j,null,1)],{type:'application/json'}));a.download=`arquivo-sombrio-${slug}-${new Date().toISOString().slice(0,10)}.json`;document.body.append(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
+async function importBackup(file){let j;try{j=JSON.parse(await file.text())}catch(e){return alert('Arquivo inválido: não é um JSON.')}
+ if(j?.app!=='arquivo-sombrio'||!Array.isArray(j.fichas))return alert('Este arquivo não parece um backup do Arquivo Sombrio.');
+ const M=isMaster(),nA=M?(j.ameacas||[]).length:0,nS=M?(j.sessao||[]).length:0;
+ if(!await ask(`Importar ${j.fichas.length} ficha(s)${nA?`, ${nA} ameaça(s)`:''}${nS?`, ${nS} item(ns) de sessão`:''} do backup de ${fmt(j.exportado)}? Tudo entra como registro novo nesta campanha. Nada que já existe é alterado ou apagado.`))return;
+ let ok=0,fail=0;
+ for(const f of j.fichas){if(!f||!f.name||!f.data||typeof f.data!=='object'||!f.data.attrs||!Array.isArray(f.data.skills)){fail++;continue}
+  const name=chars.some(c=>c.name===f.name)?f.name+' (importada)':f.name;
+  const {data,error}=await sb.from('characters').insert({campaign_id:camp.id,owner:user.id,name,data:f.data}).select().single();
+  if(error){fail++;continue}ok++;if(!chars.find(x=>x.id===data.id))chars.push(toChar(data))}
+ let oa=0,os=0;
+ if(M){for(const t of j.ameacas||[]){if(!t||!t.name)continue;const {error}=await sb.from('threats').insert({campaign_id:camp.id,name:t.name,text:t.text||'',data:t.data||{}});if(!error)oa++}
+  if(sessOk)for(const x of j.sessao||[]){if(!x||!['pista','nota'].includes(x.kind))continue;if(await sAdd(x.kind,x.data||{},!!x.revealed,x.created_at?{created_at:x.created_at}:undefined))os++}}
+ alert(`Importação concluída: ${ok} ficha(s)${oa?`, ${oa} ameaça(s)`:''}${os?`, ${os} item(ns) de sessão`:''}${fail?`. ${fail} registro(s) com erro foram ignorados`:''}.`);render()}
 
 /* ---------- salvar ---------- */
 function save(c){clearTimeout(timers[c.id]);timers[c.id]=setTimeout(async()=>{
@@ -427,10 +545,12 @@ async function campsView(app,nav){nav.innerHTML='';
  $('#jj').onclick=async()=>{const r=await sb.rpc('join_campaign',{p_code:$('#jc').value});r.error?alert(r.error.message):enter(r.data)}}
 async function enter(id){
  const {data}=await sb.from('campaigns').select('*').eq('id',id).single();camp=data;view='agentes';open=null;
- const [c,t,r,m]=await Promise.all([sb.from('characters').select('*').eq('campaign_id',id).order('name'),
+ const [c,t,r,m,si]=await Promise.all([sb.from('characters').select('*').eq('campaign_id',id).order('name'),
   isMaster()?sb.from('threats').select('*').eq('campaign_id',id):{data:[]},
   sb.from('rolls').select('*').eq('campaign_id',id).order('created_at',{ascending:false}).limit(100),
-  sb.from('members').select('user_id').eq('campaign_id',id)]);
+  sb.from('members').select('user_id').eq('campaign_id',id),
+   sb.from('session_items').select('*').eq('campaign_id',id)]);
+  sessOk=!sessErr(si.error);sess=sessOk?(si.data||[]):[];mtab='combate';
  chars=(c.data||[]).map(toChar);threats=t.data||[];rolls=r.data||[];
  const ids=(m.data||[]).map(x=>x.user_id);const p=await sb.from('profiles').select('*').in('id',ids);names={};(p.data||[]).forEach(x=>names[x.id]=x.name);
  renderLog();
@@ -444,12 +564,158 @@ async function enter(id){
   .on('postgres_changes',{event:'*',schema:'public',table:'threats',filter:'campaign_id=eq.'+id},p=>{
    if(p.eventType==='DELETE')threats=threats.filter(x=>x.id!==p.old.id);else{const i=threats.findIndex(x=>x.id===p.new.id);i<0?threats.push(p.new):threats[i]=p.new}
    if(!typing())render()})
+  .on('postgres_changes',{event:'*',schema:'public',table:'session_items',filter:'campaign_id=eq.'+id},p=>{
+    if(p.eventType==='DELETE')sess=sess.filter(x=>x.id!==p.old.id);
+    else{const n=p.new;if(!isMaster()&&!n.revealed)sess=sess.filter(x=>x.id!==n.id);
+     else{if(timers['s'+n.id])return;const i=sess.findIndex(x=>x.id===n.id);
+      if(!isMaster()&&n.revealed&&n.kind!=='combate'&&(i<0||!sess[i].revealed))notice((n.kind==='pista'?'Nova pista: ':'Nova nota da sessão: ')+(n.data?.titulo||''));
+      i<0?sess.push(n):sess[i]=n}}
+    if(view==='mesa'&&!typing())render()})
   .subscribe();
  render()}
-function mesa(app){app.innerHTML=`<h2>${esc(camp.name)}</h2><div class="mu">${isMaster()?'Código para convidar jogadores: <b>'+camp.code+'</b>':'Mestre: '+esc(names[camp.master]||'?')}</div><br>
+/* ---------- Mesa: combate, pistas e notas de sessão ---------- */
+let sess=[],sessOk=true,mtab='combate';
+const SESSAO_SQL=`-- Arquivo Sombrio: ferramentas de sessão (combate, pistas e notas)
+-- Como usar: Supabase > SQL Editor > New query > cole tudo > Run. É seguro rodar mais de uma vez.
+-- Pressupõe as tabelas já usadas pelo site: campaigns (id, master) e members (campaign_id, user_id).
+
+create table if not exists public.session_items (
+  id uuid primary key default gen_random_uuid(),
+  campaign_id uuid not null references public.campaigns(id) on delete cascade,
+  kind text not null check (kind in ('combate','pista','nota')),
+  data jsonb not null default '{}'::jsonb,
+  revealed boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists session_items_campaign_idx on public.session_items (campaign_id, kind);
+alter table public.session_items enable row level security;
+
+create or replace function public.as_is_master(cid uuid) returns boolean
+language sql stable security definer set search_path = public as $$
+  select exists (select 1 from public.campaigns c where c.id = cid and c.master = auth.uid())
+$$;
+
+create or replace function public.as_is_member(cid uuid) returns boolean
+language sql stable security definer set search_path = public as $$
+  select public.as_is_master(cid)
+      or exists (select 1 from public.members m where m.campaign_id = cid and m.user_id = auth.uid())
+$$;
+
+-- Mestre vê tudo. Jogadores só veem o que o mestre revelou (revealed = true).
+drop policy if exists session_select on public.session_items;
+create policy session_select on public.session_items for select
+  using (public.as_is_master(campaign_id) or (revealed and public.as_is_member(campaign_id)));
+
+drop policy if exists session_insert on public.session_items;
+create policy session_insert on public.session_items for insert
+  with check (public.as_is_master(campaign_id));
+
+drop policy if exists session_update on public.session_items;
+create policy session_update on public.session_items for update
+  using (public.as_is_master(campaign_id)) with check (public.as_is_master(campaign_id));
+
+drop policy if exists session_delete on public.session_items;
+create policy session_delete on public.session_items for delete
+  using (public.as_is_master(campaign_id));
+
+-- Atualização em tempo real para a mesa toda.
+do $$ begin
+  alter publication supabase_realtime add table public.session_items;
+exception when duplicate_object then null;
+end $$;
+`;
+const sK=k=>sess.filter(x=>x.kind===k);
+const sessErr=e=>!!e&&(e.code==='42P01'||e.code==='PGRST205'||/session_items|does not exist|schema cache/i.test(e.message||''));
+const uid=()=>crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2)+Date.now().toString(36);
+const PISTA_TIPOS=['Documento','Foto','Local','Testemunho','Objeto'];
+function notice(txt){const el=document.createElement('div');el.className='toast s';el.innerHTML=`<div class="mu mono">MESA</div><div>${esc(txt)}</div>`;$('#toasts').append(el);setTimeout(()=>el.remove(),7000)}
+async function sAdd(kind,data,revealed,extra){const {data:row,error}=await sb.from('session_items').insert({campaign_id:camp.id,kind,data,revealed:!!revealed,...(extra||{})}).select().single();
+ if(error){alert('Erro: '+error.message);return null}if(!sess.find(x=>x.id===row.id))sess.push(row);return row}
+function sSave(row){clearTimeout(timers['s'+row.id]);timers['s'+row.id]=setTimeout(async()=>{
+ const {error}=await sb.from('session_items').update({data:row.data,revealed:row.revealed,updated_at:new Date().toISOString()}).eq('id',row.id);
+ if(error)alert('Erro ao salvar: '+error.message);delete timers['s'+row.id]},350)}
+async function sDel(row){if(await delRow('session_items',row.id))sess=sess.filter(x=>x.id!==row.id)}
+/* esconder = apagar e recriar, para sumir também da tela de quem já viu */
+async function sReveal(row,v){if(v){row.revealed=true;sSave(row);return}
+ const copy=JSON.parse(JSON.stringify(row.data));if(!await delRow('session_items',row.id))return;sess=sess.filter(x=>x.id!==row.id);await sAdd(row.kind,copy,false,{created_at:row.created_at})}
+const imgScale=(f,S,q)=>new Promise((res,rej)=>{if(!/^image\//.test(f.type))return rej(new Error('Escolha um arquivo de imagem.'));const im=new Image(),u=URL.createObjectURL(f);
+ im.onload=()=>{const k=Math.min(1,S/Math.max(im.width,im.height)),cv=document.createElement('canvas');cv.width=Math.round(im.width*k);cv.height=Math.round(im.height*k);cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);URL.revokeObjectURL(u);res(cv.toDataURL('image/jpeg',q))};
+ im.onerror=()=>{URL.revokeObjectURL(u);rej(new Error('Não foi possível ler a imagem.'))};im.src=u});
+function formModal(title,html,get,hook){return new Promise(res=>{const o=document.createElement('div');o.className='modal';
+ o.innerHTML=`<div class="card"><h3>${title}</h3>${html}<div class="row" style="margin-top:12px"><span class="sp"></span><button data-k="0">Cancelar</button><button class="pr" data-k="1">Confirmar</button></div></div>`;
+ o.onclick=e=>{const k=e.target.closest('button')?.dataset.k;if(k!=null){const v=k==='1'?get(o):null;o.remove();return res(v)}hook&&hook(e,o)};
+ if(hook&&hook.change)o.onchange=e=>hook.change(e,o);
+ document.body.append(o);o.querySelector('input,textarea')?.focus()})}
+
+function mesa(app){const tabs=[['combate','Combate'],['pistas','Pistas'],['notas','Notas'],['campanha','Campanha']];
+ app.innerHTML=`<div class="row"><h2 class="sp">${esc(camp.name)}</h2></div><div class="tabs" id="mt" style="margin-top:8px">${tabs.map(([k,t])=>`<a data-m="${k}" class="${mtab===k?'on':''}">${t}</a>`).join('')}</div><div id="mb" style="margin-top:14px"></div>`;
+ $('#mt').onclick=e=>{if(e.target.dataset.m){mtab=e.target.dataset.m;mesa(app)}};
+ const mb=$('#mb');
+ if(mtab==='campanha')return mesaCamp(mb);
+ if(!sessOk)return sessSetup(mb);
+ ({combate:mesaCombate,pistas:mesaPistas,notas:mesaNotas}[mtab]||mesaCombate)(mb,app)}
+function mesaCamp(mb){mb.innerHTML=`<div class="mu">${isMaster()?'Código para convidar jogadores: <b>'+camp.code+'</b>':'Mestre: '+esc(names[camp.master]||'?')}</div><br>
  <div class="box"><h3>Jogadores</h3>${Object.values(names).map(esc).join(' · ')}</div>
  <button id="lv">← Trocar de campanha</button>`;
  $('#lv').onclick=()=>{camp=null;sb.removeChannel(chan);render()}}
+function sessSetup(mb){mb.innerHTML=isMaster()?`<div class="box"><h3>Ativar as ferramentas de sessão</h3><p>Combate, pistas e notas precisam de uma tabela nova no Supabase (<code>session_items</code>). Rode o SQL abaixo uma vez no <b>SQL Editor</b> do seu projeto e recarregue a página. Ele também protege no banco o que os jogadores não devem ver.</p><div class="row"><button class="pr" id="cpsql">Copiar SQL</button></div>${det('sqlbox','<b>Ver o SQL</b>','<pre class="sqlp">'+esc(SESSAO_SQL)+'</pre>')}</div>`
+ :`<div class="box"><p class="mu">O mestre ainda não ativou as ferramentas de sessão desta campanha.</p></div>`;
+ $('#cpsql')&&($('#cpsql').onclick=()=>navigator.clipboard.writeText(SESSAO_SQL).then(()=>notice('SQL copiado.')).catch(()=>alert('Copie manualmente pelo botão "Ver o SQL".')))}
+
+/* ----- combate ----- */
+const cbData=r=>{const d=r.data=r.data||{};d.itens=d.itens||[];d.round=d.round||1;if(!d.iniciado)d.atual=cbSorted(d)[0]?.id||null;return d};
+function cbSorted(d){return [...d.itens].sort((a,b)=>(+b.ini||0)-(+a.ini||0))}
+const cbEstado=(v,m)=>!m?'—':v<=0?'Derrubado':v/m>.66?'Firme':v/m>.33?'Ferido':'Gravemente ferido';
+function cbNext(d){const o=cbSorted(d);if(!o.length)return;let i=o.findIndex(x=>x.id===d.atual)+1;if(i>=o.length||i<=0&&d.atual==null){if(i>=o.length){i=0;d.round++}else i=0}d.atual=o[i].id}
+function mesaCombate(mb,app){const M=isMaster(),r=sK('combate')[0];
+ if(!r){mb.innerHTML=M?`<div class="box"><h3>Combate</h3><p class="mu">Nenhum combate em andamento. O rastreador mostra a ordem de iniciativa e o turno atual para a mesa toda, em tempo real.</p><button class="pr" id="cbnew">Iniciar combate</button></div>`:'<p class="mu">Nenhum combate em andamento.</p>';
+  M&&($('#cbnew').onclick=async()=>{await sAdd('combate',{round:1,atual:null,itens:[]},true);mesa(app)});return}
+ const d=cbData(r),all=cbSorted(d),ord=M?all:all.filter(x=>!x.sec),atual=all.find(x=>x.id===d.atual);
+ const row=x=>{const ch=x.tipo==='agente'?chars.find(c=>c.id===x.ref):null,vida=ch?ch.vidaAtual:(+x.vida||0),max=ch?calc(ch).vida:(+x.max||0),pct=max?Math.max(0,Math.min(100,100*vida/max)):0,mine=ch&&ch.owner===user.id,num=ch||M;
+  return `<div class="cbi${x.id===d.atual?' on':''}${mine?' me':''}${x.sec?' sec':''}"><span class="cbn">${M?`<input type="number" data-ci="${x.id}" value="${+x.ini||0}">`:(+x.ini||0)}</span><div class="av sm${ch?.foto?' ph':''}">${ch?avIn(ch):esc(ini(x.n))}</div><div class="sp"><b>${esc(x.n)}</b>${x.sec?' <span class="tag hidt">secreto</span>':''}<div class="bar"><i style="width:${pct}%"></i></div><span class="mu">${num?(max?vida+' / '+max:vida):cbEstado(vida,max)}${!num&&max?'':''}</span></div>${M?`<span class="cbc">${ch?'':`<button data-cv="${x.id}|-1">−</button><button data-cv="${x.id}|1">+</button>`}<button class="eye${x.sec?' on':''}" data-cs="${x.id}">${x.sec?'Mostrar':'Ocultar'}</button><button class="x" data-cx="${x.id}">✕</button></span>`:''}</div>`};
+ mb.innerHTML=`<div class="row"><b class="sp" style="font-size:22px">Rodada ${d.round}${atual&&(M||!atual.sec)?` · <span class="rd">turno de ${esc(atual.n)}</span>`:''}</b>${M?`<button data-cb="agentes">+ Agentes</button><button data-cb="ameaca">+ Ameaça</button><button class="pr" data-cb="next">${d.iniciado?'Próximo turno ▶':'Começar combate ▶'}</button><button class="x" data-cb="end">Encerrar</button>`:''}</div><div class="cbl" style="margin-top:12px">${ord.map(row).join('')||'<p class="mu">Ninguém na ordem de iniciativa ainda.</p>'}</div>`;
+ if(!M)return;
+ const save=()=>{sSave(r);mesa(app)};
+ mb.onchange=e=>{const id=e.target.dataset.ci;if(!id)return;const x=d.itens.find(y=>y.id===id);if(x){x.ini=+e.target.value||0;save()}};
+ mb.onclick=async e=>{const b=e.target.closest('button');if(!b)return;const k=b.dataset;
+  if(k.cb==='agentes'){chars.forEach(c=>{if(!d.itens.some(x=>x.ref===c.id))d.itens.push({id:uid(),tipo:'agente',ref:c.id,n:c.name,ini:calc(c).ini})});return save()}
+  if(k.cb==='ameaca'){const v=await formModal('Adicionar ameaça',`<label>Nome</label><input id="fn" placeholder="Nome da ameaça"><div class="row"><div class="sp"><label>Iniciativa</label><input id="fi" type="number" value="0"></div><div class="sp"><label>Vida</label><input id="fv" type="number" value="10"></div></div>${threats.length?`<label>Do seu catálogo (Minhas ameaças)</label><div class="tiles pick">${threats.slice(0,40).map(t=>`<button class="tile" data-pick="${esc(t.name)}"><span>${esc(t.name)}</span></button>`).join('')}</div>`:''}`,
+    o=>({n:o.querySelector('#fn').value.trim(),ini:+o.querySelector('#fi').value||0,vida:+o.querySelector('#fv').value||0}),(e,o)=>{const p=e.target.closest('[data-pick]');if(p)o.querySelector('#fn').value=p.dataset.pick});
+   if(v&&v.n){d.itens.push({id:uid(),tipo:'ameaca',n:v.n,ini:v.ini,vida:v.vida,max:v.vida,sec:false});save()}return}
+  if(k.cb==='next'){if(!d.iniciado)d.iniciado=true;else cbNext(d);return save()}
+  if(k.cb==='end'){if(await ask('Encerrar o combate? A ordem de iniciativa será apagada.')){await sDel(r);mesa(app)}return}
+  if(k.cv){const [id,dv]=k.cv.split('|'),x=d.itens.find(y=>y.id===id);if(x){x.vida=Math.max(0,Math.min(x.max||999,(+x.vida||0)+ +dv));save()}return}
+  if(k.cs){const x=d.itens.find(y=>y.id===k.cs);if(x){x.sec=!x.sec;save()}return}
+  if(k.cx){const was=d.atual===k.cx;if(was)cbNext(d);d.itens=d.itens.filter(y=>y.id!==k.cx);if(was&&d.atual===k.cx)d.atual=null;if(!d.itens.length)d.atual=null;save()}}}
+
+/* ----- pistas ----- */
+function mesaPistas(mb,app){const M=isMaster(),l=sK('pista').filter(x=>M||x.revealed).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+ const card=(r,i)=>{const p=r.data;return `<div class="pst${r.revealed?'':' draft'}"><div class="pst-h"><span class="tag">PISTA ${String(i+1).padStart(2,'0')}</span><span class="tag">${esc(p.tipo||'Documento')}</span>${M&&!r.revealed?'<span class="tag hidt">oculta dos jogadores</span>':''}</div><h3>${esc(p.titulo||'(sem título)')}</h3>${p.img?`<img class="pst-img" src="${esc(p.img)}" alt="">`:''}<p class="pst-t">${esc(p.texto||'')}</p>
+  ${M?`<div class="row"><button class="${r.revealed?'':'pr'}" data-pr="${r.id}">${r.revealed?'Esconder dos jogadores':'Revelar aos jogadores'}</button><span class="sp"></span><button class="x" data-px="${r.id}">Remover</button></div>`+det('pe'+r.id,'Editar',`<label>Título</label><input data-pt="${r.id}" value="${esc(p.titulo)}"><label>Descrição</label><textarea data-pb="${r.id}" style="min-height:90px">${esc(p.texto)}</textarea><label>Tipo</label><div class="seg">${PISTA_TIPOS.map(t=>`<button class="sg${p.tipo===t?' on':''}" data-ptp="${r.id}|${t}">${t}</button>`).join('')}</div>${p.img?`<div class="row" style="margin-top:8px"><button class="x" data-pimg="${r.id}">Remover imagem</button></div>`:''}`):''}</div>`};
+ mb.innerHTML=`<div class="row"><h3 class="sp">Quadro de pistas</h3>${M?'<button class="pr" id="pnew">Nova pista</button>':''}</div><p class="mu">${M?'Pistas ocultas só aparecem para você. Ao revelar, aparecem na hora para os jogadores.':'Evidências que o mestre revelou ao grupo.'}</p><div class="pgrid">${l.map(card).join('')||'<p class="mu">Nenhuma pista por aqui ainda.</p>'}</div>`;
+ if(!M)return;
+ $('#pnew').onclick=async()=>{let img='';
+  const v=await formModal('Nova pista',`<label>Tipo</label><div class="seg" id="ptipo">${PISTA_TIPOS.map((t,i)=>`<button class="sg${i?'':' on'}" data-tipo="${t}">${t}</button>`).join('')}</div><label>Título</label><input id="pti" placeholder="Ex.: Carta rasgada no cofre"><label>Descrição</label><textarea id="ptx" style="min-height:90px" placeholder="O que os investigadores encontram"></textarea><div class="row" style="margin-top:10px"><button data-attach="1">Anexar imagem (opcional)</button><span class="mu" id="pim"></span><input type="file" id="pfile" accept="image/*" hidden></div>`,
+   o=>({titulo:o.querySelector('#pti').value.trim(),texto:o.querySelector('#ptx').value.trim(),tipo:o.querySelector('#ptipo .on')?.dataset.tipo||'Documento',img}),
+   Object.assign((e,o)=>{const t=e.target.closest('button');if(!t)return;if(t.dataset.tipo){o.querySelectorAll('#ptipo .sg').forEach(x=>x.classList.toggle('on',x===t))}if(t.dataset.attach)o.querySelector('#pfile').click()},{change:async(e,o)=>{if(e.target.id!=='pfile'||!e.target.files[0])return;try{img=await imgScale(e.target.files[0],640,.78);o.querySelector('#pim').textContent='Imagem anexada ✓'}catch(er){alert(er.message)}}}));
+  if(v&&(v.titulo||v.texto)){await sAdd('pista',v,false);mesa(app)}};
+ mb.onclick=async e=>{const b=e.target.closest('button');if(!b)return;const k=b.dataset,find=id=>sess.find(x=>x.id===id);
+  if(k.pr){const r=find(k.pr);await sReveal(r,!r.revealed);return mesa(app)}
+  if(k.px){if(await ask('Remover esta pista?')){await sDel(find(k.px));mesa(app)}return}
+  if(k.ptp){const [id,t]=k.ptp.split('|'),r=find(id);r.data.tipo=t;sSave(r);return mesa(app)}
+  if(k.pimg){const r=find(k.pimg);delete r.data.img;sSave(r);mesa(app)}};
+ mb.onchange=e=>{const t=e.target.dataset,id=t.pt||t.pb,r=sess.find(x=>x.id===id);if(!r)return;if(t.pt)r.data.titulo=e.target.value;else r.data.texto=e.target.value;sSave(r)}}
+
+/* ----- notas de sessão ----- */
+function mesaNotas(mb,app){const M=isMaster(),l=sK('nota').filter(x=>M||x.revealed).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+ mb.innerHTML=`<div class="row"><h3 class="sp">${M?'Notas de sessão':'Resumos da sessão'}</h3>${M?'<button class="pr" id="nnew">Nova nota</button>':''}</div><p class="mu">${M?'Notas ficam só com você até você compartilhar.':'Resumos que o mestre compartilhou com o grupo.'}</p>${l.map(r=>{const n=r.data;return M?det('n'+r.id,`<span class="sp"><b>${esc(n.titulo||'(sem título)')}</b> <span class="mu">${esc(n.data||'')}${r.revealed?' · compartilhada':' · só você'}</span></span>`,`<input data-nt="${r.id}" value="${esc(n.titulo)}" placeholder="Título"><textarea data-nb="${r.id}" style="min-height:160px" placeholder="O que aconteceu, o que ficou em aberto…">${esc(n.texto)}</textarea><div class="row"><button class="${r.revealed?'':'pr'}" data-ns="${r.id}">${r.revealed?'Parar de compartilhar':'Compartilhar com os jogadores'}</button><span class="sp"></span><button class="x" data-nx="${r.id}">Remover</button></div>`):det('n'+r.id,`<span class="sp"><b>${esc(n.titulo||'(sem título)')}</b> <span class="mu">${esc(n.data||'')}</span></span>`,`<p class="pst-t">${esc(n.texto||'')}</p>`)}).join('')||'<p class="mu">Nenhuma nota ainda.</p>'}`;
+ if(!M)return;
+ $('#nnew').onclick=async()=>{const r=await sAdd('nota',{titulo:'Sessão '+(sK('nota').length+1),texto:'',data:new Date().toLocaleDateString('pt-BR')},false);if(r){opened.add('n'+r.id);mesa(app)}};
+ mb.onclick=async e=>{const b=e.target.closest('button');if(!b)return;const k=b.dataset,find=id=>sess.find(x=>x.id===id);if(b.closest('summary'))return;
+  if(k.ns){const r=find(k.ns);await sReveal(r,!r.revealed);return mesa(app)}
+  if(k.nx){if(await ask('Remover esta nota?')){await sDel(find(k.nx));mesa(app)}}};
+ mb.onchange=e=>{const t=e.target.dataset,id=t.nt||t.nb,r=sess.find(x=>x.id===id);if(!r)return;if(t.nt)r.data.titulo=e.target.value;else r.data.texto=e.target.value;sSave(r)}}
 /* ---------- dados do livro (Cap. 2: Criação do Investigador) ---------- */
 const ESP=[{"n":"Investigador Particular","f":["Investigação","Observação","Pesquisa","Furtividade","Persuasão","Direção"],"v":"Linha Aberta. Uma vez por caso, antes de uma cena de investigação, o jogador declara uma linha de apuração que o personagem já havia começado, como um endereço verificado, um nome pesquisado ou uma testemunha sondada, e o Mestre fornece uma pequena pista, nunca a solução. Em vigilância planejada, o personagem recebe mais dez em Observação e Furtividade.","l":"não possui autoridade legal. Abordagens a funcionários que exigem credencial sofrem menos dez, e sua atividade pode ser denunciada","e":"câmera com lente de alcance, gravador, binóculos, bloco, ferramentas simples de acesso","c":"um funcionário público de baixo escalão ou um informante local","r":"Estáveis"},{"n":"Perito Criminal","f":["Perícia Forense","Investigação","Observação","Medicina","Pesquisa","Computação"],"v":"Cadeia de Evidência. Quando documenta corretamente uma pista, em uma cena que preservou, a evidência não pode ser invalidada por falha técnica, e o personagem recebe mais dez em Perícia Forense sobre ela.","l":"laboratório oficial leva dias, a instituição pode interferir e qualquer evidência retirada da cena sem registro perde o valor de prova","e":"kit de coleta, luvas, lanterna forense, câmera, sacos de evidência","c":"um técnico de laboratório","r":"Estáveis"},{"n":"Policial","f":["Armas de Fogo","Corpo a Corpo","Defesa","Direção","Intimidação","Investigação"],"v":"Autoridade Real. Dentro da jurisdição e com motivo legítimo, o personagem pode exigir cooperação de civis, com mais dez em Persuasão ou Intimidação quando o distintivo importa, acessar registros policiais comuns sem teste e isolar uma cena por um período razoável.","l":"suas ações oficiais deixam registro. Cada uso da autoridade fora do procedimento acumula um ponto de Atenção, nos termos da Parte III (Capítulo 12 )","e":"arma de serviço, algemas, rádio, colete leve, distintivo","c":"um colega de delegacia","r":"Estáveis"},{"n":"Médico","f":["Medicina","Pesquisa","Perícia Forense","Empatia","Observação","Persuasão"],"v":"Prioridade Clínica. Reconhece sem teste situações clínicas comuns fora de pressão. Sob pressão, recebe mais dez em Medicina para estabilizar. Pode solicitar exames e leito hospitalar em até um dia, desde que não precise ocultar o caso.","l":"responsabilidade profissional. Sigilo, licença e prontuário regem suas ações, abandonar um paciente tem consequência e o uso de medicamentos controlados deixa registro","e":"maleta médica avançada, estetoscópio, material de sutura, medicamentos comuns","c":"um colega de hospital","r":"Estáveis ou Confortáveis"},{"n":"Paramédico","f":["Medicina","Direção","Defesa","Observação","Empatia","Sobrevivência"],"v":"Hora de Ouro. Nos primeiros dez minutos depois de um ferimento, recebe mais dez em Medicina e ignora a penalidade por falta de kit. Pode estabilizar um personagem Morrendo mesmo em movimento, com a penalidade normal para pacientes sob ameaça.","l":"age por protocolo. Diagnósticos complexos e procedimentos avançados exigem equipamento que ele raramente carrega, e o Mestre pode negá-los","e":"bolsa de emergência, oxigênio portátil, talas, maca dobrável","c":"um motorista ou um regulador de central","r":"Estáveis"},{"n":"Jornalista","f":["Pesquisa","Persuasão","Enganação","Investigação","Computação","Observação"],"v":"Fonte Cruzada. Quando duas fontes independentes contradizem uma terceira, o personagem identifica sem teste qual ponto merece investigação adicional, desde que tenha acesso aos materiais. Com credencial de imprensa, recebe mais dez em Persuasão para entrevistas.","l":"visibilidade. É reconhecível, sua presença alerta quem tem algo a esconder, e a pressão do prazo de uma redação pode ser usada contra ele","e":"celular com gravador, câmera, notebook, credencial","c":"um editor ou uma fonte em órgão público","r":"Limitados ou Estáveis"},{"n":"Pesquisador Acadêmico","f":["Pesquisa","Ocultismo","Religião","Investigação","Computação","Observação"],"v":"Acesso Acadêmico. Possui Fonte Cruzada, como o jornalista, e recebe mais dez em Pesquisa em acervos institucionais e universitários. Possui um conhecimento especializado adicional na área de sua formação.","l":"a credibilidade profissional depende de método. Afirmar em público o que não pode demonstrar custa reputação, e prazos acadêmicos competem com os do caso","e":"notebook, livros, scanner portátil, acesso a bases de dados","c":"um orientador ou colega de departamento","r":"Limitados ou Estáveis"},{"n":"Engenheiro","f":["Mecânica","Eletrônica","Computação","Pesquisa","Observação","Investigação"],"v":"Leitura Estrutural. Identifica sem teste falhas estruturais evidentes em circunstâncias normais, e recebe mais dez em Mecânica e Eletrônica ao planejar uma improvisação com tempo.","l":"depende de medida. Estimativas sem instrumento sofrem menos dez, e laudos assinados criam responsabilidade técnica","e":"trena, multímetro, lanterna, notebook, caderno técnico","c":"um fornecedor ou um colega de obra","r":"Estáveis ou Confortáveis"},{"n":"Programador","f":["Computação","Eletrônica","Pesquisa","Investigação","Enganação","Observação"],"v":"Infraestrutura. Recebe mais dez em Computação ao trabalhar em sistema que conhece ou ajudou a construir, e reduz em um ponto o Progresso exigido por uma busca digital, com mínimo de um.","l":"pegada digital. Toda ação deixa registro, e o Mestre pode usar os acessos do personagem como prova contra ele","e":"notebook, roteador portátil, dispositivos de armazenamento, carregadores","c":"um colega de infraestrutura","r":"Estáveis"},{"n":"Advogado","f":["Persuasão","Pesquisa","Investigação","Empatia","Enganação","Intimidação"],"v":"Procedimento. Conhece direitos, prazos e formalidades. Recebe mais dez em Persuasão e Intimidação em contexto jurídico, pode interromper um interrogatório oficial que se prolongue além do razoável e, ao fim de um caso, pode reduzir um ponto de Atenção por meio de uma manobra legal.","l":"ética profissional. Forjar evidência ou obstruir a justiça pode custar a habilitação, e todo cliente tem direito ao sigilo que o personagem também deve","e":"pasta, tablet, procurações, cartões","c":"um servidor de cartório","r":"Estáveis ou Confortáveis"},{"n":"Religioso","f":["Religião","Ocultismo","Persuasão","Empatia","Pesquisa","Observação"],"v":"Comunidade. Pertence a uma comunidade que oferece abrigo, doações modestas e uma rede de simpatia. Conhece as liturgias da própria tradição e pode conduzir ritos que exijam um oficiante. Recebe mais dez em Controle diante de situações que a tradição trata, como luto, morte e sofrimento.","l":"hierarquia e dogma. Superiores podem exigir explicações, e agir contra o ensinamento de sua tradição tem custo social e interior","e":"texto sagrado, símbolos, objetos de culto","c":"um colega de ministério","r":"Limitados ou Estáveis"},{"n":"Militar","f":["Armas de Fogo","Corpo a Corpo","Defesa","Tática","Sobrevivência","Furtividade"],"v":"Disciplina de Campo. Uma vez por cena, recebe mais dez em um teste de Controle para manter posição sob fogo ou diante de medo, e seus planos de Tática concedem aos aliados mais cinco, além do bônus normal, em Iniciativa.","l":"reconhecível. Possui registro nas Forças, antigos companheiros e antigas ordens, e sua formação pode ser descoberta","e":"botas, mochila tática, faca de combate, kit de sobrevivência","c":"um antigo companheiro","r":"Estáveis"},{"n":"Criminoso","f":["Furtividade","Enganação","Corpo a Corpo","Armas de Fogo","Intimidação","Mecânica"],"v":"Mercado Paralelo. Pode adquirir equipamento incomum sem teste, e uma vez por caso equipamento raro, pagando um nível a mais de custo. Conhece rotas clandestinas e recebe mais dez em Furtividade para entrar e sair de locais urbanos.","l":"histórico. Possui antecedentes, inimigos e dívidas, e a Atenção inicial do personagem começa em um","e":"ferramentas de arrombamento, celular descartável, faca","c":"um receptador ou um informante","r":"Limitados ou Estáveis"},{"n":"Caçador Rural","f":["Sobrevivência","Armas de Fogo","Furtividade","Observação","Corpo a Corpo","Mecânica"],"v":"Terreno e Presa. Recebe mais dez em Sobrevivência e Observação em ambientes naturais e reconhece rastros de animais, o que lhe permite perceber, sem teste, quando um rastro não pertence a animal nenhum.","l":"estranho nos centros urbanos. Menos dez em testes sociais com autoridades e instituições de cidades grandes","e":"espingarda de caça, faca, binóculos, roupas de campo, lanterna","c":"um guarda-florestal ou um vizinho de sítio","r":"Limitados ou Estáveis"},{"n":"Mecânico","f":["Mecânica","Eletrônica","Direção","Observação","Corpo a Corpo","Sobrevivência"],"v":"Ouvido de Oficina. Diagnostica sem teste o problema de uma máquina ao ouvi-la, e recebe mais dez em Mecânica ao improvisar com sucata.","l":"depende de oficina e peças. Longe delas, perde o bônus, e sua reputação no bairro o torna fácil de encontrar","e":"caixa de ferramentas, lanterna, multímetro, cabos","c":"um dono de ferro-velho ou de autopeças","r":"Limitados ou Estáveis"},{"n":"Caminhoneiro","f":["Direção","Mecânica","Sobrevivência","Observação","Corpo a Corpo","Persuasão"],"v":"Estrada. Recebe mais dez em Direção em longas distâncias, conhece rotas e pontos de apoio por todo o país e pode localizar combustível, comida e abrigo sem teste em rotas que percorreu.","l":"horários. Cargas têm prazo, ausências prolongadas têm custo e um veículo grande é difícil de esconder","e":"veículo de carga ou carro, rádio, kit de ferramentas, garrafa térmica","c":"um radioamador ou um despachante","r":"Estáveis"},{"n":"Bombeiro","f":["Medicina","Sobrevivência","Mecânica","Direção","Defesa","Observação"],"v":"Prontidão. Recebe mais dez em testes de Resistência e Controle diante de fogo, fumaça, desabamento e emergências, e lê plantas, saídas e riscos de um edifício em poucos instantes, usando Tática para estruturas.","l":"compromisso público. Suas ações em emergências são registradas, e o dever de socorro pesa sobre suas escolhas","e":"lanterna tática, machado, kit de primeiros socorros, corda","c":"um colega de quartel","r":"Estáveis"},{"n":"Psicólogo","f":["Empatia","Persuasão","Medicina","Pesquisa","Observação","Investigação"],"v":"Escuta Clínica. Uma vez por sessão, em uma conversa tranquila de pelo menos uma hora, ajuda outro personagem a reduzir um ponto de Pressão, além do que o descanso e os vínculos já oferecem. Recebe mais dez em Empatia para identificar trauma.","l":"sigilo e distância. Não pode usar informação de paciente sem consequência, e não é capaz de tratar a própria Pressão com a mesma técnica","e":"caderno, gravador, livros","c":"um supervisor ou colega","r":"Estáveis ou Confortáveis"},{"n":"Arquivista","f":["Pesquisa","Investigação","Ocultismo","Observação","Computação","Persuasão"],"v":"Catálogo. Reduz em um ponto o Progresso exigido por pesquisas em acervos organizados, com mínimo de um, e recebe mais dez para avaliar a autenticidade de documentos.","l":"acesso. Depende dos acervos de sua instituição, e a rotina do cargo limita sua mobilidade","e":"luvas, lupa, caderno, scanner portátil","c":"um bibliotecário em outra cidade","r":"Limitados"},{"n":"Estudante","f":[],"v":"Aprendiz Veloz. O primeiro aumento de perícia de cada intervalo entre casos custa um ponto de experiência a menos, com mínimo de um, e o personagem tem mais tempo livre do que os demais, o que o Mestre deve respeitar.","l":"sem autoridade e sem dinheiro. Depende de família ou instituição, e responsabilidades acadêmicas competem com o caso","e":"notebook, mochila, carteira estudantil","c":"um professor","r":"Limitados"}];
 const REC=[['Limitados'],['Estáveis'],['Confortáveis'],['Abastados']];
@@ -555,19 +821,22 @@ async function wzFinish(){const w=wz,e=wEsp(),a=w.attrs;
 function agentes(app){
  const V=chars.filter(vis),sp=[...new Set(V.map(c=>c.esp).filter(Boolean))];
  app.innerHTML=`<div class="row"><h2 class="sp">Agentes: ${V.length}</h2><button class="pr" id="nv">Novo agente</button></div>
+ <div class="row" id="tools" style="margin-top:8px">${V.some(c=>isMaster()||c.owner===user.id)?'<button id="pdfall" title="Gera um único PDF com as fichas">PDF das fichas</button>':''}<button id="bkp" title="Baixa um arquivo JSON com as fichas">Backup (JSON)</button><button id="imp" title="Restaura fichas de um backup, como registros novos">Importar backup</button><input type="file" id="impf" accept="application/json,.json" hidden></div>
  <div class="row" style="margin-top:12px"><input id="q" placeholder="Buscar…" style="flex:2"><select id="fe" style="flex:1"><option value="">Todas as especialidades</option>${sp.map(s=>`<option>${esc(s)}</option>`).join('')}</select><select id="fo" style="flex:1"><option value="">Todos os agentes</option><option value="m">Só os meus</option>${isMaster()?'<option value="h">Só ocultos</option>':''}</select></div><div class="grid" id="g"></div>`;
  const draw=()=>{const q=$('#q').value.toLowerCase(),fe=$('#fe').value,fo=$('#fo').value;
   const l=V.filter(c=>c.name.toLowerCase().includes(q)&&(!fe||c.esp===fe)&&(!fo||(fo==='h'?c.oculto:c.owner===user.id)));
   $('#g').innerHTML=l.map(c=>`<div class="card ag${c.oculto?' hid':''}"><div class="av${c.foto?' ph':''}">${avIn(c)}</div><div><h2 style="font-size:18px">${esc(c.name)}</h2>${c.oculto?`<span class="tag hidt">${isMaster()?'Oculto':'Oculto dos outros'}</span>`:''}<div>${esc(c.esp||c.prof||'Sem especialidade')}</div><div class="mu">${esc(names[c.owner]||c.player||'')}${c.owner===user.id?' · <span class="e">sua</span>':''} · Registrado em ${fmt(c.created)}</div><div class="row" style="margin-top:10px"><button class="pr" data-o="${c.id}">Acessar ficha</button><span class="sp"></span>${isMaster()?`<button class="eye${c.oculto?' on':''}" data-h="${c.id}" title="${c.oculto?'Mostrar aos jogadores':'Ocultar dos jogadores'}">${c.oculto?'Mostrar':'Ocultar'}</button>`:''}${canEdit(c)?`<button class="x" data-d="${c.id}" title="Excluir">✕</button>`:''}</div></div></div>`).join('')||'<p class="mu">Nenhum agente encontrado.</p>'};
  draw();['q','fe','fo'].forEach(i=>$('#'+i).oninput=draw);
  $('#nv').onclick=()=>{wz=wzNew();go('novo')};
+ $('#bkp').onclick=backupDownload;$('#imp').onclick=()=>$('#impf').click();$('#impf').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(f)await importBackup(f)};
+ $('#pdfall')&&($('#pdfall').onclick=()=>printFichas(V.filter(c=>isMaster()||c.owner===user.id)));
  $('#g').onclick=async e=>{const o=e.target.dataset.o,d=e.target.dataset.d,h=e.target.closest('[data-h]')?.dataset.h;
   if(h){const c=chars.find(x=>x.id===h);if(c&&isMaster()){c.oculto=!c.oculto;save(c);render()}return}
   if(o)go('agentes',o);if(d&&await ask('Excluir este agente? Isso não pode ser desfeito.')){if(await delRow('characters',d)){chars=chars.filter(x=>x.id!==d);render()}}}}
 
 /* ---------- ficha ---------- */
 let stab='combate';
-const TABS=[['combate','Combate'],['habilidades','Habilidades'],['rituais','Rituais'],['inventario','Inventário'],['descricao','Descrição']];
+const TABS=[['combate','Combate'],['habilidades','Habilidades'],['rituais','Rituais'],['inventario','Inventário'],['evolucao','Evolução'],['descricao','Descrição']];
 const num=k=>['esp','qtd'].includes(k);
 function listCard(c,l,i,it,extra){const k=l+i;
  return det(k,`<span class="sp"><b>${esc(it.n||'(sem nome)')}</b> <span class="mu">${[it.cat,it.custo&&'Custo: '+it.custo,it.dano&&'Dano: '+it.dano,it.src].filter(Boolean).map(esc).join(' · ')}</span></span>`,
@@ -586,12 +855,17 @@ function sheet(app){
   return det('w'+i,`<span class="sp"><b>${esc(w.name)}</b> <span class="mu">Dano: ${esc(w.dmg)}${w.crit?' · Crítico: '+esc(w.crit):''} · Ataque ${s?sval(c,s):'—'}</span></span><button class="d pr" data-rw="${i}" title="Atacar">⚔</button>`,
   `<div class="row"><input data-wn="${i}" value="${esc(w.name)}" placeholder="Nome" style="flex:2"><select data-ws="${i}" style="flex:2">${c.skills.map(s=>`<option ${s.n===w.skill?'selected':''}>${esc(s.n)}</option>`).join('')}</select><input data-wd="${i}" value="${esc(w.dmg)}" placeholder="Leve, Moderado, 1d10…" style="flex:1">${fi('weapons',i,'crit','Crítico')}</div><div class="row" style="margin-top:6px">${fi('weapons',i,'cat','Categoria')}${fi('weapons',i,'tipo','Tipo (Corte…)')}${fi('weapons',i,'esp','Espaços')}</div><textarea data-l="weapons" data-i="${i}" data-k="desc" placeholder="Descrição">${esc(w.desc)}</textarea><div class="row"><button class="d" data-rd="${i}" title="Só dano">🎲</button><span class="sp"></span><button class="x" data-wx="${i}">Remover</button></div>`)}).join('')||'<h3 style="text-align:center;margin:30px">Você ainda não possui ataques</h3>';
  const tab={
- combate:`<div class="row"><h3 class="sp">Condições</h3><button class="pr" data-cat="cond">Adicionar</button></div>${(c.condicoes||[]).map((h,i)=>listCard(c,'condicoes',i,h,'')).join('')||'<p class="mu">Nenhuma condição ativa.</p>'}<div style="height:18px"></div><div class="row"><h3 class="sp">Ataques</h3><button class="pr" id="aw">Novo ataque</button></div>${wp}<h3 style="margin-top:18px">Perícias — valor de teste</h3><table class="skt"><tr><th></th><th>Perícia</th><th>Base</th><th>Inicial</th><th>Inv.</th><th>Valor</th><th></th></tr>${c.skills.map((s,i)=>{const std=SK.some(x=>x[0]===s.n),mk={principal:'★',formacao:'formação',interesse:'+20'}[s.src]||'';return`<tr><td><button class="d" data-rs="${i}">🎲</button></td><td><input data-sn="${i}" value="${esc(s.n)}"></td><td class="mu" data-l="Base">${std?baseOf(s.n):'—'}</td><td style="width:92px" data-l="Inicial">${std?`${s.ini??baseOf(s.n)} <span class="rd mono" style="font-size:10px">${mk}</span>`:`<input type="number" min="0" max="99" data-si="${i}" value="${s.ini??baseOf(s.n)}">`}</td><td style="width:64px" data-l="Inv."><input type="number" min="0" max="50" data-sp="${i}" value="${s.pts||0}"></td><td class="val">${sval(c,s)}</td><td><button class="x" data-sx="${i}">✕</button></td></tr>`}).join('')}</table><p class="mu" style="margin-top:8px">Valor = Inicial + Inv. (investimentos da progressão). O atributo não entra no cálculo das perícias; só nos testes diretos de atributo.${c.migrou?' Esta ficha foi convertida ao modelo novo mantendo os valores efetivos; os dados originais estão guardados em <i>legado</i>.':''}</p><br><button id="as">+ Perícia (Conhecimento, Idioma…)</button>`,
+ combate:`<div class="row"><h3 class="sp">Condições</h3><button class="pr" data-cat="cond">Adicionar</button></div>${(c.condicoes||[]).map((h,i)=>listCard(c,'condicoes',i,h,'')).join('')||'<p class="mu">Nenhuma condição ativa.</p>'}<div style="height:18px"></div><div class="row"><h3 class="sp">Ataques</h3><button class="pr" id="aw">Novo ataque</button></div>${wp}<h3 style="margin-top:18px">Perícias — valor de teste</h3><table class="skt"><tr><th></th><th>Perícia</th><th>Base</th><th>Inicial</th><th>Inv.</th><th>Valor</th><th></th></tr>${c.skills.map((s,i)=>{const std=SK.some(x=>x[0]===s.n),mk={principal:'★',formacao:'formação',interesse:'+20'}[s.src]||'';return`<tr><td><button class="d" data-rs="${i}">🎲</button></td><td><input data-sn="${i}" value="${esc(s.n)}"></td><td class="mu" data-l="Base">${std?baseOf(s.n):'—'}</td><td style="width:92px" data-l="Inicial">${std?`${s.ini??baseOf(s.n)} <span class="rd mono" style="font-size:10px">${mk}</span>`:`<input type="number" min="0" max="99" data-si="${i}" value="${s.ini??baseOf(s.n)}">`}</td><td style="width:64px" data-l="Inv.">${isMaster()?`<input type="number" min="0" max="50" data-sp="${i}" value="${s.pts||0}">`:`<b>${s.pts||0}</b>`}</td><td class="val">${sval(c,s)}</td><td><button class="x" data-sx="${i}">✕</button></td></tr>`}).join('')}</table><p class="mu" style="margin-top:8px">Valor = Inicial + Inv. (investimentos da progressão, comprados com XP na aba Evolução). O atributo não entra no cálculo das perícias; só nos testes diretos de atributo.${c.migrou?' Esta ficha foi convertida ao modelo novo mantendo os valores efetivos; os dados originais estão guardados em <i>legado</i>.':''}</p><br><button id="as">+ Perícia (Conhecimento, Idioma…)</button>`,
  habilidades:`<div class="row"><h3 class="sp">Habilidades</h3><button class="pr" data-cat="hab">Adicionar</button></div>${c.habilidades.map((h,i)=>listCard(c,'habilidades',i,h,fi('habilidades',i,'custo','Custo')+fi('habilidades',i,'req','Requisito'))).join('')||'<p class="mu">Nenhuma habilidade. A vantagem e a limitação da especialidade entram aqui na criação.</p>'}`,
  rituais:`<div class="row"><h3 class="sp">Rituais</h3><button class="pr" data-cat="rit">Adicionar</button></div>${c.rituais.map((h,i)=>listCard(c,'rituais',i,h,fi('rituais',i,'custo','Custo')+fi('rituais',i,'req','Requisito'))).join('')||'<p class="mu">Nenhum ritual registrado.</p>'}`,
  inventario:`<div class="der" style="margin-bottom:10px"><div><span class="mu mono">ITENS</span><div class="n">${c.inventario.reduce((a,x)=>a+(+x.qtd||0),0)}</div></div><div><span class="mu mono">ESPAÇOS</span><div class="n">${c.inventario.reduce((a,x)=>a+(+x.esp||0)*(+x.qtd||0),0)}</div></div><div><span class="mu mono">RECURSOS</span><div class="n" style="font-size:15px">${esc(c.rec||'—')}</div></div></div><div class="row"><button class="pr" data-cat="itens">Adicionar do livro</button><span class="mono mu">NOVO</span>${CATS.map(k=>`<button data-addi="${k}">${k}</button>`).join('')}</div><br>${c.inventario.map((h,i)=>listCard(c,'inventario',i,h,`<select data-l="inventario" data-i="${i}" data-k="cat" style="flex:1">${CATS.map(k=>`<option ${k===h.cat?'selected':''}>${k}</option>`).join('')}</select>`+fi('inventario',i,'qtd','Qtd',h.qtd,50)+fi('inventario',i,'esp','Espaços',h.esp,60)+(h.cat==='Arma'||h.cat==='Arma Especial'?fi('inventario',i,'dano','Dano'):''))).join('')||'<p class="mu">Inventário vazio.</p>'}`,
+ evolucao:(()=>{const X=xpOf(c),gasto=X.total-X.saldo;return `<div class="der" style="margin-bottom:12px"><div><span class="mu mono">SALDO DE XP</span><div class="n">${X.saldo}</div></div><div><span class="mu mono">GANHO NO TOTAL</span><div class="n">${X.total}</div></div><div><span class="mu mono">GASTO</span><div class="n">${Math.max(0,gasto)}</div></div></div>`
+   +(isMaster()?`<div class="box"><h3>Conceder XP</h3><div class="row"><input type="number" id="xpq" value="3" style="flex:1;min-width:80px"><input id="xpm" placeholder="Motivo (ex.: Caso do Hotel resolvido)" style="flex:3;min-width:160px"><button class="pr" data-xpg="1">Conceder</button></div><p class="mu">Use um valor negativo para descontar.</p></div>`:'')
+   +`<h3 style="margin-top:6px">Evoluir perícias</h3><p class="mu">Cada compra soma <b>+${XP_PASSO}</b> ao valor da perícia. Custo por faixa: ${XP_CUSTO.map(([m,k],i)=>`${i?XP_CUSTO[i-1][0]:0}–${m>900?'∞':m-1}: ${k} XP`).join(' · ')}. Limite de ${XP_PTS_MAX} pontos investidos por perícia e valor máximo ${XP_VAL_MAX}.</p><div class="xpl">${c.skills.map((s,i)=>{const p=xpPode(c,s);return `<div class="xpr${p.ok?'':' off'}"><b class="sp">${esc(s.n)}</b><span class="xpv">${p.v}</span><button class="${p.ok?'pr':''}" data-xpe="${i}" ${p.ok?'':'disabled'}>+${XP_PASSO} · ${p.k} XP</button></div>`}).join('')}</div>`
+   +`<h3 style="margin-top:18px">Histórico</h3>${X.hist.map(h=>`<p class="xph"><span class="mu mono">${fmt(h.ts)}</span> <b class="${h.qtd>0?'rd':''}">${h.qtd>0?'+':''}${h.qtd} XP</b> · ${esc(h.txt)}</p>`).join('')||'<p class="mu">Nenhum registro ainda.</p>'}`})(),
+
  descricao:[['aparencia','Aparência'],['personalidade','Personalidade'],['historico','Histórico'],['objetivo','Objetivo / motivação'],['motiv','Motivação'],['ruptura','Ponto de ruptura'],['conEsp','Conhecimento especializado'],['idiomas','Idiomas'],['notes','Anotações']].map(([k,t])=>`<div class="box"><h3>${t}</h3><textarea data-f="${k}" style="min-height:70px">${esc(c[k])}</textarea></div>`).join('')+`<div class="box"><h3>Vínculos e contatos</h3>${(c.vinculos||[]).concat(c.contatos||[]).filter(Boolean).map(x=>`<p>${esc(x)}</p>`).join('')||'<p class="mu">—</p>'}</div>`+`<div class="box"><div class="row"><h3 class="sp">Cicatrizes de Caso (máx. 3 ativas)</h3><button class="pr" data-cat="cic">Adicionar</button></div>${(c.cicatrizes||[]).map((h,i)=>listCard(c,'cicatrizes',i,h,'')).join('')||'<p class="mu">Nenhuma cicatriz.</p>'}</div>`}[stab];
- app.innerHTML=`<div class="row"><button id="bk">← Agentes</button><span class="sp"></span>${ed?'':'<span class="mu">somente leitura</span>'}${c.oculto&&!isMaster()?'<span class="tag hidt">Oculto dos outros jogadores</span>':''}${isMaster()?`<button id="hid" class="eye${c.oculto?' on':''}">${c.oculto?'Oculto dos jogadores ✓':'Ocultar dos jogadores'}</button>`:''}<span class="mono mu">Modificador</span><select id="md" class="mod">${[-20,-10,0,10,20].map(m=>`<option ${m===mod?'selected':''} value="${m}">${m>0?'+':''}${m}</option>`).join('')}</select></div>${dossier(c,r,ed)}
+ app.innerHTML=`<div class="row"><button id="bk">← Agentes</button><span class="sp"></span>${ed?'':'<span class="mu">somente leitura</span>'}${c.oculto&&!isMaster()?'<span class="tag hidt">Oculto dos outros jogadores</span>':''}${isMaster()?`<button id="hid" class="eye${c.oculto?' on':''}">${c.oculto?'Oculto dos jogadores ✓':'Ocultar dos jogadores'}</button>`:''}<button id="pdf" title="Gera um PDF da ficha (use Salvar como PDF na janela de impressão)">Exportar PDF</button><span class="mono mu">Modificador</span><select id="md" class="mod">${[-20,-10,0,10,20].map(m=>`<option ${m===mod?'selected':''} value="${m}">${m>0?'+':''}${m}</option>`).join('')}</select></div>${dossier(c,r,ed)}
  <div class="sheet ${ed?'':'ro'}"><div>
   <div class="box bx-id"><h3>Identificação</h3><input data-f="name" value="${esc(c.name)}" placeholder="Personagem"><br><br><div class="row"><input data-f="esp" value="${esc(c.esp||c.prof)}" placeholder="Especialidade" style="flex:1"><input data-f="player" value="${esc(c.player)}" placeholder="Jogador" style="flex:1"></div><div class="row" style="margin-top:10px"><span class="mu mono sp">Foto do personagem</span><button id="fotoBtn">${c.foto?'Trocar':'Enviar'}</button>${c.foto?'<button class="x" data-fx="1">Remover</button>':''}</div></div>
   <div class="box bx-at"><h3>Atributos</h3><div class="attrs">${ATT.map(([k,n])=>`<div class="at"><b>${n.toUpperCase()}</b><span class="n">${tot(c,k)}</span><div class="st"><button data-a="${k}" data-s="-1">−</button><span class="v">${r[k]}</span><button data-a="${k}" data-s="1">+</button><button class="d" data-r="${k}" title="Rolar">🎲</button></div><div class="ex">base ${c.attrs[k]} · adicional <input type="number" data-x="${k}" value="${c.extra?.[k]||0}"></div></div>`).join('')}</div><div class="mu" style="margin-top:8px">Base: ${sum(c.attrs)} pts · "adicional" é para quem ultrapassou os limites humanos.</div></div>
@@ -599,7 +873,7 @@ function sheet(app){
   <div class="box bx-de"><h3>Derivados</h3><div class="der"><div><span class="mu mono">DEFESA</span><div class="n">${r.defv}</div><button class="d" data-r2="Defesa|${r.defv}">🎲</button></div><div><span class="mu mono">PASSIVA</span><div class="n">${r.defp}</div></div><div><span class="mu mono">INICIATIVA</span><div class="n">${r.ini}</div><button class="d" data-r2="Iniciativa|${r.ini}">🎲</button></div></div><div class="row" style="margin-top:8px"><span class="mu mono sp">Pontos de Defesa</span><input type="number" data-f="defPts" value="${c.defPts||0}" style="width:70px"></div>
   <label>Proteção</label><input data-f="protecao" value="${esc(c.protecao)}"><label>Resistências</label><input data-f="resist" value="${esc(c.resist)}"><label>Proficiências</label><input data-f="profic" value="${esc(c.profic)}"></div>
  </div><div class="sh-main"><div class="tabs">${TABS.map(([k,t])=>`<a data-tab="${k}" class="${k===stab?'on':''}">${t}</a>`).join('')}</div><div class="box">${tab}</div></div></div>`;
- $('#bk').onclick=()=>go('agentes');$('#hid')&&($('#hid').onclick=()=>{c.oculto=!c.oculto;save(c);sheet(app)});$('#md').onchange=e=>{mod=+e.target.value};
+ $('#bk').onclick=()=>go('agentes');$('#pdf').onclick=()=>printFichas([c]);$('#hid')&&($('#hid').onclick=()=>{c.oculto=!c.oculto;save(c);sheet(app)});$('#md').onchange=e=>{mod=+e.target.value};
  if(ed&&$('#fotoIn')){const pick=()=>$('#fotoIn').click();$('#dzav').onclick=pick;$('#fotoBtn').onclick=pick;
   $('#fotoIn').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{c.foto=await fotoResize(f);c.vidaAtual=Math.min(c.vidaAtual,calc(c).vida);save(c);sheet(app)}catch(er){alert(er.message)}}}
  const W=()=>c.weapons,done=()=>{c.vidaAtual=Math.min(c.vidaAtual,calc(c).vida);save(c)};
@@ -608,7 +882,7 @@ function sheet(app){
   else if(d.l)c[d.l][d.i][d.k]=num(d.k)?(+t.value||0):t.value;
   else if(d.x){c.extra=c.extra||{};c.extra[d.x]=+t.value||0}
   else if(d.sn!=null)c.skills[d.sn].n=t.value;else if(d.si!=null)c.skills[d.si].ini=Math.max(0,Math.min(99,+t.value||0));
-  else if(d.sp!=null)c.skills[d.sp].pts=Math.max(0,Math.min(50,+t.value||0));
+  else if(d.sp!=null&&isMaster())c.skills[d.sp].pts=Math.max(0,Math.min(50,+t.value||0));
   else if(d.wn!=null)W()[d.wn].name=t.value;else if(d.ws!=null)W()[d.ws].skill=t.value;else if(d.wd!=null)W()[d.wd].dmg=t.value;else return;
   done();sheet(app)};
  app.onclick=async e=>{const b=e.target.closest('button'),tb=e.target.dataset.tab;
@@ -618,6 +892,8 @@ function sheet(app){
   if(d.r2){const[n,v]=d.r2.split('|');return rollSkill(c,n,+v)}
   if(d.rs!=null){const s=c.skills[d.rs];return rollSkill(c,s.n,sval(c,s))}
   if(d.rw!=null)return rollWeapon(c,W()[d.rw]);if(d.rd!=null)return rollWeapon(c,W()[d.rd],1);
+  if(d.xpg){if(!isMaster())return;const q=Math.trunc(+$('#xpq').value||0);if(!q)return;xpGrant(c,q,$('#xpm').value.trim());done();return sheet(app)}
+  if(d.xpe!=null){if(!xpEvoluir(c,+d.xpe))return;done();return sheet(app)}
   if(d.a)c.attrs[d.a]=Math.max(0,Math.min(5,c.attrs[d.a]+ +d.s));
   else if(d.v)c.vidaAtual=Math.max(0,Math.min(r.vida,c.vidaAtual+ +d.v));
   else if(d.p)c.pressao=Math.max(0,Math.min(3,c.pressao+ +d.p));
