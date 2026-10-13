@@ -258,6 +258,11 @@ input[type=checkbox]:checked::after{content:'';position:absolute;left:4px;top:1p
  #bq,#q{flex:1 1 100%!important}#lv,#tp,#fe,#fo{flex:1 1 calc(50% - 4px)!important;min-width:0}
 }
 @media(hover:none){.d:hover,button.pr:hover::after{transform:none}.tile:hover:not(:disabled){transform:none}}
+
+/* ---- ocultar personagens ---- */
+.ag.hid{border-left-color:var(--ye);background:repeating-linear-gradient(135deg,var(--p) 0 12px,#e0b84a0a 12px 24px)}
+.hidt{color:var(--ye);border-color:var(--ye);display:inline-block;margin:2px 0 4px;white-space:nowrap;align-self:flex-start}
+.eye{font-size:12px}.eye.on{background:#e0b84a1f;border-color:var(--ye);color:var(--ye)}
 </style></head><body>
 <div class="fog"></div><canvas id="embers"></canvas><div id="fx"></div>
 <header>
@@ -287,6 +292,8 @@ let user=null,prof=null,camps=[],camp=null,chars=[],threats=[],rolls=[],names={}
 let view='agentes',open=null,mod=0,timers={};
 const isMaster=()=>camp&&camp.master===user.id;
 const canEdit=c=>c.owner===user.id||isMaster();
+/* personagens ocultos: visíveis só para o mestre e para o dono da ficha */
+const vis=c=>!c.oculto||isMaster()||c.owner===user.id;
 const typing=()=>/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName||'');
 function ask(msg){return new Promise(res=>{const o=document.createElement('div');o.className='modal';o.innerHTML=`<div class="card"><p>${esc(msg)}</p><div class="row"><span class="sp"></span><button data-k="0">Cancelar</button><button class="pr" data-k="1">Confirmar</button></div></div>`;o.onclick=e=>{const k=e.target.dataset.k;if(k!=null){o.remove();res(k==='1')}};document.body.append(o)})}
 async function delRow(t,id){const {data,error}=await sb.from(t).delete().eq('id',id).select();
@@ -546,15 +553,17 @@ async function wzFinish(){const w=wz,e=wEsp(),a=w.attrs;
 
 /* ---------- agentes ---------- */
 function agentes(app){
- const sp=[...new Set(chars.map(c=>c.esp).filter(Boolean))];
- app.innerHTML=`<div class="row"><h2 class="sp">Agentes: ${chars.length}</h2><button class="pr" id="nv">Novo agente</button></div>
- <div class="row" style="margin-top:12px"><input id="q" placeholder="Buscar…" style="flex:2"><select id="fe" style="flex:1"><option value="">Todas as especialidades</option>${sp.map(s=>`<option>${esc(s)}</option>`).join('')}</select><select id="fo" style="flex:1"><option value="">Todos os agentes</option><option value="m">Só os meus</option></select></div><div class="grid" id="g"></div>`;
+ const V=chars.filter(vis),sp=[...new Set(V.map(c=>c.esp).filter(Boolean))];
+ app.innerHTML=`<div class="row"><h2 class="sp">Agentes: ${V.length}</h2><button class="pr" id="nv">Novo agente</button></div>
+ <div class="row" style="margin-top:12px"><input id="q" placeholder="Buscar…" style="flex:2"><select id="fe" style="flex:1"><option value="">Todas as especialidades</option>${sp.map(s=>`<option>${esc(s)}</option>`).join('')}</select><select id="fo" style="flex:1"><option value="">Todos os agentes</option><option value="m">Só os meus</option>${isMaster()?'<option value="h">Só ocultos</option>':''}</select></div><div class="grid" id="g"></div>`;
  const draw=()=>{const q=$('#q').value.toLowerCase(),fe=$('#fe').value,fo=$('#fo').value;
-  const l=chars.filter(c=>c.name.toLowerCase().includes(q)&&(!fe||c.esp===fe)&&(!fo||c.owner===user.id));
-  $('#g').innerHTML=l.map(c=>`<div class="card ag"><div class="av${c.foto?' ph':''}">${avIn(c)}</div><div><h2 style="font-size:18px">${esc(c.name)}</h2><div>${esc(c.esp||c.prof||'Sem especialidade')}</div><div class="mu">${esc(names[c.owner]||c.player||'')}${c.owner===user.id?' · <span class="e">sua</span>':''} · Registrado em ${fmt(c.created)}</div><div class="row" style="margin-top:10px"><button class="pr" data-o="${c.id}">Acessar ficha</button><span class="sp"></span>${canEdit(c)?`<button class="x" data-d="${c.id}" title="Excluir">✕</button>`:''}</div></div></div>`).join('')||'<p class="mu">Nenhum agente encontrado.</p>'};
+  const l=V.filter(c=>c.name.toLowerCase().includes(q)&&(!fe||c.esp===fe)&&(!fo||(fo==='h'?c.oculto:c.owner===user.id)));
+  $('#g').innerHTML=l.map(c=>`<div class="card ag${c.oculto?' hid':''}"><div class="av${c.foto?' ph':''}">${avIn(c)}</div><div><h2 style="font-size:18px">${esc(c.name)}</h2>${c.oculto?`<span class="tag hidt">${isMaster()?'Oculto':'Oculto dos outros'}</span>`:''}<div>${esc(c.esp||c.prof||'Sem especialidade')}</div><div class="mu">${esc(names[c.owner]||c.player||'')}${c.owner===user.id?' · <span class="e">sua</span>':''} · Registrado em ${fmt(c.created)}</div><div class="row" style="margin-top:10px"><button class="pr" data-o="${c.id}">Acessar ficha</button><span class="sp"></span>${isMaster()?`<button class="eye${c.oculto?' on':''}" data-h="${c.id}" title="${c.oculto?'Mostrar aos jogadores':'Ocultar dos jogadores'}">${c.oculto?'Mostrar':'Ocultar'}</button>`:''}${canEdit(c)?`<button class="x" data-d="${c.id}" title="Excluir">✕</button>`:''}</div></div></div>`).join('')||'<p class="mu">Nenhum agente encontrado.</p>'};
  draw();['q','fe','fo'].forEach(i=>$('#'+i).oninput=draw);
  $('#nv').onclick=()=>{wz=wzNew();go('novo')};
- $('#g').onclick=async e=>{const o=e.target.dataset.o,d=e.target.dataset.d;if(o)go('agentes',o);if(d&&await ask('Excluir este agente? Isso não pode ser desfeito.')){if(await delRow('characters',d)){chars=chars.filter(x=>x.id!==d);render()}}}}
+ $('#g').onclick=async e=>{const o=e.target.dataset.o,d=e.target.dataset.d,h=e.target.closest('[data-h]')?.dataset.h;
+  if(h){const c=chars.find(x=>x.id===h);if(c&&isMaster()){c.oculto=!c.oculto;save(c);render()}return}
+  if(o)go('agentes',o);if(d&&await ask('Excluir este agente? Isso não pode ser desfeito.')){if(await delRow('characters',d)){chars=chars.filter(x=>x.id!==d);render()}}}}
 
 /* ---------- ficha ---------- */
 let stab='combate';
@@ -570,7 +579,7 @@ const avIn=c=>c.foto?`<img src="${esc(c.foto)}" alt="">`:esc(ini(c.name));
 const ini=n=>String(n||'?').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
 const dossier=(c,r,ed)=>{const lo=c.vidaAtual<=r.vida*.3?' lo':'';return `<div class="dossier"><div class="dz-tab">ARQ-${esc(String(c.id).slice(0,4).toUpperCase())}</div><div class="dz-main"><div class="dz-av${c.foto?' ph':''}${ed?' up':''}" id="dzav" ${ed?'title="Clique para enviar uma foto"':''}>${avIn(c)}${ed?'<span class="cam">📷</span>':''}</div>${ed?'<input type="file" id="fotoIn" accept="image/*" hidden>':''}<div class="dz-id"><div class="dz-name">${esc(c.name)}</div><div class="dz-sub">${esc(c.esp||c.prof||'Sem especialidade')}${c.player?' · '+esc(c.player):''}</div></div><div class="dz-stats"><div class="dzs${lo}"><b>VIDA</b><span>${c.vidaAtual}/${r.vida}</span></div><div class="dzs${(c.pressao||0)>=2?' hi':''}"><b>PRESSÃO</b><span>${c.pressao||0}</span></div><div class="dzs"><b>DEFESA</b><span>${r.defv}</span></div><div class="dzs"><b>INICIATIVA</b><span>${r.ini}</span></div></div></div></div>`};
 function sheet(app){
- const c=chars.find(x=>x.id===open);if(!c){open=null;return agentes(app)}
+ const c=chars.find(x=>x.id===open);if(!c||!vis(c)){open=null;return agentes(app)}
  ['habilidades','rituais','inventario','weapons'].forEach(k=>c[k]=c[k]||[]);cur=c;
  const r=calc(c),ed=canEdit(c),pv=Math.max(0,Math.min(100,100*c.vidaAtual/r.vida));
  const wp=c.weapons.map((w,i)=>{const s=c.skills.find(x=>x.n===w.skill);
@@ -582,7 +591,7 @@ function sheet(app){
  rituais:`<div class="row"><h3 class="sp">Rituais</h3><button class="pr" data-cat="rit">Adicionar</button></div>${c.rituais.map((h,i)=>listCard(c,'rituais',i,h,fi('rituais',i,'custo','Custo')+fi('rituais',i,'req','Requisito'))).join('')||'<p class="mu">Nenhum ritual registrado.</p>'}`,
  inventario:`<div class="der" style="margin-bottom:10px"><div><span class="mu mono">ITENS</span><div class="n">${c.inventario.reduce((a,x)=>a+(+x.qtd||0),0)}</div></div><div><span class="mu mono">ESPAÇOS</span><div class="n">${c.inventario.reduce((a,x)=>a+(+x.esp||0)*(+x.qtd||0),0)}</div></div><div><span class="mu mono">RECURSOS</span><div class="n" style="font-size:15px">${esc(c.rec||'—')}</div></div></div><div class="row"><button class="pr" data-cat="itens">Adicionar do livro</button><span class="mono mu">NOVO</span>${CATS.map(k=>`<button data-addi="${k}">${k}</button>`).join('')}</div><br>${c.inventario.map((h,i)=>listCard(c,'inventario',i,h,`<select data-l="inventario" data-i="${i}" data-k="cat" style="flex:1">${CATS.map(k=>`<option ${k===h.cat?'selected':''}>${k}</option>`).join('')}</select>`+fi('inventario',i,'qtd','Qtd',h.qtd,50)+fi('inventario',i,'esp','Espaços',h.esp,60)+(h.cat==='Arma'||h.cat==='Arma Especial'?fi('inventario',i,'dano','Dano'):''))).join('')||'<p class="mu">Inventário vazio.</p>'}`,
  descricao:[['aparencia','Aparência'],['personalidade','Personalidade'],['historico','Histórico'],['objetivo','Objetivo / motivação'],['motiv','Motivação'],['ruptura','Ponto de ruptura'],['conEsp','Conhecimento especializado'],['idiomas','Idiomas'],['notes','Anotações']].map(([k,t])=>`<div class="box"><h3>${t}</h3><textarea data-f="${k}" style="min-height:70px">${esc(c[k])}</textarea></div>`).join('')+`<div class="box"><h3>Vínculos e contatos</h3>${(c.vinculos||[]).concat(c.contatos||[]).filter(Boolean).map(x=>`<p>${esc(x)}</p>`).join('')||'<p class="mu">—</p>'}</div>`+`<div class="box"><div class="row"><h3 class="sp">Cicatrizes de Caso (máx. 3 ativas)</h3><button class="pr" data-cat="cic">Adicionar</button></div>${(c.cicatrizes||[]).map((h,i)=>listCard(c,'cicatrizes',i,h,'')).join('')||'<p class="mu">Nenhuma cicatriz.</p>'}</div>`}[stab];
- app.innerHTML=`<div class="row"><button id="bk">← Agentes</button><span class="sp"></span>${ed?'':'<span class="mu">somente leitura</span>'}<span class="mono mu">Modificador</span><select id="md" class="mod">${[-20,-10,0,10,20].map(m=>`<option ${m===mod?'selected':''} value="${m}">${m>0?'+':''}${m}</option>`).join('')}</select></div>${dossier(c,r,ed)}
+ app.innerHTML=`<div class="row"><button id="bk">← Agentes</button><span class="sp"></span>${ed?'':'<span class="mu">somente leitura</span>'}${c.oculto&&!isMaster()?'<span class="tag hidt">Oculto dos outros jogadores</span>':''}${isMaster()?`<button id="hid" class="eye${c.oculto?' on':''}">${c.oculto?'Oculto dos jogadores ✓':'Ocultar dos jogadores'}</button>`:''}<span class="mono mu">Modificador</span><select id="md" class="mod">${[-20,-10,0,10,20].map(m=>`<option ${m===mod?'selected':''} value="${m}">${m>0?'+':''}${m}</option>`).join('')}</select></div>${dossier(c,r,ed)}
  <div class="sheet ${ed?'':'ro'}"><div>
   <div class="box bx-id"><h3>Identificação</h3><input data-f="name" value="${esc(c.name)}" placeholder="Personagem"><br><br><div class="row"><input data-f="esp" value="${esc(c.esp||c.prof)}" placeholder="Especialidade" style="flex:1"><input data-f="player" value="${esc(c.player)}" placeholder="Jogador" style="flex:1"></div><div class="row" style="margin-top:10px"><span class="mu mono sp">Foto do personagem</span><button id="fotoBtn">${c.foto?'Trocar':'Enviar'}</button>${c.foto?'<button class="x" data-fx="1">Remover</button>':''}</div></div>
   <div class="box bx-at"><h3>Atributos</h3><div class="attrs">${ATT.map(([k,n])=>`<div class="at"><b>${n.toUpperCase()}</b><span class="n">${tot(c,k)}</span><div class="st"><button data-a="${k}" data-s="-1">−</button><span class="v">${r[k]}</span><button data-a="${k}" data-s="1">+</button><button class="d" data-r="${k}" title="Rolar">🎲</button></div><div class="ex">base ${c.attrs[k]} · adicional <input type="number" data-x="${k}" value="${c.extra?.[k]||0}"></div></div>`).join('')}</div><div class="mu" style="margin-top:8px">Base: ${sum(c.attrs)} pts · "adicional" é para quem ultrapassou os limites humanos.</div></div>
@@ -590,7 +599,7 @@ function sheet(app){
   <div class="box bx-de"><h3>Derivados</h3><div class="der"><div><span class="mu mono">DEFESA</span><div class="n">${r.defv}</div><button class="d" data-r2="Defesa|${r.defv}">🎲</button></div><div><span class="mu mono">PASSIVA</span><div class="n">${r.defp}</div></div><div><span class="mu mono">INICIATIVA</span><div class="n">${r.ini}</div><button class="d" data-r2="Iniciativa|${r.ini}">🎲</button></div></div><div class="row" style="margin-top:8px"><span class="mu mono sp">Pontos de Defesa</span><input type="number" data-f="defPts" value="${c.defPts||0}" style="width:70px"></div>
   <label>Proteção</label><input data-f="protecao" value="${esc(c.protecao)}"><label>Resistências</label><input data-f="resist" value="${esc(c.resist)}"><label>Proficiências</label><input data-f="profic" value="${esc(c.profic)}"></div>
  </div><div class="sh-main"><div class="tabs">${TABS.map(([k,t])=>`<a data-tab="${k}" class="${k===stab?'on':''}">${t}</a>`).join('')}</div><div class="box">${tab}</div></div></div>`;
- $('#bk').onclick=()=>go('agentes');$('#md').onchange=e=>{mod=+e.target.value};
+ $('#bk').onclick=()=>go('agentes');$('#hid')&&($('#hid').onclick=()=>{c.oculto=!c.oculto;save(c);sheet(app)});$('#md').onchange=e=>{mod=+e.target.value};
  if(ed&&$('#fotoIn')){const pick=()=>$('#fotoIn').click();$('#dzav').onclick=pick;$('#fotoBtn').onclick=pick;
   $('#fotoIn').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{c.foto=await fotoResize(f);c.vidaAtual=Math.min(c.vidaAtual,calc(c).vida);save(c);sheet(app)}catch(er){alert(er.message)}}}
  const W=()=>c.weapons,done=()=>{c.vidaAtual=Math.min(c.vidaAtual,calc(c).vida);save(c)};
