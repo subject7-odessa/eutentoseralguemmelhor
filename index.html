@@ -319,6 +319,35 @@ input[type=checkbox]:checked::after{content:'';position:absolute;left:4px;top:1p
 .toast.s{border-left-color:var(--ye)}
 .sqlp{white-space:pre-wrap;font:12px/1.5 ui-monospace,monospace;max-height:320px;overflow:auto;background:var(--in);padding:10px;border:1px solid var(--ln)}
 .tiles.pick{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));max-height:180px;overflow:auto}
+
+/* ---- Painel de turnos (flutuante) ---- */
+#tw{position:fixed;right:16px;top:84px;z-index:15;width:300px;max-width:calc(100vw - 24px);background:var(--hd);border:1px solid var(--ln);border-top:2px solid var(--rd);box-shadow:0 8px 28px #000b;font-size:13px}
+#tw[hidden]{display:none}
+.tw-h{display:flex;align-items:center;gap:8px;padding:8px 10px;cursor:pointer;user-select:none}
+.tw-h .tw-t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tw-h .tw-t b{font:600 13px 'Libre Baskerville',serif}
+.tw-h .tw-r{font:11px 'Special Elite',monospace;letter-spacing:.12em;color:var(--mu);text-transform:uppercase;margin-right:6px}
+.tw-h button{padding:2px 7px;min-height:0;line-height:1.4}
+.tw-car{color:var(--mu);transition:transform .2s;display:inline-block}
+#tw.open .tw-car{transform:rotate(180deg)}
+#tw.mine{border-top-color:var(--ye);box-shadow:0 8px 28px #000b,0 0 0 1px var(--ye),0 0 22px #e0b84a55;animation:twp 1.6s ease-in-out infinite}
+#tw.mine .tw-h .tw-r{color:var(--ye)}
+@keyframes twp{50%{box-shadow:0 8px 28px #000b,0 0 0 1px var(--ye),0 0 6px #e0b84a22}}
+.tw-b{display:none;border-top:1px solid var(--ln);max-height:min(52vh,420px);overflow:auto}
+#tw.open .tw-b{display:block}
+.tw-l{padding:6px}
+.tw-i{display:grid;grid-template-columns:26px 1fr auto;gap:2px 8px;align-items:center;padding:6px 8px;border-left:3px solid transparent}
+.tw-i.on{background:#b3261e22;border-left-color:var(--rd)}
+.tw-i.me:not(.on){background:#e0b84a12}
+.tw-i.sec{opacity:.7}
+.tw-i .ii{font:600 13px 'Libre Baskerville',serif;text-align:center;color:var(--mu)}
+.tw-i.on .ii{color:var(--rd)}
+.tw-i .nn{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tw-i .hp{font-size:11px;color:var(--mu);white-space:nowrap}
+.tw-i .bar{grid-column:2 / 4;height:5px;margin:0}
+.tw-f{padding:8px;border-top:1px solid var(--ln);display:flex}
+.tw-f button{flex:1}
+@media(max-width:700px){#tw{right:8px;width:min(300px,calc(100vw - 16px))}}
 </style></head><body>
 <div class="fog"></div><canvas id="embers"></canvas><div id="fx"></div>
 <header>
@@ -328,6 +357,7 @@ input[type=checkbox]:checked::after{content:'';position:absolute;left:4px;top:1p
 <main id="app"></main>
 <button id="logbtn" class="pr" style="display:none">Log de dados</button>
 <aside id="log"><div class="row"><h3 class="sp">Log de dados</h3><button class="x" id="logx">✕</button></div><div id="logl"></div></aside>
+<aside id="tw" hidden></aside>
 <div id="toasts"></div>
 <script src="catalogo.js"></script>
 <script>
@@ -559,6 +589,7 @@ async function enter(id){
   .on('postgres_changes',{event:'*',schema:'public',table:'characters',filter:'campaign_id=eq.'+id},p=>{
    if(p.eventType==='DELETE')chars=chars.filter(x=>x.id!==p.old.id);
    else{const c=toChar(p.new),i=chars.findIndex(x=>x.id===c.id);if(timers[c.id])return;i<0?chars.push(c):chars[i]=c}
+   twRender();
    if(!typing()||(view==='agentes'&&!open))render()})
   .on('postgres_changes',{event:'INSERT',schema:'public',table:'rolls',filter:'campaign_id=eq.'+id},p=>{rolls.unshift(p.new);renderLog();toast(p.new)})
   .on('postgres_changes',{event:'*',schema:'public',table:'threats',filter:'campaign_id=eq.'+id},p=>{
@@ -569,7 +600,9 @@ async function enter(id){
     else{const n=p.new;if(!isMaster()&&!n.revealed)sess=sess.filter(x=>x.id!==n.id);
      else{if(timers['s'+n.id])return;const i=sess.findIndex(x=>x.id===n.id);
       if(!isMaster()&&n.revealed&&n.kind!=='combate'&&(i<0||!sess[i].revealed))notice((n.kind==='pista'?'Nova pista: ':'Nova nota da sessão: ')+(n.data?.titulo||''));
+      if(n.kind==='combate')cbVez(i<0?null:sess[i],n);
       i<0?sess.push(n):sess[i]=n}}
+    twRender();
     if(view==='mesa'&&!typing())render()})
   .subscribe();
  render()}
@@ -688,6 +721,61 @@ function mesaCombate(mb,app){const M=isMaster(),r=sK('combate')[0];
   if(k.cv){const [id,dv]=k.cv.split('|'),x=d.itens.find(y=>y.id===id);if(x){x.vida=Math.max(0,Math.min(x.max||999,(+x.vida||0)+ +dv));save()}return}
   if(k.cs){const x=d.itens.find(y=>y.id===k.cs);if(x){x.sec=!x.sec;save()}return}
   if(k.cx){const was=d.atual===k.cx;if(was)cbNext(d);d.itens=d.itens.filter(y=>y.id!==k.cx);if(was&&d.atual===k.cx)d.atual=null;if(!d.itens.length)d.atual=null;save()}}}
+
+/* ----- som de turno (8 bits, macabro) + painel flutuante de turnos ----- */
+let AC=null,somOn=true;
+try{somOn=localStorage.getItem('as-som')!=='0'}catch(e){}
+function audioCtx(){if(!AC){const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;AC=new C()}if(AC.state==='suspended')AC.resume().catch(()=>{});return AC}
+['pointerdown','keydown'].forEach(ev=>document.addEventListener(ev,()=>{try{audioCtx()}catch(e){}},{once:true,capture:true}));
+function somTurno(force){
+ const a=audioCtx();if(!a||!(force||somOn))return;
+ const go=()=>{
+  const t0=a.currentTime+.04,out=a.createGain();out.gain.value=.55;out.connect(a.destination);
+  const tone=(type,f0,f1,t,d,v,vib)=>{const o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.setValueAtTime(f0,t);
+   if(f1)o.frequency.exponentialRampToValueAtTime(f1,t+d);
+   if(vib){const l=a.createOscillator(),lg=a.createGain();l.frequency.value=7;lg.gain.value=vib;l.connect(lg).connect(o.frequency);l.start(t);l.stop(t+d+.05)}
+   g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v,t+.008);g.gain.setValueAtTime(v,t+d*.65);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+   o.connect(g).connect(out);o.start(t);o.stop(t+d+.03)};
+  const noise=(t,d,v)=>{const n=Math.floor(a.sampleRate*d),b=a.createBuffer(1,n,a.sampleRate),x=b.getChannelData(0);let h=0;
+   for(let i=0;i<n;i++){if(i%28===0)h=Math.random()*2-1;x[i]=h}
+   const s=a.createBufferSource(),g=a.createGain();s.buffer=b;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);s.connect(g).connect(out);s.start(t)};
+  /* batida surda + estalo de ruído */
+  tone('triangle',120,42,t0,.28,.55);noise(t0,.07,.22);
+  /* arpejo diminuto subindo até o trítono (Lá → Mi bemol) */
+  [220,261.63,311.13,440,622.25].forEach((f,k)=>tone('square',f,0,t0+.14+k*.075,.07,.16));
+  /* nota final trêmula sobre um zumbido grave: o intervalo do diabo */
+  tone('square',622.25,587.33,t0+.53,.55,.14,9);tone('triangle',110,104,t0+.53,.6,.4);
+ };
+ a.state==='running'?go():force&&a.resume().then(go).catch(()=>{});
+}
+/* avisa o jogador (som + aviso) quando o turno cai num personagem dele */
+function cbVez(old,n){const d=n.data||{};if(!d.iniciado)return;
+ const od=old&&old.data&&old.data.iniciado?old.data:null;
+ if(od&&od.atual===d.atual&&od.round===d.round)return;
+ const x=(d.itens||[]).find(y=>y.id===d.atual);if(!x||x.tipo!=='agente')return;
+ const ch=chars.find(c=>c.id===x.ref);if(!ch||ch.owner!==user.id)return;
+ somTurno();notice('É a sua vez: '+x.n)}
+let twOpen=innerWidth>700;try{const v=localStorage.getItem('as-tw');if(v!=null)twOpen=v==='1'}catch(e){}
+function twRender(){
+ const tw=$('#tw');if(!tw)return;
+ const r=(user&&camp)?sK('combate')[0]:null;
+ /* na aba Combate o rastreador já ocupa a tela: o painel some para não cobrir os botões */
+ if(!r||(view==='mesa'&&mtab==='combate')){tw.hidden=true;return}
+ const M=isMaster(),d=cbData(r),all=cbSorted(d),ord=M?all:all.filter(x=>!x.sec),atual=all.find(x=>x.id===d.atual);
+ const mostra=atual&&(M||!atual.sec),mine=!!(d.iniciado&&mostra&&atual.tipo==='agente'&&chars.find(c=>c.id===atual.ref)?.owner===user.id);
+ const row=x=>{const ch=x.tipo==='agente'?chars.find(c=>c.id===x.ref):null,vida=ch?ch.vidaAtual:(+x.vida||0),max=ch?calc(ch).vida:(+x.max||0),pct=max?Math.max(0,Math.min(100,100*vida/max)):0,num=ch||M,eu=ch&&ch.owner===user.id;
+  return `<div class="tw-i${x.id===d.atual?' on':''}${eu?' me':''}${x.sec?' sec':''}"><span class="ii">${+x.ini||0}</span><span class="nn"><b>${esc(x.n)}</b></span><span class="hp">${num?(max?vida+' / '+max:vida):cbEstado(vida,max)}</span><div class="bar"><i style="width:${pct}%"></i></div></div>`};
+ const html=`<div class="tw-h" data-tw="t"><span class="tw-r">R${d.round}</span><span class="tw-t">${mine?'<b>Sua vez</b> · ':''}${mostra?(mine?esc(atual.n):'<b>'+esc(atual.n)+'</b>'):(d.iniciado?'<span class="mu">turno oculto</span>':'<span class="mu">combate não iniciado</span>')}</span><button data-tw="s" title="${somOn?'Som de turno ligado (clique para desligar)':'Som de turno desligado (clique para ligar)'}">${somOn?'🔊':'🔇'}</button><span class="tw-car">▾</span></div><div class="tw-b"><div class="tw-l">${ord.map(row).join('')||'<p class="mu" style="padding:6px">Ninguém na ordem de iniciativa.</p>'}</div>${M?`<div class="tw-f"><button class="pr" data-tw="n">${d.iniciado?'Próximo turno ▶':'Começar combate ▶'}</button></div>`:''}</div>`;
+ const hh=document.querySelector('header')?.offsetHeight||60,top=(hh+10)+'px';
+ if(tw.style.top!==top)tw.style.top=top;
+ tw.hidden=false;tw.classList.toggle('open',twOpen);tw.classList.toggle('mine',mine);
+ if(tw._h!==html){tw.innerHTML=html;tw._h=html}}
+$('#tw').onclick=e=>{const b=e.target.closest('[data-tw]');if(!b)return;const k=b.dataset.tw;
+ if(k==='s'){somOn=!somOn;try{localStorage.setItem('as-som',somOn?'1':'0')}catch(er){}if(somOn)somTurno(true);tw._h=null;return twRender()}
+ if(k==='t'){twOpen=!twOpen;try{localStorage.setItem('as-tw',twOpen?'1':'0')}catch(er){}return twRender()}
+ if(k==='n'){const r=sK('combate')[0];if(!r)return;const d=cbData(r);if(!d.iniciado)d.iniciado=true;else cbNext(d);sSave(r);twRender()}};
+{const _render=render;render=function(){const r=_render.apply(this,arguments);twRender();return r}}
+setInterval(twRender,1500);addEventListener('resize',twRender);
 
 /* ----- pistas ----- */
 function mesaPistas(mb,app){const M=isMaster(),l=sK('pista').filter(x=>M||x.revealed).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
