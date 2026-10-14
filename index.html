@@ -320,22 +320,27 @@ input[type=checkbox]:checked::after{content:'';position:absolute;left:4px;top:1p
 .sqlp{white-space:pre-wrap;font:12px/1.5 ui-monospace,monospace;max-height:320px;overflow:auto;background:var(--in);padding:10px;border:1px solid var(--ln)}
 .tiles.pick{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));max-height:180px;overflow:auto}
 
-/* ---- Painel de turnos (flutuante) ---- */
-#tw{position:fixed;right:16px;top:84px;z-index:15;width:300px;max-width:calc(100vw - 24px);background:var(--hd);border:1px solid var(--ln);border-top:2px solid var(--rd);box-shadow:0 8px 28px #000b;font-size:13px}
+/* ---- Painel de turnos (gaveta lateral) ---- */
+#tw{--hw:34px;--w:min(300px,calc(100vw - var(--hw)));position:fixed;right:env(safe-area-inset-right,0px);top:84px;z-index:15;display:flex;align-items:flex-start;font-size:13px;transition:transform .28s cubic-bezier(.2,.8,.2,1)}
 #tw[hidden]{display:none}
-.tw-h{display:flex;align-items:center;gap:8px;padding:8px 10px;cursor:pointer;user-select:none}
+#tw:not(.open){transform:translateX(var(--w))}
+.tw-hd{flex:none;width:var(--hw);min-height:0;padding:10px 0;display:flex;flex-direction:column;align-items:center;gap:8px;background:var(--hd);color:var(--tx);border:1px solid var(--ln);border-right:none;border-top:2px solid var(--rd);box-shadow:-4px 6px 18px #000a;cursor:pointer;touch-action:manipulation}
+.tw-ar{font-size:18px;line-height:1;color:var(--mu)}
+.tw-ar::before{content:'‹'}#tw.open .tw-ar::before{content:'›'}
+.tw-vt{writing-mode:vertical-rl;max-height:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:12px 'Special Elite',monospace;letter-spacing:.08em}
+.tw-p{width:var(--w);display:flex;flex-direction:column;max-height:calc(100vh - var(--twt,84px) - 24px);max-height:calc(100dvh - var(--twt,84px) - 24px);background:var(--hd);border:1px solid var(--ln);border-top:2px solid var(--rd);box-shadow:0 8px 28px #000b}
+#tw:not(.open) .tw-p{visibility:hidden;transition:visibility 0s .28s}
+#tw.mine .tw-hd{border-top-color:var(--ye);box-shadow:-4px 6px 18px #000a,0 0 0 1px var(--ye),0 0 20px #e0b84a66;animation:twp 1.6s ease-in-out infinite}
+#tw.mine .tw-vt,#tw.mine .tw-ar{color:var(--ye)}
+#tw.mine .tw-p{border-top-color:var(--ye)}
+@keyframes twp{50%{box-shadow:-4px 6px 18px #000a,0 0 0 1px var(--ye),0 0 6px #e0b84a22}}
+.tw-h{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--ln)}
 .tw-h .tw-t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tw-h .tw-t b{font:600 13px 'Libre Baskerville',serif}
 .tw-h .tw-r{font:11px 'Special Elite',monospace;letter-spacing:.12em;color:var(--mu);text-transform:uppercase;margin-right:6px}
-.tw-h button{padding:2px 7px;min-height:0;line-height:1.4}
-.tw-car{color:var(--mu);transition:transform .2s;display:inline-block}
-#tw.open .tw-car{transform:rotate(180deg)}
-#tw.mine{border-top-color:var(--ye);box-shadow:0 8px 28px #000b,0 0 0 1px var(--ye),0 0 22px #e0b84a55;animation:twp 1.6s ease-in-out infinite}
 #tw.mine .tw-h .tw-r{color:var(--ye)}
-@keyframes twp{50%{box-shadow:0 8px 28px #000b,0 0 0 1px var(--ye),0 0 6px #e0b84a22}}
-.tw-b{display:none;border-top:1px solid var(--ln);max-height:min(52vh,420px);overflow:auto}
-#tw.open .tw-b{display:block}
-.tw-l{padding:6px}
+.tw-h button{padding:2px 7px;min-height:0;line-height:1.4}
+.tw-l{padding:6px;flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .tw-i{display:grid;grid-template-columns:26px 1fr auto;gap:2px 8px;align-items:center;padding:6px 8px;border-left:3px solid transparent}
 .tw-i.on{background:#b3261e22;border-left-color:var(--rd)}
 .tw-i.me:not(.on){background:#e0b84a12}
@@ -352,7 +357,18 @@ input[type=checkbox]:checked::after{content:'';position:absolute;left:4px;top:1p
 .tw-s input[type=range]{flex:1;width:auto;min-width:0;-webkit-appearance:none;appearance:none;height:4px;padding:0;margin:0;background:var(--in);border:1px solid var(--ln);box-shadow:none;cursor:pointer}
 .tw-s input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:18px;background:var(--rd);border:1px solid var(--rd2);border-radius:0;cursor:pointer}
 .tw-s input[type=range]::-moz-range-thumb{width:12px;height:18px;background:var(--rd);border:1px solid var(--rd2);border-radius:0;cursor:pointer}
-@media(max-width:700px){#tw{right:8px;width:min(300px,calc(100vw - 16px))}}
+@media(max-width:700px){
+ #tw{--hw:40px}
+ .tw-p{max-height:calc(100vh - var(--twt,84px) - 96px - env(safe-area-inset-bottom,0px));max-height:calc(100dvh - var(--twt,84px) - 96px - env(safe-area-inset-bottom,0px))}
+ .tw-h button,.tw-s button{min-height:34px;padding:4px 10px}
+ .tw-s input[type=range]{height:6px}
+ .tw-s input[type=range]::-webkit-slider-thumb{width:18px;height:28px}
+ .tw-s input[type=range]::-moz-range-thumb{width:18px;height:28px}
+ /* avisos de rolagem: compactos, no máximo 2, e deixam a gaveta livre */
+ #toasts{right:48px;left:8px;gap:6px}
+ .toast{padding:6px 10px;font-size:13px}
+ .toast .big{font-size:20px}
+}
 </style></head><body>
 <div class="fog"></div><canvas id="embers"></canvas><div id="fx"></div>
 <header>
@@ -758,6 +774,7 @@ function vezCheck(r){
  const ch=chars.find(c=>c.id===x.ref);if(!ch||ch.owner!==user.id)return;
  somTurno();notice('É a sua vez: '+x.n)}
 let twOpen=innerWidth>700;try{const v=localStorage.getItem('as-tw');if(v!=null)twOpen=v==='1'}catch(e){}
+function twSet(v){if(v===twOpen)return;twOpen=v;try{localStorage.setItem('as-tw',v?'1':'0')}catch(e){}twRender()}
 function twRender(){
  const tw=$('#tw');if(!tw)return;
  const r=(user&&camp)?sK('combate')[0]:null;
@@ -768,9 +785,10 @@ function twRender(){
  const mostra=atual&&(M||!atual.sec),mine=!!(d.iniciado&&mostra&&atual.tipo==='agente'&&chars.find(c=>c.id===atual.ref)?.owner===user.id);
  const row=x=>{const ch=x.tipo==='agente'?chars.find(c=>c.id===x.ref):null,vida=ch?ch.vidaAtual:(+x.vida||0),max=ch?calc(ch).vida:(+x.max||0),pct=max?Math.max(0,Math.min(100,100*vida/max)):0,num=ch||M,eu=ch&&ch.owner===user.id;
   return `<div class="tw-i${x.id===d.atual?' on':''}${eu?' me':''}${x.sec?' sec':''}"><span class="ii">${+x.ini||0}</span><span class="nn"><b>${esc(x.n)}</b></span><span class="hp">${num?(max?vida+' / '+max:vida):cbEstado(vida,max)}</span><div class="bar"><i style="width:${pct}%"></i></div></div>`};
- const html=`<div class="tw-h" data-tw="t"><span class="tw-r">R${d.round}</span><span class="tw-t">${mine?'<b>Sua vez</b> · ':''}${mostra?(mine?esc(atual.n):'<b>'+esc(atual.n)+'</b>'):(d.iniciado?'<span class="mu">turno oculto</span>':'<span class="mu">combate não iniciado</span>')}</span><button data-tw="s" title="${somOn&&somVol>0?'Som de turno ligado (clique para desligar)':'Som de turno desligado (clique para ligar)'}">${somOn&&somVol>0?'🔊':'🔇'}</button><span class="tw-car">▾</span></div><div class="tw-b"><div class="tw-l">${ord.map(row).join('')||'<p class="mu" style="padding:6px">Ninguém na ordem de iniciativa.</p>'}</div>${M?`<div class="tw-f"><button class="pr" data-tw="n">${d.iniciado?'Próximo turno ▶':'Começar combate ▶'}</button></div>`:''}<div class="tw-s"><span class="mu">Volume</span><input type="range" min="0" max="100" step="5" data-tw="v" aria-label="Volume do som de turno"><button data-tw="p">Testar</button></div></div>`;
+ const vt='R'+d.round+' · '+(mine?'SUA VEZ':mostra?atual.n:(d.iniciado?'turno oculto':'combate'));
+ const html=`<button class="tw-hd" data-tw="t" aria-label="${twOpen?'Fechar':'Abrir'} painel de turnos"><span class="tw-ar"></span><span class="tw-vt">${esc(vt)}</span></button><div class="tw-p"><div class="tw-h"><span class="tw-r">R${d.round}</span><span class="tw-t">${mine?'<b>Sua vez</b> · ':''}${mostra?(mine?esc(atual.n):'<b>'+esc(atual.n)+'</b>'):(d.iniciado?'<span class="mu">turno oculto</span>':'<span class="mu">combate não iniciado</span>')}</span><button data-tw="s" title="${somOn&&somVol>0?'Som de turno ligado (clique para desligar)':'Som de turno desligado (clique para ligar)'}">${somOn&&somVol>0?'🔊':'🔇'}</button></div><div class="tw-l">${ord.map(row).join('')||'<p class="mu" style="padding:6px">Ninguém na ordem de iniciativa.</p>'}</div>${M?`<div class="tw-f"><button class="pr" data-tw="n">${d.iniciado?'Próximo turno ▶':'Começar combate ▶'}</button></div>`:''}<div class="tw-s"><span class="mu">Volume</span><input type="range" min="0" max="100" step="5" data-tw="v" aria-label="Volume do som de turno"><button data-tw="p">Testar</button></div></div>`;
  const hh=document.querySelector('header')?.offsetHeight||60,top=(hh+10)+'px';
- if(tw.style.top!==top)tw.style.top=top;
+ if(tw.style.top!==top){tw.style.top=top;tw.style.setProperty('--twt',top)}
  tw.hidden=false;tw.classList.toggle('open',twOpen);tw.classList.toggle('mine',mine);
  const ae=document.activeElement,usando=ae&&ae.type==='range'&&tw.contains(ae);
  if(tw._h!==html&&!usando){tw.innerHTML=html;tw._h=html}
@@ -778,10 +796,18 @@ function twRender(){
 $('#tw').onclick=e=>{const b=e.target.closest('[data-tw]');if(!b)return;const k=b.dataset.tw;
  if(k==='s'){somOn=!somOn;if(somOn&&somVol<=0){somVol=60;try{localStorage.setItem('as-vol',somVol)}catch(er){}}try{localStorage.setItem('as-som',somOn?'1':'0')}catch(er){}if(somOn)somTurno(true);$('#tw')._h=null;return twRender()}
  if(k==='p')return somTurno(true);
- if(k==='t'){twOpen=!twOpen;try{localStorage.setItem('as-tw',twOpen?'1':'0')}catch(er){}return twRender()}
+ if(k==='t')return twSet(!twOpen);
  if(k==='n'){const r=sK('combate')[0];if(!r)return;const d=cbData(r);if(!d.iniciado)d.iniciado=true;else cbNext(d);sSave(r);twRender()}};
 $('#tw').oninput=e=>{if(e.target.dataset.tw!=='v')return;somVol=+e.target.value;try{localStorage.setItem('as-vol',somVol)}catch(er){}};
 $('#tw').onchange=e=>{if(e.target.dataset.tw!=='v')return;if(somVol>0)somOn=true;try{localStorage.setItem('as-som',somOn?'1':'0')}catch(er){}somTurno(true);$('#tw')._h=null;twRender()};
+{let sx=null,sy=0;const tw=$('#tw');
+ tw.addEventListener('touchstart',e=>{if(e.target.closest('input[type=range]')){sx=null;return}const t=e.touches[0];sx=t.clientX;sy=t.clientY},{passive:true});
+ tw.addEventListener('touchend',e=>{if(sx==null)return;const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;sx=null;
+  if(Math.abs(dx)<45||Math.abs(dx)<Math.abs(dy)*1.5)return;twSet(dx<0)},{passive:true})}
+document.addEventListener('pointerdown',e=>{if(innerWidth>700||!twOpen)return;if(e.target.closest('#tw,.modal,#toasts'))return;twSet(false)},true);
+{const box=$('#toasts'),mob=()=>innerWidth<=700;
+ new MutationObserver(ms=>{ms.forEach(m=>m.addedNodes.forEach(el=>{if(el.nodeType!==1)return;el.addEventListener('click',()=>el.remove());if(mob())setTimeout(()=>el.remove(),4500)}));
+  const max=mob()?2:4;while(box.children.length>max)box.firstElementChild.remove()}).observe(box,{childList:true})}
 {const _render=render;render=function(){const r=_render.apply(this,arguments);twRender();return r}}
 setInterval(twRender,1500);addEventListener('resize',twRender);
 
