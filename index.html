@@ -347,6 +347,11 @@ input[type=checkbox]:checked::after{content:'';position:absolute;left:4px;top:1p
 .tw-i .bar{grid-column:2 / 4;height:5px;margin:0}
 .tw-f{padding:8px;border-top:1px solid var(--ln);display:flex}
 .tw-f button{flex:1}
+.tw-s{display:flex;align-items:center;gap:8px;padding:8px;border-top:1px solid var(--ln)}
+.tw-s button{padding:3px 8px;min-height:0}
+.tw-s input[type=range]{flex:1;width:auto;min-width:0;-webkit-appearance:none;appearance:none;height:4px;padding:0;margin:0;background:var(--in);border:1px solid var(--ln);box-shadow:none;cursor:pointer}
+.tw-s input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:18px;background:var(--rd);border:1px solid var(--rd2);border-radius:0;cursor:pointer}
+.tw-s input[type=range]::-moz-range-thumb{width:12px;height:18px;background:var(--rd);border:1px solid var(--rd2);border-radius:0;cursor:pointer}
 @media(max-width:700px){#tw{right:8px;width:min(300px,calc(100vw - 16px))}}
 </style></head><body>
 <div class="fog"></div><canvas id="embers"></canvas><div id="fx"></div>
@@ -722,28 +727,20 @@ function mesaCombate(mb,app){const M=isMaster(),r=sK('combate')[0];
   if(k.cx){const was=d.atual===k.cx;if(was)cbNext(d);d.itens=d.itens.filter(y=>y.id!==k.cx);if(was&&d.atual===k.cx)d.atual=null;if(!d.itens.length)d.atual=null;save()}}}
 
 /* ----- som de turno (8 bits, macabro) + painel flutuante de turnos ----- */
-let AC=null,somOn=true;
-try{somOn=localStorage.getItem('as-som')!=='0'}catch(e){}
+let AC=null,somOn=true,somVol=60;
+try{somOn=localStorage.getItem('as-som')!=='0';const v=localStorage.getItem('as-vol');if(v!=null&&v!==''&&!isNaN(+v))somVol=Math.max(0,Math.min(100,+v))}catch(e){}
 function audioCtx(){if(!AC){const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;AC=new C()}if(AC.state==='suspended')AC.resume().catch(()=>{});return AC}
 ['pointerdown','keydown'].forEach(ev=>document.addEventListener(ev,()=>{try{audioCtx()}catch(e){}},{once:true,capture:true}));
 function somTurno(force){
- const a=audioCtx();if(!a||!(force||somOn))return;
+ const a=audioCtx();if(!a||!(force||somOn)||somVol<=0)return;
  const go=()=>{
-  const t0=a.currentTime+.04,out=a.createGain();out.gain.value=1;out.connect(a.destination);
-  const tone=(type,f0,f1,t,d,v,vib)=>{const o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.setValueAtTime(f0,t);
-   if(f1)o.frequency.exponentialRampToValueAtTime(f1,t+d);
-   if(vib){const l=a.createOscillator(),lg=a.createGain();l.frequency.value=7;lg.gain.value=vib;l.connect(lg).connect(o.frequency);l.start(t);l.stop(t+d+.05)}
-   g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v,t+.008);g.gain.setValueAtTime(v,t+d*.65);g.gain.exponentialRampToValueAtTime(.0001,t+d);
-   o.connect(g).connect(out);o.start(t);o.stop(t+d+.03)};
-  const noise=(t,d,v)=>{const n=Math.floor(a.sampleRate*d),b=a.createBuffer(1,n,a.sampleRate),x=b.getChannelData(0);let h=0;
-   for(let i=0;i<n;i++){if(i%28===0)h=Math.random()*2-1;x[i]=h}
-   const s=a.createBufferSource(),g=a.createGain();s.buffer=b;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);s.connect(g).connect(out);s.start(t)};
-  /* batida surda + estalo de ruído */
-  tone('triangle',120,42,t0,.3,.9);noise(t0,.08,.35);
-  /* arpejo diminuto subindo até o trítono (Lá → Mi bemol) */
-  [220,261.63,311.13,440,622.25].forEach((f,k)=>tone('square',f,0,t0+.14+k*.075,.07,.26));
-  /* nota final trêmula sobre um zumbido grave: o intervalo do diabo */
-  tone('square',622.25,587.33,t0+.53,.55,.22,9);tone('triangle',110,104,t0+.53,.6,.7);
+  const t0=a.currentTime+.03,out=a.createGain();out.gain.value=Math.pow(somVol/100,2);out.connect(a.destination);
+  const tone=(type,f,t,d,v)=>{const o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.value=f;
+   g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v,t+.006);g.gain.setValueAtTime(v,t+d*.55);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+   o.connect(g).connect(out);o.start(t);o.stop(t+d+.02)};
+  tone('square',622.25,t0,.11,.3);        /* Mi bemol */
+  tone('square',440,t0+.12,.24,.3);       /* Lá: o trítono descendo */
+  tone('triangle',110,t0+.12,.32,.45);    /* nota grave por baixo */
  };
  if(a.state==='running')return go();
  const t=Date.now();a.resume().then(()=>{if(a.state==='running'&&(force||Date.now()-t<3000))go()}).catch(()=>{});
@@ -771,15 +768,20 @@ function twRender(){
  const mostra=atual&&(M||!atual.sec),mine=!!(d.iniciado&&mostra&&atual.tipo==='agente'&&chars.find(c=>c.id===atual.ref)?.owner===user.id);
  const row=x=>{const ch=x.tipo==='agente'?chars.find(c=>c.id===x.ref):null,vida=ch?ch.vidaAtual:(+x.vida||0),max=ch?calc(ch).vida:(+x.max||0),pct=max?Math.max(0,Math.min(100,100*vida/max)):0,num=ch||M,eu=ch&&ch.owner===user.id;
   return `<div class="tw-i${x.id===d.atual?' on':''}${eu?' me':''}${x.sec?' sec':''}"><span class="ii">${+x.ini||0}</span><span class="nn"><b>${esc(x.n)}</b></span><span class="hp">${num?(max?vida+' / '+max:vida):cbEstado(vida,max)}</span><div class="bar"><i style="width:${pct}%"></i></div></div>`};
- const html=`<div class="tw-h" data-tw="t"><span class="tw-r">R${d.round}</span><span class="tw-t">${mine?'<b>Sua vez</b> · ':''}${mostra?(mine?esc(atual.n):'<b>'+esc(atual.n)+'</b>'):(d.iniciado?'<span class="mu">turno oculto</span>':'<span class="mu">combate não iniciado</span>')}</span><button data-tw="s" title="${somOn?'Som de turno ligado (clique para desligar)':'Som de turno desligado (clique para ligar)'}">${somOn?'🔊':'🔇'}</button><span class="tw-car">▾</span></div><div class="tw-b"><div class="tw-l">${ord.map(row).join('')||'<p class="mu" style="padding:6px">Ninguém na ordem de iniciativa.</p>'}</div>${M?`<div class="tw-f"><button class="pr" data-tw="n">${d.iniciado?'Próximo turno ▶':'Começar combate ▶'}</button></div>`:''}</div>`;
+ const html=`<div class="tw-h" data-tw="t"><span class="tw-r">R${d.round}</span><span class="tw-t">${mine?'<b>Sua vez</b> · ':''}${mostra?(mine?esc(atual.n):'<b>'+esc(atual.n)+'</b>'):(d.iniciado?'<span class="mu">turno oculto</span>':'<span class="mu">combate não iniciado</span>')}</span><button data-tw="s" title="${somOn&&somVol>0?'Som de turno ligado (clique para desligar)':'Som de turno desligado (clique para ligar)'}">${somOn&&somVol>0?'🔊':'🔇'}</button><span class="tw-car">▾</span></div><div class="tw-b"><div class="tw-l">${ord.map(row).join('')||'<p class="mu" style="padding:6px">Ninguém na ordem de iniciativa.</p>'}</div>${M?`<div class="tw-f"><button class="pr" data-tw="n">${d.iniciado?'Próximo turno ▶':'Começar combate ▶'}</button></div>`:''}<div class="tw-s"><span class="mu">Volume</span><input type="range" min="0" max="100" step="5" data-tw="v" aria-label="Volume do som de turno"><button data-tw="p">Testar</button></div></div>`;
  const hh=document.querySelector('header')?.offsetHeight||60,top=(hh+10)+'px';
  if(tw.style.top!==top)tw.style.top=top;
  tw.hidden=false;tw.classList.toggle('open',twOpen);tw.classList.toggle('mine',mine);
- if(tw._h!==html){tw.innerHTML=html;tw._h=html}}
+ const ae=document.activeElement,usando=ae&&ae.type==='range'&&tw.contains(ae);
+ if(tw._h!==html&&!usando){tw.innerHTML=html;tw._h=html}
+ const sl=tw.querySelector('[data-tw=v]');if(sl&&!usando)sl.value=somVol}
 $('#tw').onclick=e=>{const b=e.target.closest('[data-tw]');if(!b)return;const k=b.dataset.tw;
- if(k==='s'){somOn=!somOn;try{localStorage.setItem('as-som',somOn?'1':'0')}catch(er){}if(somOn)somTurno(true);tw._h=null;return twRender()}
+ if(k==='s'){somOn=!somOn;if(somOn&&somVol<=0){somVol=60;try{localStorage.setItem('as-vol',somVol)}catch(er){}}try{localStorage.setItem('as-som',somOn?'1':'0')}catch(er){}if(somOn)somTurno(true);$('#tw')._h=null;return twRender()}
+ if(k==='p')return somTurno(true);
  if(k==='t'){twOpen=!twOpen;try{localStorage.setItem('as-tw',twOpen?'1':'0')}catch(er){}return twRender()}
  if(k==='n'){const r=sK('combate')[0];if(!r)return;const d=cbData(r);if(!d.iniciado)d.iniciado=true;else cbNext(d);sSave(r);twRender()}};
+$('#tw').oninput=e=>{if(e.target.dataset.tw!=='v')return;somVol=+e.target.value;try{localStorage.setItem('as-vol',somVol)}catch(er){}};
+$('#tw').onchange=e=>{if(e.target.dataset.tw!=='v')return;if(somVol>0)somOn=true;try{localStorage.setItem('as-som',somOn?'1':'0')}catch(er){}somTurno(true);$('#tw')._h=null;twRender()};
 {const _render=render;render=function(){const r=_render.apply(this,arguments);twRender();return r}}
 setInterval(twRender,1500);addEventListener('resize',twRender);
 
