@@ -390,95 +390,6 @@ select.cs-n{display:none!important}
  #csp{left:8px!important;right:8px!important;width:auto!important;top:auto!important;bottom:calc(76px + env(safe-area-inset-bottom,0px))!important;max-height:52vh!important}
  #csp button{padding:13px 14px;font-size:15px}
 }
-
-/* ---- v7: refinamento (pasta de caso, tipografia, detalhes) ---- */
-body{text-rendering:optimizeLegibility;font-kerning:normal;line-height:1.58}
-h2{letter-spacing:.015em}
-::placeholder{color:color-mix(in srgb,var(--mu) 70%,transparent);font-style:italic}
-
-/* cabeçalho: filete duplo e selo no logo */
-header{background:linear-gradient(180deg,color-mix(in srgb,var(--hd) 85%,#2a1511),var(--hd));border-bottom:1px solid var(--rd2);box-shadow:0 3px 0 var(--hd),0 4px 0 color-mix(in srgb,var(--rd2) 55%,transparent),0 10px 28px #000a}
-.logo{position:relative;padding-left:36px}
-.logo::before{content:'';position:absolute;left:0;top:50%;width:26px;height:26px;margin-top:-13px;border:2px solid var(--rd);border-radius:50%;background:radial-gradient(circle,var(--rd) 0 3px,transparent 4px),radial-gradient(circle,transparent 0 7px,color-mix(in srgb,var(--rd) 45%,transparent) 7px 8px,transparent 8px);box-shadow:0 0 14px color-mix(in srgb,var(--rd) 40%,transparent)}
-.stamp{outline:1px solid var(--rd);outline-offset:3px;padding:2px 10px}
-
-/* título de seção com filete vermelho curto */
-main>.row:first-child{position:relative;padding-bottom:12px;border-bottom:1px solid var(--ln);margin-bottom:4px}
-main>.row:first-child::after{content:'';position:absolute;left:0;bottom:-1px;width:72px;height:2px;background:var(--rd)}
-
-/* cartões: relevo discreto */
-.card,.box{box-shadow:inset 0 1px 0 #ffffff0a,0 2px 0 #0006}
-.card:hover{box-shadow:inset 0 1px 0 #ffffff0a,0 8px 22px #0009}
-.box>h3:first-child{padding-bottom:6px;border-bottom:1px dotted var(--ln);margin-bottom:10px}
-
-/* campanhas: aba de pasta */
-.grid:has(.cc){margin-top:26px;row-gap:26px}
-.cc{position:relative;border-left:1px solid var(--ln);border-top:1px solid var(--ln)}
-.cc::before{content:'CASO';position:absolute;left:-1px;top:-19px;height:19px;padding:2px 14px 0;background:var(--p);border:1px solid var(--ln);border-bottom:0;border-top:2px solid var(--rd);font:10px/16px 'Special Elite',monospace;letter-spacing:.24em;color:var(--rd)}
-
-/* agentes: canto dobrado */
-.ag{position:relative}
-.ag::after{content:'';position:absolute;right:0;top:0;width:18px;height:18px;background:linear-gradient(to bottom left,transparent 50%,var(--ln) 50%);box-shadow:-1px 1px 3px #0006;pointer-events:none}
-
-/* ficha: marcas de registro nos cantos do dossiê */
-.dossier{--cm:color-mix(in srgb,var(--rd) 70%,transparent);background:
- linear-gradient(var(--cm),var(--cm)) left 9px top 9px/14px 1px no-repeat,
- linear-gradient(var(--cm),var(--cm)) left 9px top 9px/1px 14px no-repeat,
- linear-gradient(var(--cm),var(--cm)) left 9px bottom 9px/14px 1px no-repeat,
- linear-gradient(var(--cm),var(--cm)) left 9px bottom 9px/1px 14px no-repeat,
- linear-gradient(var(--cm),var(--cm)) right 9px bottom 9px/14px 1px no-repeat,
- linear-gradient(var(--cm),var(--cm)) right 9px bottom 9px/1px 14px no-repeat,
- linear-gradient(var(--cm),var(--cm)) right 9px top 9px/14px 1px no-repeat,
- linear-gradient(var(--cm),var(--cm)) right 9px top 9px/1px 14px no-repeat,
- linear-gradient(135deg,var(--p) 0,var(--p2) 100%)}
-.dz-name{letter-spacing:.01em;text-shadow:0 2px 0 #0006}
-.dzs{box-shadow:inset 0 1px 0 #ffffff0a}
-
-/* barras de vida em segmentos */
-.bar{position:relative}
-.bar::after{content:'';position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(90deg,transparent 0 calc(10% - 1px),#0007 calc(10% - 1px) 10%)}
-
-/* tabelas como ficha datilografada */
-td{border-top:1px dotted var(--ln)}
-th{border-bottom:1px solid var(--ln)}
-
-/* abas da ficha como abas de fichário */
-.tabs a.on{background:linear-gradient(180deg,color-mix(in srgb,var(--rd) 16%,transparent),transparent)}
-.xc>summary::before{transition:transform .2s}
-.xc:not([open])>summary::before{transform:rotate(-90deg)}
-
-/* campos e botões */
-input,textarea,select,.cs{box-shadow:inset 0 1px 3px #0006}
-button{box-shadow:inset 0 1px 0 #ffffff0d}
-button.pr{background:linear-gradient(180deg,color-mix(in srgb,var(--rd) 70%,var(--rd2)),var(--rd2));box-shadow:inset 0 1px 0 #ffffff26,0 2px 0 #0008}
-button.pr:hover{background:linear-gradient(180deg,var(--rd),color-mix(in srgb,var(--rd) 70%,var(--rd2)))}
-button:focus-visible,.tile:focus-visible,summary:focus-visible,.cs:focus-visible{outline:2px solid var(--ye);outline-offset:2px}
-
-/* tela de acesso */
-.auth{position:relative;margin:9vh auto 40px;padding-top:38px}
-.auth:hover{transform:none;box-shadow:0 24px 60px #000a}
-.auth::before{content:'ACESSO RESTRITO';position:absolute;top:0;right:18px;background:var(--rd2);color:#fff;font:11px 'Special Elite',monospace;letter-spacing:.2em;padding:3px 12px}
-.auth h2{font-size:26px;margin:0}
-.auth .mu{margin:6px 0 0}
-
-/* janelas */
-.modal{background:#000b;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
-
-/* tema papel: sombras leves e cabeçalho de campanha legível */
-html[data-theme=papel] .cc{background:linear-gradient(180deg,var(--p2) 0,var(--p) 80%)}
-html[data-theme=papel] .card,html[data-theme=papel] .box{box-shadow:inset 0 1px 0 #fff9,0 2px 0 #2a211822}
-html[data-theme=papel] .card:hover{box-shadow:inset 0 1px 0 #fff9,0 8px 20px #2a211833}
-html[data-theme=papel] .dz-name{text-shadow:none}
-html[data-theme=papel] .dzs{box-shadow:none}
-html[data-theme=papel] .bar::after{background:repeating-linear-gradient(90deg,transparent 0 calc(10% - 1px),#2a211866 calc(10% - 1px) 10%)}
-html[data-theme=papel] input,html[data-theme=papel] textarea,html[data-theme=papel] select,html[data-theme=papel] .cs{box-shadow:inset 0 1px 2px #2a211822}
-html[data-theme=papel] button{box-shadow:none}
-html[data-theme=papel] button.pr{box-shadow:inset 0 1px 0 #ffffff33,0 2px 0 #2a211855}
-@media(max-width:700px){
- .auth{margin:24px auto}
- .logo{padding-left:28px}.logo::before{width:20px;height:20px;margin-top:-10px}
- .grid:has(.cc){margin-top:22px}
-}
 </style></head><body>
 <div class="fog"></div><canvas id="embers"></canvas><div id="fx"></div>
 <header>
@@ -684,7 +595,7 @@ function render(){
  if(view==='biblioteca')return libView(app);
  mesa(app)}
 function authView(app,nav){nav.innerHTML='';let mode='in';
- const draw=()=>{app.innerHTML=`<div class="auth card"><h2>${mode==='in'?'Entrar':'Criar conta'}</h2><p class="mu">${mode==='in'?'Identifique-se para abrir os arquivos.':'Crie sua conta para entrar numa mesa.'}</p><br>
+ const draw=()=>{app.innerHTML=`<div class="auth card"><h2>${mode==='in'?'Entrar':'Criar conta'}</h2><br>
   ${mode==='up'?'<input id="nm" placeholder="Seu nome de jogador">':''}<input id="em" type="email" placeholder="E-mail"><input id="pw" type="password" placeholder="Senha (mín. 6)">
   <div class="err" id="er"></div><div class="row"><button class="pr" id="go">${mode==='in'?'Entrar':'Cadastrar'}</button><button id="sw">${mode==='in'?'Criar conta':'Já tenho conta'}</button></div></div>`;
   $('#sw').onclick=()=>{mode=mode==='in'?'up':'in';draw()};
