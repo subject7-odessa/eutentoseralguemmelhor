@@ -324,11 +324,11 @@ input[type=checkbox]:checked::after{content:'';position:absolute;left:4px;top:1p
 #tw{--hw:34px;--w:min(300px,calc(100vw - var(--hw)));position:fixed;right:env(safe-area-inset-right,0px);top:84px;z-index:15;display:flex;align-items:flex-start;font-size:13px;transition:transform .28s cubic-bezier(.2,.8,.2,1)}
 #tw[hidden]{display:none}
 #tw:not(.open){transform:translateX(var(--w))}
-.tw-hd{flex:none;width:var(--hw);min-height:0;padding:10px 0;display:flex;flex-direction:column;align-items:center;gap:8px;background:var(--hd);color:var(--tx);border:1px solid var(--ln);border-right:none;border-top:2px solid var(--rd);box-shadow:-4px 6px 18px #000a;cursor:pointer;touch-action:manipulation}
+.tw-hd{flex:none;width:var(--hw);min-height:0;padding:10px 0;display:flex;flex-direction:column;align-items:center;gap:8px;background:var(--p);color:var(--tx);border:1px solid var(--ln);border-right:none;border-top:2px solid var(--rd);box-shadow:-4px 6px 18px #000a;cursor:pointer;touch-action:manipulation}
 .tw-ar{font-size:18px;line-height:1;color:var(--mu)}
 .tw-ar::before{content:'‹'}#tw.open .tw-ar::before{content:'›'}
 .tw-vt{writing-mode:vertical-rl;max-height:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:12px 'Special Elite',monospace;letter-spacing:.08em}
-.tw-p{width:var(--w);display:flex;flex-direction:column;max-height:calc(100vh - var(--twt,84px) - 24px);max-height:calc(100dvh - var(--twt,84px) - 24px);background:var(--hd);border:1px solid var(--ln);border-top:2px solid var(--rd);box-shadow:0 8px 28px #000b}
+.tw-p{width:var(--w);display:flex;flex-direction:column;max-height:calc(100vh - var(--twt,84px) - 24px);max-height:calc(100dvh - var(--twt,84px) - 24px);background:var(--p);color:var(--tx);border:1px solid var(--ln);border-top:2px solid var(--rd);box-shadow:0 8px 28px #000b}
 #tw:not(.open) .tw-p{visibility:hidden;transition:visibility 0s .28s}
 #tw.mine .tw-hd{border-top-color:var(--ye);box-shadow:-4px 6px 18px #000a,0 0 0 1px var(--ye),0 0 20px #e0b84a66;animation:twp 1.6s ease-in-out infinite}
 #tw.mine .tw-vt,#tw.mine .tw-ar{color:var(--ye)}
@@ -368,6 +368,27 @@ input[type=checkbox]:checked::after{content:'';position:absolute;left:4px;top:1p
  #toasts{right:48px;left:8px;gap:6px}
  .toast{padding:6px 10px;font-size:13px}
  .toast .big{font-size:20px}
+}
+/* ---- seletor próprio (no lugar da lista nativa do navegador) ---- */
+select.cs-n{display:none!important}
+.cs{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;width:100%;min-width:0;background:var(--in);color:var(--tx);border:1px solid var(--ln);padding:5px 8px;font:inherit;font-size:14px;cursor:pointer}
+.cs>span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cs::after{content:'';flex:none;width:6px;height:6px;border-right:2px solid var(--rd);border-bottom:2px solid var(--rd);transform:translateY(-2px) rotate(45deg);transition:transform .15s}
+.cs.on{border-color:var(--rd);box-shadow:0 0 0 3px #b3261e2a}.cs.on::after{transform:translateY(2px) rotate(225deg)}
+.cs:disabled{opacity:.5;cursor:default}
+.mod.cs{width:80px}
+@keyframes csin{from{opacity:0;transform:translateY(6px)}}
+#csp{position:fixed;z-index:80;background:var(--p);color:var(--tx);border:1px solid var(--rd2);border-top:2px solid var(--rd);box-shadow:0 12px 32px #000c;overflow:auto;overscroll-behavior:contain;animation:csin .15s}
+#csp button{display:block;width:100%;min-height:0;text-align:left;background:none;border:none;border-left:3px solid transparent;padding:8px 12px;font:14px 'Libre Baskerville',Georgia,serif;color:var(--tx);cursor:pointer}
+#csp button:hover,#csp button.hl{background:#b3261e22}
+#csp button.sel{border-left-color:var(--rd);color:var(--rd)}
+#csp button:disabled{opacity:.4;cursor:default}
+.pl{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}
+.pst .seg{display:flex;flex-wrap:wrap;max-width:100%}
+@media(max-width:700px){
+ .cs{min-height:40px;font-size:16px}
+ #csp{left:8px!important;right:8px!important;width:auto!important;top:auto!important;bottom:calc(76px + env(safe-area-inset-bottom,0px))!important;max-height:52vh!important}
+ #csp button{padding:13px 14px;font-size:15px}
 }
 </style></head><body>
 <div class="fog"></div><canvas id="embers"></canvas><div id="fx"></div>
@@ -708,10 +729,20 @@ function mesa(app){const tabs=[['combate','Combate'],['pistas','Pistas'],['notas
  if(mtab==='campanha')return mesaCamp(mb);
  if(!sessOk)return sessSetup(mb);
  ({combate:mesaCombate,pistas:mesaPistas,notas:mesaNotas}[mtab]||mesaCombate)(mb,app)}
-function mesaCamp(mb){mb.innerHTML=`<div class="mu">${isMaster()?'Código para convidar jogadores: <b>'+camp.code+'</b>':'Mestre: '+esc(names[camp.master]||'?')}</div><br>
- <div class="box"><h3>Jogadores</h3>${Object.values(names).map(esc).join(' · ')}</div>
+function mesaCamp(mb){const M=isMaster();
+ const xp=M?`<div class="box"><h3>XP da sessão</h3><p class="mu">Concede o mesmo XP a vários agentes de uma vez. Cada ficha registra o ganho no histórico, com o motivo. Use valor negativo para descontar.</p><div class="row"><input type="number" id="bxq" value="3" style="flex:1;min-width:80px"><input id="bxm" placeholder="Motivo (ex.: Caso do Hotel resolvido)" style="flex:3;min-width:160px"></div><div class="chips" style="margin:12px 0">${chars.map(c=>`<label class="chip"><input type="checkbox" data-bx="${c.id}" checked> ${esc(c.name)}${c.oculto?' <span class="mu">(oculto)</span>':''}</label>`).join('')||'<span class="mu">Nenhum agente na campanha ainda.</span>'}</div><div class="row"><button data-bxa="1">Marcar todos</button><button data-bxa="0">Desmarcar todos</button><span class="sp"></span><button class="pr" id="bxg">Conceder XP</button></div></div><br>`:'';
+ mb.innerHTML=`<div class="mu">${M?'Código para convidar jogadores: <b>'+camp.code+'</b>':'Mestre: '+esc(names[camp.master]||'?')}</div><br>
+ ${xp}<div class="box"><h3>Jogadores</h3>${Object.values(names).map(esc).join(' · ')}</div>
  <button id="lv">← Trocar de campanha</button>`;
- $('#lv').onclick=()=>{camp=null;sb.removeChannel(chan);render()}}
+ $('#lv').onclick=()=>{camp=null;sb.removeChannel(chan);render()};
+ if(!M)return;
+ mb.onclick=e=>{const b=e.target.closest('button[data-bxa]');if(b)mb.querySelectorAll('[data-bx]').forEach(x=>x.checked=b.dataset.bxa==='1')};
+ $('#bxg').onclick=async()=>{const q=Math.trunc(+$('#bxq').value||0);if(!q)return alert('Informe a quantidade de XP (diferente de zero).');
+  const ids=[...mb.querySelectorAll('[data-bx]:checked')].map(x=>x.dataset.bx),l=chars.filter(c=>ids.includes(c.id));
+  if(!l.length)return alert('Marque ao menos um agente.');
+  if(!await ask(`Conceder ${q>0?'+':''}${q} XP a ${l.length} agente(s)?`))return;
+  const m=$('#bxm').value.trim()||'XP da sessão';l.forEach(c=>{xpGrant(c,q,m);save(c)});
+  notice(`${q>0?'+':''}${q} XP concedido a ${l.length} agente(s).`)}}
 function sessSetup(mb){mb.innerHTML=isMaster()?`<div class="box"><h3>Ativar as ferramentas de sessão</h3><p>Combate, pistas e notas precisam de uma tabela nova no Supabase (<code>session_items</code>). Rode o SQL abaixo uma vez no <b>SQL Editor</b> do seu projeto e recarregue a página. Ele também protege no banco o que os jogadores não devem ver.</p><div class="row"><button class="pr" id="cpsql">Copiar SQL</button></div>${det('sqlbox','<b>Ver o SQL</b>','<pre class="sqlp">'+esc(SESSAO_SQL)+'</pre>')}</div>`
  :`<div class="box"><p class="mu">O mestre ainda não ativou as ferramentas de sessão desta campanha.</p></div>`;
  $('#cpsql')&&($('#cpsql').onclick=()=>navigator.clipboard.writeText(SESSAO_SQL).then(()=>notice('SQL copiado.')).catch(()=>alert('Copie manualmente pelo botão "Ver o SQL".')))}
@@ -811,15 +842,60 @@ document.addEventListener('pointerdown',e=>{if(innerWidth>700||!twOpen)return;if
 {const _render=render;render=function(){const r=_render.apply(this,arguments);twRender();return r}}
 setInterval(twRender,1500);addEventListener('resize',twRender);
 
+/* ---------- seletor próprio: troca o <select> do navegador por uma lista no estilo do site.
+   O select original continua no DOM (oculto) e recebe os eventos input/change, então o resto do código não muda. ---------- */
+let csOpen=null;
+function csClose(){document.getElementById('csp')?.remove();if(csOpen){csOpen.b.classList.remove('on');csOpen=null}}
+function csSync(sel){const b=sel._cs;if(!b)return;const o=sel.options[sel.selectedIndex],t=o?o.textContent:'—';if(b.firstChild.textContent!==t)b.firstChild.textContent=t;if(b.disabled!==sel.disabled)b.disabled=sel.disabled}
+function csEnhance(sel){if(sel.dataset.cs)return;sel.dataset.cs='1';
+ const b=document.createElement('button');b.type='button';b.className=('cs '+(sel.className||'')).trim();b.style.cssText=sel.style.cssText;
+ b.setAttribute('aria-haspopup','listbox');b.innerHTML='<span></span>';sel.classList.add('cs-n');sel.after(b);b._sel=sel;sel._cs=b;csSync(sel);
+ b.onclick=e=>{e.preventDefault();csOpen&&csOpen.b===b?csClose():csShow(sel,b)}}
+function csPick(sel,i){const c=csOpen;csClose();if(sel.selectedIndex!==i){sel.selectedIndex=i;csSync(sel);sel.dispatchEvent(new Event('input',{bubbles:true}));sel.dispatchEvent(new Event('change',{bubbles:true}))}c&&c.b.isConnected&&c.b.focus({preventScroll:true})}
+function csShow(sel,b){csClose();
+ const p=document.createElement('div');p.id='csp';p.setAttribute('role','listbox');
+ p.innerHTML=[...sel.options].map((o,i)=>`<button type="button" role="option" data-i="${i}" class="${i===sel.selectedIndex?'sel':''}"${o.disabled?' disabled':''}>${esc(o.textContent)}</button>`).join('');
+ document.body.append(p);b.classList.add('on');csOpen={sel,b,hl:sel.selectedIndex};
+ const r=b.getBoundingClientRect(),W=innerWidth,H=innerHeight,w=Math.min(Math.max(r.width,200),W-16);
+ if(W>700){p.style.width=w+'px';p.style.left=Math.max(8,Math.min(r.left,W-8-w))+'px';
+  const below=H-r.bottom-10,above=r.top-10,mh=Math.min(320,Math.max(p.scrollHeight,60));
+  if(mh>below&&above>below){p.style.bottom=(H-r.top+2)+'px';p.style.maxHeight=Math.min(320,above)+'px'}else{p.style.top=(r.bottom+2)+'px';p.style.maxHeight=Math.min(320,below)+'px'}}
+ p.onclick=e=>{const o=e.target.closest('button[data-i]');if(o&&!o.disabled)csPick(sel,+o.dataset.i)};
+ p.querySelector('.sel')?.scrollIntoView({block:'nearest'})}
+function csMove(d){const p=document.getElementById('csp');if(!p||!csOpen)return;const bs=[...p.querySelectorAll('button:not(:disabled)')];if(!bs.length)return;
+ let i=bs.findIndex(x=>x.classList.contains('hl'));if(i<0)i=bs.findIndex(x=>x.classList.contains('sel'));i=Math.max(0,Math.min(bs.length-1,i+d));
+ bs.forEach(x=>x.classList.remove('hl'));bs[i].classList.add('hl');bs[i].scrollIntoView({block:'nearest'})}
+document.addEventListener('pointerdown',e=>{if(csOpen&&!e.target.closest('#csp')&&!e.target.closest('.cs'))csClose()},true);
+document.addEventListener('keydown',e=>{if(!csOpen)return;
+ if(e.key==='Escape'){e.preventDefault();e.stopPropagation();csClose()}
+ else if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();csMove(e.key==='ArrowDown'?1:-1)}
+ else if(e.key==='Enter'){const h=document.querySelector('#csp .hl');if(h){e.preventDefault();csPick(csOpen.sel,+h.dataset.i)}}},true);
+addEventListener('scroll',e=>{if(csOpen&&!(e.target.closest&&e.target.closest('#csp')))csClose()},true);
+addEventListener('resize',csClose);
+function csScan(){document.querySelectorAll('select:not([data-cs])').forEach(csEnhance);document.querySelectorAll('select[data-cs]').forEach(csSync);if(csOpen&&!csOpen.b.isConnected)csClose()}
+{let t=0;new MutationObserver(()=>{if(t)return;t=requestAnimationFrame(()=>{t=0;csScan()})}).observe(document.body,{childList:true,subtree:true})}
+csScan();
+
 /* ----- pistas ----- */
-function mesaPistas(mb,app){const M=isMaster(),l=sK('pista').filter(x=>M||x.revealed).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
- const card=(r,i)=>{const p=r.data;return `<div class="pst${r.revealed?'':' draft'}"><div class="pst-h"><span class="tag">PISTA ${String(i+1).padStart(2,'0')}</span><span class="tag">${esc(p.tipo||'Documento')}</span>${M&&!r.revealed?'<span class="tag hidt">oculta dos jogadores</span>':''}</div><h3>${esc(p.titulo||'(sem título)')}</h3>${p.img?`<img class="pst-img" src="${esc(p.img)}" alt="">`:''}<p class="pst-t">${esc(p.texto||'')}</p>
-  ${M?`<div class="row"><button class="${r.revealed?'':'pr'}" data-pr="${r.id}">${r.revealed?'Esconder dos jogadores':'Revelar aos jogadores'}</button><span class="sp"></span><button class="x" data-px="${r.id}">Remover</button></div>`+det('pe'+r.id,'Editar',`<label>Título</label><input data-pt="${r.id}" value="${esc(p.titulo)}"><label>Descrição</label><textarea data-pb="${r.id}" style="min-height:90px">${esc(p.texto)}</textarea><label>Tipo</label><div class="seg">${PISTA_TIPOS.map(t=>`<button class="sg${p.tipo===t?' on':''}" data-ptp="${r.id}|${t}">${t}</button>`).join('')}</div>${p.img?`<div class="row" style="margin-top:8px"><button class="x" data-pimg="${r.id}">Remover imagem</button></div>`:''}`):''}</div>`};
- mb.innerHTML=`<div class="row"><h3 class="sp">Quadro de pistas</h3>${M?'<button class="pr" id="pnew">Nova pista</button>':''}</div><p class="mu">${M?'Pistas ocultas só aparecem para você. Ao revelar, aparecem na hora para os jogadores.':'Evidências que o mestre revelou ao grupo.'}</p><div class="pgrid">${l.map(card).join('')||'<p class="mu">Nenhuma pista por aqui ainda.</p>'}</div>`;
+/* ligações de uma pista: agentes (k:'a', ref) e locais em texto livre (k:'l', n). Agentes ocultos não aparecem para quem não pode vê-los. */
+let plFiltro='';
+const parseLoc=v=>{const seen=new Set();return String(v||'').split(/[,;\n]/).map(x=>x.trim()).filter(x=>{const k=x.toLowerCase();if(!x||seen.has(k))return false;seen.add(k);return true})};
+const plAg=r=>(r.data.links||[]).filter(x=>x.k==='a').map(x=>chars.find(c=>c.id===x.ref)).filter(c=>c&&vis(c));
+const plLo=r=>(r.data.links||[]).filter(x=>x.k==='l'&&x.n).map(x=>x.n);
+const plk=r=>{const t=plAg(r).map(c=>`<span class="tag">👤 ${esc(c.name)}</span>`).concat(plLo(r).map(n=>`<span class="tag">📍 ${esc(n)}</span>`));return t.length?`<div class="pl">${t.join('')}</div>`:''};
+function mesaPistas(mb,app){const M=isMaster(),base=sK('pista').filter(x=>M||x.revealed).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+ const ag=new Map(),lo=new Map();base.forEach(r=>{plAg(r).forEach(c=>ag.set(c.id,c.name));plLo(r).forEach(n=>{if(!lo.has(n.toLowerCase()))lo.set(n.toLowerCase(),n)})});
+ if(plFiltro&&!(plFiltro.startsWith('a:')?ag.has(plFiltro.slice(2)):lo.has(plFiltro.slice(2))))plFiltro='';
+ const l=!plFiltro?base:base.filter(r=>plFiltro.startsWith('a:')?plAg(r).some(c=>c.id===plFiltro.slice(2)):plLo(r).some(n=>n.toLowerCase()===plFiltro.slice(2)));
+ const plf=ag.size||lo.size?`<div class="row" style="margin-top:10px"><select id="plf" style="flex:1;max-width:340px"><option value="">Todas as pistas</option>${[...ag].map(([id,n])=>`<option value="a:${id}"${plFiltro==='a:'+id?' selected':''}>👤 ${esc(n)}</option>`).join('')}${[...lo].map(([k,n])=>`<option value="l:${esc(k)}"${plFiltro==='l:'+k?' selected':''}>📍 ${esc(n)}</option>`).join('')}</select></div>`:'';
+ const card=(r,i)=>{const p=r.data;return `<div class="pst${r.revealed?'':' draft'}"><div class="pst-h"><span class="tag">PISTA ${String(i+1).padStart(2,'0')}</span><span class="tag">${esc(p.tipo||'Documento')}</span>${M&&!r.revealed?'<span class="tag hidt">oculta dos jogadores</span>':''}</div><h3>${esc(p.titulo||'(sem título)')}</h3>${plk(r)}${p.img?`<img class="pst-img" src="${esc(p.img)}" alt="">`:''}<p class="pst-t">${esc(p.texto||'')}</p>
+  ${M?`<div class="row"><button class="${r.revealed?'':'pr'}" data-pr="${r.id}">${r.revealed?'Esconder dos jogadores':'Revelar aos jogadores'}</button><span class="sp"></span><button class="x" data-px="${r.id}">Remover</button></div>`+det('pe'+r.id,'Editar',`<label>Título</label><input data-pt="${r.id}" value="${esc(p.titulo)}"><label>Descrição</label><textarea data-pb="${r.id}" style="min-height:90px">${esc(p.texto)}</textarea><label>Tipo</label><div class="seg">${PISTA_TIPOS.map(t=>`<button class="sg${p.tipo===t?' on':''}" data-ptp="${r.id}|${t}">${t}</button>`).join('')}</div><label>Ligar a agentes</label><div class="chips">${chars.map(c=>`<label class="chip"><input type="checkbox" data-pk="${r.id}|${c.id}"${(p.links||[]).some(x=>x.k==='a'&&x.ref===c.id)?' checked':''}> ${esc(c.name)}</label>`).join('')||'<span class="mu">Nenhum agente.</span>'}</div><label>Locais (separe por vírgula)</label><input data-pl="${r.id}" value="${esc(plLo(r).join(', '))}" placeholder="Ex.: Hotel Cascade, Porão">${p.img?`<div class="row" style="margin-top:8px"><button class="x" data-pimg="${r.id}">Remover imagem</button></div>`:''}`):''}</div>`};
+ mb.innerHTML=`<div class="row"><h3 class="sp">Quadro de pistas</h3>${M?'<button class="pr" id="pnew">Nova pista</button>':''}</div><p class="mu">${M?'Pistas ocultas só aparecem para você. Ao revelar, aparecem na hora para os jogadores.':'Evidências que o mestre revelou ao grupo.'}</p>${plf}<div class="pgrid">${l.map(r=>card(r,base.indexOf(r))).join('')||'<p class="mu">Nenhuma pista por aqui ainda.</p>'}</div>`;
+ $('#plf')&&($('#plf').onchange=e=>{plFiltro=e.target.value;mesa(app)});
  if(!M)return;
  $('#pnew').onclick=async()=>{let img='';
-  const v=await formModal('Nova pista',`<label>Tipo</label><div class="seg" id="ptipo">${PISTA_TIPOS.map((t,i)=>`<button class="sg${i?'':' on'}" data-tipo="${t}">${t}</button>`).join('')}</div><label>Título</label><input id="pti" placeholder="Ex.: Carta rasgada no cofre"><label>Descrição</label><textarea id="ptx" style="min-height:90px" placeholder="O que os investigadores encontram"></textarea><div class="row" style="margin-top:10px"><button data-attach="1">Anexar imagem (opcional)</button><span class="mu" id="pim"></span><input type="file" id="pfile" accept="image/*" hidden></div>`,
-   o=>({titulo:o.querySelector('#pti').value.trim(),texto:o.querySelector('#ptx').value.trim(),tipo:o.querySelector('#ptipo .on')?.dataset.tipo||'Documento',img}),
+  const v=await formModal('Nova pista',`<label>Tipo</label><div class="seg" id="ptipo">${PISTA_TIPOS.map((t,i)=>`<button class="sg${i?'':' on'}" data-tipo="${t}">${t}</button>`).join('')}</div><label>Título</label><input id="pti" placeholder="Ex.: Carta rasgada no cofre"><label>Descrição</label><textarea id="ptx" style="min-height:90px" placeholder="O que os investigadores encontram"></textarea><label>Ligar a agentes (opcional)</label><div class="chips">${chars.map(c=>`<label class="chip"><input type="checkbox" data-lk="${c.id}"> ${esc(c.name)}</label>`).join('')||'<span class="mu">Nenhum agente.</span>'}</div><label>Locais (separe por vírgula)</label><input id="plc" placeholder="Ex.: Hotel Cascade, Porão"><div class="row" style="margin-top:10px"><button data-attach="1">Anexar imagem (opcional)</button><span class="mu" id="pim"></span><input type="file" id="pfile" accept="image/*" hidden></div>`,
+   o=>({titulo:o.querySelector('#pti').value.trim(),texto:o.querySelector('#ptx').value.trim(),tipo:o.querySelector('#ptipo .on')?.dataset.tipo||'Documento',img,links:[...o.querySelectorAll('[data-lk]:checked')].map(x=>({k:'a',ref:x.dataset.lk})).concat(parseLoc(o.querySelector('#plc').value).map(n=>({k:'l',n})))}),
    Object.assign((e,o)=>{const t=e.target.closest('button');if(!t)return;if(t.dataset.tipo){o.querySelectorAll('#ptipo .sg').forEach(x=>x.classList.toggle('on',x===t))}if(t.dataset.attach)o.querySelector('#pfile').click()},{change:async(e,o)=>{if(e.target.id!=='pfile'||!e.target.files[0])return;try{img=await imgScale(e.target.files[0],640,.78);o.querySelector('#pim').textContent='Imagem anexada ✓'}catch(er){alert(er.message)}}}));
   if(v&&(v.titulo||v.texto)){await sAdd('pista',v,false);mesa(app)}};
  mb.onclick=async e=>{const b=e.target.closest('button');if(!b)return;const k=b.dataset,find=id=>sess.find(x=>x.id===id);
@@ -827,7 +903,11 @@ function mesaPistas(mb,app){const M=isMaster(),l=sK('pista').filter(x=>M||x.reve
   if(k.px){if(await ask('Remover esta pista?')){await sDel(find(k.px));mesa(app)}return}
   if(k.ptp){const [id,t]=k.ptp.split('|'),r=find(id);r.data.tipo=t;sSave(r);return mesa(app)}
   if(k.pimg){const r=find(k.pimg);delete r.data.img;sSave(r);mesa(app)}};
- mb.onchange=e=>{const t=e.target.dataset,id=t.pt||t.pb,r=sess.find(x=>x.id===id);if(!r)return;if(t.pt)r.data.titulo=e.target.value;else r.data.texto=e.target.value;sSave(r)}}
+ mb.onchange=e=>{const t=e.target.dataset;
+  if(t.pk){const [id,cid]=t.pk.split('|'),r=sess.find(x=>x.id===id);if(!r)return;const L=r.data.links=r.data.links||[],i=L.findIndex(x=>x.k==='a'&&x.ref===cid);
+   if(e.target.checked&&i<0)L.push({k:'a',ref:cid});else if(!e.target.checked&&i>=0)L.splice(i,1);sSave(r);return mesa(app)}
+  if(t.pl){const r=sess.find(x=>x.id===t.pl);if(!r)return;r.data.links=(r.data.links||[]).filter(x=>x.k!=='l').concat(parseLoc(e.target.value).map(n=>({k:'l',n})));sSave(r);return mesa(app)}
+  const id=t.pt||t.pb,r=sess.find(x=>x.id===id);if(!r)return;if(t.pt)r.data.titulo=e.target.value;else r.data.texto=e.target.value;sSave(r)}}
 
 /* ----- notas de sessão ----- */
 function mesaNotas(mb,app){const M=isMaster(),l=sK('nota').filter(x=>M||x.revealed).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
