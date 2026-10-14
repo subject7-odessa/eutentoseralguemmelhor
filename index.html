@@ -581,7 +581,7 @@ async function enter(id){
   sb.from('members').select('user_id').eq('campaign_id',id),
    sb.from('session_items').select('*').eq('campaign_id',id)]);
   sessOk=!sessErr(si.error);sess=sessOk?(si.data||[]):[];mtab='combate';
- chars=(c.data||[]).map(toChar);threats=t.data||[];rolls=r.data||[];
+ chars=(c.data||[]).map(toChar);vezKey=undefined;threats=t.data||[];rolls=r.data||[];
  const ids=(m.data||[]).map(x=>x.user_id);const p=await sb.from('profiles').select('*').in('id',ids);names={};(p.data||[]).forEach(x=>names[x.id]=x.name);
  renderLog();
  chan&&sb.removeChannel(chan);
@@ -600,7 +600,6 @@ async function enter(id){
     else{const n=p.new;if(!isMaster()&&!n.revealed)sess=sess.filter(x=>x.id!==n.id);
      else{if(timers['s'+n.id])return;const i=sess.findIndex(x=>x.id===n.id);
       if(!isMaster()&&n.revealed&&n.kind!=='combate'&&(i<0||!sess[i].revealed))notice((n.kind==='pista'?'Nova pista: ':'Nova nota da sessão: ')+(n.data?.titulo||''));
-      if(n.kind==='combate')cbVez(i<0?null:sess[i],n);
       i<0?sess.push(n):sess[i]=n}}
     twRender();
     if(view==='mesa'&&!typing())render()})
@@ -709,7 +708,7 @@ function mesaCombate(mb,app){const M=isMaster(),r=sK('combate')[0];
   return `<div class="cbi${x.id===d.atual?' on':''}${mine?' me':''}${x.sec?' sec':''}"><span class="cbn">${M?`<input type="number" data-ci="${x.id}" value="${+x.ini||0}">`:(+x.ini||0)}</span><div class="av sm${ch?.foto?' ph':''}">${ch?avIn(ch):esc(ini(x.n))}</div><div class="sp"><b>${esc(x.n)}</b>${x.sec?' <span class="tag hidt">secreto</span>':''}<div class="bar"><i style="width:${pct}%"></i></div><span class="mu">${num?(max?vida+' / '+max:vida):cbEstado(vida,max)}${!num&&max?'':''}</span></div>${M?`<span class="cbc">${ch?'':`<button data-cv="${x.id}|-1">−</button><button data-cv="${x.id}|1">+</button>`}<button class="eye${x.sec?' on':''}" data-cs="${x.id}">${x.sec?'Mostrar':'Ocultar'}</button><button class="x" data-cx="${x.id}">✕</button></span>`:''}</div>`};
  mb.innerHTML=`<div class="row"><b class="sp" style="font-size:22px">Rodada ${d.round}${atual&&(M||!atual.sec)?` · <span class="rd">turno de ${esc(atual.n)}</span>`:''}</b>${M?`<button data-cb="agentes">+ Agentes</button><button data-cb="ameaca">+ Ameaça</button><button class="pr" data-cb="next">${d.iniciado?'Próximo turno ▶':'Começar combate ▶'}</button><button class="x" data-cb="end">Encerrar</button>`:''}</div><div class="cbl" style="margin-top:12px">${ord.map(row).join('')||'<p class="mu">Ninguém na ordem de iniciativa ainda.</p>'}</div>`;
  if(!M)return;
- const save=()=>{sSave(r);mesa(app)};
+ const save=()=>{sSave(r);mesa(app);twRender()};
  mb.onchange=e=>{const id=e.target.dataset.ci;if(!id)return;const x=d.itens.find(y=>y.id===id);if(x){x.ini=+e.target.value||0;save()}};
  mb.onclick=async e=>{const b=e.target.closest('button');if(!b)return;const k=b.dataset;
   if(k.cb==='agentes'){chars.forEach(c=>{if(!d.itens.some(x=>x.ref===c.id))d.itens.push({id:uid(),tipo:'agente',ref:c.id,n:c.name,ini:calc(c).ini})});return save()}
@@ -730,7 +729,7 @@ function audioCtx(){if(!AC){const C=window.AudioContext||window.webkitAudioConte
 function somTurno(force){
  const a=audioCtx();if(!a||!(force||somOn))return;
  const go=()=>{
-  const t0=a.currentTime+.04,out=a.createGain();out.gain.value=.55;out.connect(a.destination);
+  const t0=a.currentTime+.04,out=a.createGain();out.gain.value=1;out.connect(a.destination);
   const tone=(type,f0,f1,t,d,v,vib)=>{const o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.setValueAtTime(f0,t);
    if(f1)o.frequency.exponentialRampToValueAtTime(f1,t+d);
    if(vib){const l=a.createOscillator(),lg=a.createGain();l.frequency.value=7;lg.gain.value=vib;l.connect(lg).connect(o.frequency);l.start(t);l.stop(t+d+.05)}
@@ -740,25 +739,32 @@ function somTurno(force){
    for(let i=0;i<n;i++){if(i%28===0)h=Math.random()*2-1;x[i]=h}
    const s=a.createBufferSource(),g=a.createGain();s.buffer=b;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);s.connect(g).connect(out);s.start(t)};
   /* batida surda + estalo de ruído */
-  tone('triangle',120,42,t0,.28,.55);noise(t0,.07,.22);
+  tone('triangle',120,42,t0,.3,.9);noise(t0,.08,.35);
   /* arpejo diminuto subindo até o trítono (Lá → Mi bemol) */
-  [220,261.63,311.13,440,622.25].forEach((f,k)=>tone('square',f,0,t0+.14+k*.075,.07,.16));
+  [220,261.63,311.13,440,622.25].forEach((f,k)=>tone('square',f,0,t0+.14+k*.075,.07,.26));
   /* nota final trêmula sobre um zumbido grave: o intervalo do diabo */
-  tone('square',622.25,587.33,t0+.53,.55,.14,9);tone('triangle',110,104,t0+.53,.6,.4);
+  tone('square',622.25,587.33,t0+.53,.55,.22,9);tone('triangle',110,104,t0+.53,.6,.7);
  };
- a.state==='running'?go():force&&a.resume().then(go).catch(()=>{});
+ if(a.state==='running')return go();
+ const t=Date.now();a.resume().then(()=>{if(a.state==='running'&&(force||Date.now()-t<3000))go()}).catch(()=>{});
 }
-/* avisa o jogador (som + aviso) quando o turno cai num personagem dele */
-function cbVez(old,n){const d=n.data||{};if(!d.iniciado)return;
- const od=old&&old.data&&old.data.iniciado?old.data:null;
- if(od&&od.atual===d.atual&&od.round===d.round)return;
- const x=(d.itens||[]).find(y=>y.id===d.atual);if(!x||x.tipo!=='agente')return;
+/* avisa quando o turno cai num personagem seu (som + aviso). Compara com o último turno visto,
+   então funciona tanto para o jogador (atualização que chega) quanto para o mestre (clique local). */
+let vezKey;
+function vezCheck(r){
+ let key=null,x=null;
+ if(r){const d=cbData(r);if(d.iniciado){key=r.id+'|'+d.round+'|'+d.atual;x=(d.itens||[]).find(y=>y.id===d.atual)}}
+ if(vezKey===undefined){vezKey=key;return}
+ if(key===vezKey)return;
+ vezKey=key;
+ if(!key||!x||x.tipo!=='agente')return;
  const ch=chars.find(c=>c.id===x.ref);if(!ch||ch.owner!==user.id)return;
  somTurno();notice('É a sua vez: '+x.n)}
 let twOpen=innerWidth>700;try{const v=localStorage.getItem('as-tw');if(v!=null)twOpen=v==='1'}catch(e){}
 function twRender(){
  const tw=$('#tw');if(!tw)return;
  const r=(user&&camp)?sK('combate')[0]:null;
+ if(!(user&&camp))vezKey=undefined;else vezCheck(r);
  /* na aba Combate o rastreador já ocupa a tela: o painel some para não cobrir os botões */
  if(!r||(view==='mesa'&&mtab==='combate')){tw.hidden=true;return}
  const M=isMaster(),d=cbData(r),all=cbSorted(d),ord=M?all:all.filter(x=>!x.sec),atual=all.find(x=>x.id===d.atual);
