@@ -393,12 +393,28 @@ select.cs-n{display:none!important}
 .arow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 @media(max-width:700px){.arow{grid-template-columns:1fr 1fr}.apick{max-height:30vh}}
 /* ---- ajustes de celular (revisão tela por tela) ---- */
+body.tw-on #app{padding-right:58px}
+/* modais: se o conteúdo for maior que a tela, rolam (o botão Confirmar nunca fica fora de alcance) */
+.modal .card,.modal .mbox{overflow:auto;max-height:90vh;max-height:90dvh;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+/* telas de toque maiores que o celular em pé (tablet, celular deitado): alvos de toque confortáveis */
+@media(pointer:coarse){
+ button:not(.lnk):not(.x):not(.eye):not(.sg):not(.cs){min-height:38px}
+ input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]){min-height:38px}
+ label.chip{min-height:38px;padding-top:8px;padding-bottom:8px}
+ button[data-wa],button[data-v],button[data-p],button[data-a]{min-width:40px}
+ button.eye{min-height:36px}
+ .tw-h button,.tw-s button{padding:2px 12px}
+ .tabs a{padding-top:10px;padding-bottom:10px}
+ .steps a{padding:10px 6px}
+ button.x{min-width:40px;min-height:36px}
+ button.lnk{min-height:36px;min-width:44px}
+ .cbn input{height:40px}
+}
 #logbtn .lg-i{display:none}
 @media(max-width:700px){
  #logbtn{width:48px;height:48px;min-height:0;padding:0;border-radius:50%;align-items:center;justify-content:center}
  #logbtn:not([style*="none"]){display:flex}
  #logbtn .lg-t{display:none}#logbtn .lg-i{display:inline;font-size:22px;line-height:1}
- body.tw-on #app{padding-right:52px}
  .cbh{flex-wrap:wrap}.cbh>b{flex:1 1 100%}
  .seg{flex-wrap:wrap}.seg .sg{flex:1 1 30%;min-width:0}
  label.chip{min-height:38px;padding-top:8px;padding-bottom:8px}
@@ -408,10 +424,18 @@ select.cs-n{display:none!important}
  .cbi.thr{flex-wrap:wrap}.cbi.thr>.sp{flex:1 1 130px;min-width:0}.cbi.thr>.cbc{flex:1 1 100%;display:flex;justify-content:flex-end;gap:6px}
  button.x{min-width:40px}
  .nm3{flex-wrap:wrap}.nm3>.sp:first-child{flex:1 1 100%}
+ .camp2{flex-wrap:wrap}.camp2>.card{flex:1 1 100%}
+ .xb>.row:first-child{flex-wrap:wrap}.xb>.row:first-child>input,.xb>.row:first-child>.cs{flex:1 1 120px;min-width:100px}
  #mt,.sh-main>.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:4;background:var(--bg)}
  #log{top:auto;bottom:0;width:100vw;max-height:72vh;border-right:0;border-top:2px solid var(--rd2);padding-top:12px;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateY(105%)}
  #log.on{transform:none}
  #logx{min-width:44px;min-height:44px;font-size:18px}
+}
+@media(max-width:380px){.seg .sg{flex:1 1 45%}}
+@media(max-height:500px){
+ header{position:relative;padding:6px 14px;gap:10px}
+ .stamp,#sk kbd{display:none}
+ #tw .tw-p{max-height:calc(100vh - var(--twt,60px) - 12px)}
 }
 .pst .seg{display:flex;flex-wrap:wrap;max-width:100%}
 @media(max-width:700px){
@@ -639,7 +663,7 @@ async function campsView(app,nav){nav.innerHTML='';
  const ids=camps.map(c=>c.id),mm=ids.length?((await sb.from('members').select('campaign_id').in('campaign_id',ids)).data||[]):[],cnt={};
  mm.forEach(m=>cnt[m.campaign_id]=(cnt[m.campaign_id]||0)+1);
  app.innerHTML=`<div class="row"><h2 class="sp">Campanhas: ${camps.length}</h2></div><div class="grid">${camps.map(c=>`<div class="card cc"><div class="mu">👥 ${cnt[c.id]||1} participante(s)</div><h2 style="font-size:20px;margin:36px 0 2px">${esc(c.name)}</h2><div class="mu">Iniciada em ${fmt(c.created_at)} | ${c.master===user.id?'Mestre · código <b>'+c.code+'</b>':'Jogador'}</div><div class="row" style="margin-top:10px"><button class="pr" data-e="${c.id}">Acessar</button><span class="sp"></span>${c.master===user.id?`<button class="x" data-dc="${c.id}" title="Excluir campanha">✕</button>`:''}</div></div>`).join('')||'<p class="mu">Você ainda não está em nenhuma campanha.</p>'}</div><br>
- <div class="row"><div class="card sp"><h3>Nova campanha (você será o mestre)</h3><div class="row"><input id="cn" placeholder="Nome da campanha" style="flex:1"><button class="pr" id="cc">Criar</button></div></div>
+ <div class="row camp2"><div class="card sp"><h3>Nova campanha (você será o mestre)</h3><div class="row"><input id="cn" placeholder="Nome da campanha" style="flex:1"><button class="pr" id="cc">Criar</button></div></div>
  <div class="card sp"><h3>Entrar com código</h3><div class="row"><input id="jc" placeholder="Código de 6 letras" style="flex:1"><button id="jj">Entrar</button></div></div></div>`;
  app.onclick=async e=>{const d=e.target.dataset;if(d.e)enter(d.e);if(d.dc&&await ask('Excluir a campanha e TODAS as fichas dela? Isso não pode ser desfeito.')){if(await delRow('campaigns',d.dc))campsView(app,nav)}};
  $('#cc').onclick=async()=>{const n=$('#cn').value.trim();if(!n)return alert('Dê um nome à campanha.');const r=await sb.rpc('create_campaign',{p_name:n});r.error?alert(r.error.message):enter(r.data)};
@@ -884,7 +908,7 @@ function vezCheck(r){
  if(x.tipo!=='agente')return;
  const ch=chars.find(c=>c.id===x.ref);if(!ch||ch.owner!==user.id)return;
  somTurno();notice('É a sua vez: '+x.n)}
-let twOpen=innerWidth>700;try{const v=localStorage.getItem('as-tw');if(v!=null)twOpen=v==='1'}catch(e){}
+let twOpen=innerWidth>=1500;try{const v=localStorage.getItem('as-tw');if(v!=null)twOpen=v==='1'}catch(e){}
 function twSet(v){if(v===twOpen)return;twOpen=v;try{localStorage.setItem('as-tw',v?'1':'0')}catch(e){}twRender()}
 function twRender(){
  const tw=$('#tw');if(!tw)return;
