@@ -102,6 +102,8 @@ html[data-theme=papel] .toast,html[data-theme=papel] #log{color:#efe9db}html[dat
 html[data-theme=papel] #sk,html[data-theme=papel] header button{background:#3a2f23;color:#efe9db;border-color:#5a4a36}
 html[data-theme=sangue]{--bg:#120708;--p:#1c0d0e;--p2:#2a1214;--ln:#4a2326;--tx:#f1e3df;--mu:#a58a85;--rd:#e0352b;--rd2:#8f1a14;--hd:#090304;--in:#0d0506}
 html[data-theme=sangue] body{background:var(--bg) radial-gradient(ellipse 80% 40% at 50% -5%,#4a0f0c 0,transparent 70%) no-repeat fixed}
+html[data-theme=matrix]{--bg:#050a06;--p:#0a140d;--p2:#102015;--ln:#1f4a2c;--tx:#d6f5dd;--mu:#7fa88a;--rd:#2be34f;--rd2:#12802a;--hd:#020503;--in:#040805}
+html[data-theme=matrix] body{background:var(--bg) radial-gradient(ellipse 80% 40% at 50% -5%,#0c4a1a 0,transparent 70%) no-repeat fixed}
 button.pr{color:#fff}
 .logo{text-shadow:0 0 20px #b3261e66}
 .auth{background:var(--p);border:1px solid var(--ln);border-top:3px solid var(--rd);padding:28px;box-shadow:0 24px 60px #000a}
@@ -675,7 +677,7 @@ function palette(){if(!camp||document.querySelector('.pal'))return;const E=libEn
  o.onclick=e=>{if(e.target===o)o.remove();if(e.target.id==='pall'){libQ=q.value;libCat='Todos';o.remove();go('biblioteca')}}}
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();palette()}if(e.key==='Escape')document.querySelector('.pal')?.remove()});
 $('#sk').onclick=palette;
-const THEMES=[['','Noir'],['papel','Papel'],['sangue','Sangue']];
+const THEMES=[['','Noir'],['papel','Papel'],['sangue','Sangue'],['matrix','Matrix']];
 try{document.documentElement.dataset.theme=localStorage.getItem('as-theme')||''}catch(e){}
 $('#th').onclick=()=>{const i=(THEMES.findIndex(t=>t[0]===(document.documentElement.dataset.theme||''))+1)%THEMES.length;document.documentElement.dataset.theme=THEMES[i][0];try{localStorage.setItem('as-theme',THEMES[i][0])}catch(e){}note('Tema: '+THEMES[i][1])};
 new MutationObserver(()=>{document.querySelectorAll('.box').forEach(b=>{const h=b.querySelector('h3');if(h&&h.textContent.trim()==='Vida'){const i=b.querySelector('.bar i');if(i){const w=parseFloat(i.style.width)||0;i.style.background=w>60?'var(--ok)':w>30?'var(--ye)':'var(--rd)'}}})}).observe($('#app'),{childList:true,subtree:true});
