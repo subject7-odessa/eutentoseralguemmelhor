@@ -167,7 +167,7 @@ end $$;
 const KEY='as-vtt-';
 const S={ok:true,loaded:false,scenes:[],cur:null,tokens:[],sel:null,cam:{x:0,y:0,z:1},img:null,imgPath:'',imgErr:'',tool:'sel',gridEdit:false,drag:null,popup:'',camp:null};
 const imgs=new Map(),ptrs=new Map();
-let root=null,cv=null,cx=null,dpr=1,dirty=true,raf=0,uiKey='',gridTimer=0,poll=0,pinch=null;
+let root=null,cv=null,cx=null,dpr=1,dirty=true,raf=0,uiKey='',gridTimer=0,poll=0,pinch=null,chan=null,loading=false;
 const q=s=>root&&root.querySelector(s);
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
@@ -183,13 +183,19 @@ const rad=t=>t.size*gsz()/2;
 const nowIso=()=>new Date().toISOString();
 
 /* ---------------- dados ---------------- */
-function reset(){S.scenes=[];S.cur=null;S.tokens=[];S.sel=null;S.img=null;S.imgPath='';S.imgErr='';S.popup='';S.drag=null;S.loaded=false;S.ok=true;S.camp=camp?camp.id:null}
+function reset(){clearInterval(poll);if(chan){try{sb.removeChannel(chan)}catch(e){}chan=null}S.scenes=[];S.tokens=[];S.cur=null;S.tokens=[];S.sel=null;S.img=null;S.imgPath='';S.imgErr='';S.popup='';S.drag=null;S.loaded=false;S.ok=true;S.camp=camp?camp.id:null}
 async function load(){reset();const id=camp.id;
  const r=await sb.from('scenes').select('*').eq('campaign_id',id).order('created_at');
  if(!camp||camp.id!==id)return;
  if(errTab(r.error)){S.ok=false;S.loaded=true;return refresh()}
  S.scenes=r.data||[];pick();await loadTokens();await loadImg();S.loaded=true;fit();refresh();
+ subscribe(id);
  clearInterval(poll);poll=setInterval(()=>{if(root&&!root.hidden&&S.ok)resync()},20000)}
+function subscribe(id){if(chan){try{sb.removeChannel(chan)}catch(e){}chan=null}
+ try{chan=sb.channel('vtt-'+id)
+  .on('postgres_changes',{event:'*',schema:'public',table:'scenes',filter:'campaign_id=eq.'+id},onScene)
+  .on('postgres_changes',{event:'*',schema:'public',table:'scene_tokens',filter:'campaign_id=eq.'+id},onToken)
+  .subscribe()}catch(e){chan=null}}
 function pick(){let id=null;
  if(isMaster()){try{id=localStorage.getItem(KEY+camp.id)}catch(e){}if(!S.scenes.some(s=>s.id===id))id=(S.scenes.find(s=>s.active)||S.scenes[0]||{}).id||null}
  else id=(S.scenes.find(s=>s.active)||{}).id||null;
@@ -245,7 +251,7 @@ function hpOf(t){
  return null}
 
 /* ---------------- desenho ---------------- */
-function size(){if(!root||!cv)return;dpr=Math.min(2,window.devicePixelRatio||1);const r=root.getBoundingClientRect();cv.width=Math.max(1,Math.round(r.width*dpr));cv.height=Math.max(1,Math.round(r.height*dpr));need()}
+function size(){if(!root||!cv)return;dpr=Math.min(2,window.devicePixelRatio||1);const r=root.getBoundingClientRect();const W=Math.max(1,Math.round(r.width*dpr)),H=Math.max(1,Math.round(r.height*dpr));if(cv.width!==W)cv.width=W;if(cv.height!==H)cv.height=H;need()}
 function pathTok(t,r){cx.beginPath();if(t.shape==='square'){const k=Math.min(r*.18,14);cx.roundRect?cx.roundRect(t.x-r,t.y-r,r*2,r*2,k):cx.rect(t.x-r,t.y-r,r*2,r*2)}else cx.arc(t.x,t.y,r,0,Math.PI*2)}
 function draw(){dirty=false;if(!cv||!cx)return;const sc=scene(),z=S.cam.z;
  cx.setTransform(1,0,0,1,0,0);cx.fillStyle=css('--bg')||'#120f0d';cx.fillRect(0,0,cv.width,cv.height);if(!sc)return;
@@ -339,11 +345,16 @@ function build(){
  root.addEventListener('click',onUi);
  root.addEventListener('change',onUiChange);
  new ResizeObserver(()=>{size();if(!S.drag)uiZoom()}).observe(root);
+ new MutationObserver(()=>{if(root&&!root.hidden)place()}).observe(document.body,{attributes:true,attributeFilter:['class']});
+ addEventListener('resize',()=>{if(root&&!root.hidden)place()});
  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&root&&!root.hidden&&S.ok&&S.camp)resync()});
  q('#vzoom').addEventListener('pointerdown',e=>{const sl=e.target.closest('.vt-sl');if(!sl)return;const mv=ev=>{const r=sl.getBoundingClientRect(),f=clamp((ev.clientY-r.top)/r.height,0,1),nz=.05*Math.pow(6/.05,1-f),{w,h}=vp();zoomAt(w/2,h/2,nz/S.cam.z)};sl.setPointerCapture(e.pointerId);mv(e);sl.onpointermove=mv;sl.onpointerup=()=>{sl.onpointermove=null}})}
 function place(){const hd=document.querySelector('header'),nv=document.getElementById('nav'),mob=matchMedia('(max-width:700px)').matches;
- root.style.top=Math.max(0,hd?hd.getBoundingClientRect().bottom:0)+'px';root.style.bottom=(mob&&nv&&nv.offsetHeight?nv.offsetHeight:0)+'px';root.style.right=document.body.classList.contains('tw-on')?'58px':'0px';size()}
-function view(app){app.innerHTML='';document.body.classList.add('vtt-on');if(!root)build();root.hidden=false;place();if(!raf)raf=requestAnimationFrame(loop);
+ const set=(k,v)=>{if(root.style[k]!==v)root.style[k]=v},tw=document.body.classList.contains('tw-on')?(mob?'48px':'58px'):'0px';
+ set('top',Math.max(0,hd?hd.getBoundingClientRect().bottom:0)+'px');set('bottom',(mob&&nv&&nv.offsetHeight?nv.offsetHeight:0)+'px');set('right',tw);size()}
+function view(app){app.innerHTML='';document.body.classList.add('vtt-on');if(!root)build();root.hidden=false;place();
+ if(camp&&S.camp!==camp.id)reset();
+ if(camp&&!S.loaded&&!loading){loading=true;load().catch(e=>{S.ok=false;S.loaded=true;notice('Erro ao carregar o tabuleiro: '+(e&&e.message||e));refresh()}).finally(()=>{loading=false})}if(!raf)raf=requestAnimationFrame(loop);
  if(S.loaded&&scene()&&S.cam.z===1&&S.cam.x===0&&S.cam.y===0)fit();need();ui()}
 function leave(){if(root&&!root.hidden){root.hidden=true}document.body.classList.remove('vtt-on')}
 function refresh(){if(!root||root.hidden)return;need();ui()}
@@ -353,7 +364,7 @@ function uiTop(){const sc=scene(),M=isMaster(),el=q('#vtop');if(!el)return;
  el.hidden=!S.ok&&!M}
 function uiTools(){const M=isMaster(),el=q('#vtools');if(!el)return;const b=(a,ic,t,on)=>`<button class="vt-b${on?' on':''}" data-a="${a}" title="${t}" aria-label="${t}">${svg(ic)}</button>`;
  el.innerHTML=(scene()?b('t-sel','sel','Selecionar e mover tokens',S.tool==='sel')+b('t-pan','pan','Arrastar o mapa',S.tool==='pan'):'')+(M&&S.ok?'<span class="vt-sep"></span>'+(scene()?b('addtok','add','Adicionar token')+b('grid','grid','Grade',S.popup==='grid'):'')+b('scenes','map','Cenas e mapas'):'');
- el.hidden=!S.ok&&!M}
+ el.hidden=!S.ok}
 function uiZoom(){const el=q('#vzoom');if(!el)return;const sc=scene();el.hidden=!sc;if(!sc)return;const z=S.cam.z,f=1-Math.log(z/.05)/Math.log(6/.05);
  el.innerHTML=`<button class="vt-b" data-a="z+" title="Aproximar">${svg('add')}</button><div class="vt-sl" title="Zoom"><i style="top:${clamp(f,0,1)*100}%"></i></div><button class="vt-b" data-a="z-" title="Afastar"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 12h14"/></svg></button><button class="vt-pc" data-a="z100" title="Zoom 100%">${Math.round(z*100)}%</button><button class="vt-b" data-a="fit" title="Ajustar à tela">${svg('fit')}</button>`}
 function uiMsg(){const el=q('#vmsg');if(!el)return;let h='';const M=isMaster();

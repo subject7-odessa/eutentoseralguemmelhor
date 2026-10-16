@@ -443,6 +443,50 @@ body.tw-on #app{padding-right:58px}
  #csp{left:8px!important;right:8px!important;width:auto!important;top:auto!important;bottom:calc(76px + env(safe-area-inset-bottom,0px))!important;max-height:52vh!important}
  #csp button{padding:13px 14px;font-size:15px}
 }
+
+/* ---- Tabuleiro virtual (tabuleiro.js) ---- */
+#vtt{position:fixed;left:0;right:0;top:0;bottom:0;z-index:10;background:var(--bg);overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
+#vtt[hidden]{display:none}
+#vtt canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:default;touch-action:none}
+body.vtt-on .fog,body.vtt-on #embers{display:none}
+body.vtt-on #app{display:none}
+.vt-top{position:absolute;left:12px;top:12px;max-width:calc(100% - 90px);display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--p);border:1px solid var(--ln);border-left:3px solid var(--rd);padding:6px 12px;box-shadow:0 6px 18px #0009}
+.vt-top[hidden],.vt-tools[hidden],.vt-zoom[hidden],.vt-msg[hidden],.vt-pop[hidden],.vt-tok[hidden]{display:none}
+.vt-top b{font-size:14px}.vt-top button{padding:3px 12px;font-size:12px}
+.vt-tools{position:absolute;left:12px;top:64px;display:flex;flex-direction:column;gap:6px;background:var(--p);border:1px solid var(--ln);padding:6px;box-shadow:0 6px 18px #0009}
+.vt-b{display:flex;align-items:center;justify-content:center;width:40px;height:40px;padding:0;background:var(--p2);border:1px solid var(--ln);color:var(--tx);cursor:pointer}
+.vt-b:hover{border-color:var(--rd)}.vt-b.on{background:var(--rd2);border-color:var(--rd);color:#fff}
+.vt-sep{height:1px;background:var(--ln);margin:2px 0}
+.vt-zoom{position:absolute;right:12px;top:12px;display:flex;flex-direction:column;align-items:center;gap:6px;background:var(--p);border:1px solid var(--ln);padding:6px;box-shadow:0 6px 18px #0009}
+.vt-sl{position:relative;width:30px;height:130px;touch-action:none;cursor:pointer}
+.vt-sl::before{content:'';position:absolute;left:50%;top:0;bottom:0;width:4px;margin-left:-2px;background:var(--in);border:1px solid var(--ln)}
+.vt-sl i{position:absolute;left:50%;width:18px;height:10px;margin:-5px 0 0 -9px;background:var(--rd);border:1px solid var(--rd2)}
+.vt-pc{background:none;border:none;color:var(--mu);font-size:11px;padding:2px;cursor:pointer;min-height:0}
+.vt-pop{position:absolute;left:64px;top:64px;width:340px;max-width:calc(100% - 80px);max-height:calc(100% - 90px);overflow:auto;background:var(--p);border:1px solid var(--ln);border-top:2px solid var(--rd);padding:12px;box-shadow:0 10px 30px #000c}
+.vt-pop .tiles1{display:grid;gap:6px;margin:8px 0}
+.vt-grow{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;font-size:13px}
+.vt-val{min-width:56px;text-align:center;color:var(--ye)}
+.vt-tok{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);width:max-content;max-width:calc(100% - 24px);background:var(--p);border:1px solid var(--ln);border-top:2px solid var(--rd);padding:10px 12px;box-shadow:0 10px 30px #000c;display:flex;flex-direction:column;gap:8px}
+.vt-trow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.vt-trow input{width:170px}
+.vt-hp{min-width:64px;text-align:center}
+.vt-s{padding:3px 10px;font-size:12px}
+.vt-msg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:560px;max-width:calc(100% - 32px);max-height:calc(100% - 32px);overflow:auto}
+.vt-msg .box{margin:0}.vt-msg p.mu{text-align:center;font-size:14px}
+.vt-list{display:flex;flex-direction:column;gap:8px;max-height:40vh;overflow:auto}
+.vt-sc{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--p2);border:1px solid var(--ln);padding:8px 10px}
+.vt-sc.on{border-color:var(--rd);box-shadow:inset 3px 0 0 var(--rd)}
+.vt-sc .sp{min-width:180px}.vt-sc input{width:100%;margin-bottom:2px}
+.vt-sa{display:flex;gap:6px;flex-wrap:wrap}.vt-sa button{padding:4px 10px;font-size:12px}
+@media(max-width:700px){
+ .vt-top{left:8px;top:8px;max-width:calc(100% - 76px)}
+ .vt-tools{left:8px;top:56px;flex-direction:row;flex-wrap:wrap;max-width:calc(100% - 80px)}
+ .vt-tools .vt-sep{width:1px;height:auto;margin:0 2px}
+ .vt-zoom{right:8px;top:8px}.vt-sl{height:96px}
+ .vt-pop{left:8px;top:112px;width:auto;right:8px;max-width:none}
+ .vt-tok{bottom:8px;width:calc(100% - 16px)}.vt-trow input{width:100%}
+ .vt-b{width:44px;height:44px}
+}
 </style></head><body>
 <div class="fog"></div><canvas id="embers"></canvas><div id="fx"></div>
 <header>
@@ -455,6 +499,7 @@ body.tw-on #app{padding-right:58px}
 <aside id="tw" hidden></aside>
 <div id="toasts"></div>
 <script src="catalogo.js"></script>
+<script src="tabuleiro.js"></script>
 <script>
 /* ====== CONFIGURAÇÃO: cole os dados do seu projeto Supabase ====== */
 const SUPABASE_URL='https://hylwmeyaffacifgopyhm.supabase.co';
@@ -637,15 +682,17 @@ new MutationObserver(()=>{document.querySelectorAll('.box').forEach(b=>{const h=
 function go(v,id){view=v;open=id||null;render()}
 function render(){
  const app=$('#app'),nav=$('#nav');app.onclick=app.onchange=app.oninput=null;
+ if(!(user&&camp&&view==='tabuleiro'))VTT.leave();
  $('#out').style.display=user?'':'none';$('#logbtn').style.display=camp&&view!=='novo'?'':'none';
  if(!user)return authView(app,nav);
  if(!camp)return campsView(app,nav);
- nav.innerHTML=[['agentes','Agentes'],['ameacas','Ameaças',1],['biblioteca','Biblioteca'],['mesa','Mesa']].filter(x=>!x[2]||isMaster()).map(([v,t])=>`<a data-v="${v}" class="${view===v||(v==='agentes'&&view==='novo')?'on':''}">${t}</a>`).join('');
+ nav.innerHTML=[['agentes','Agentes'],['ameacas','Ameaças',1],['biblioteca','Biblioteca'],['mesa','Mesa'],['tabuleiro','Tabuleiro']].filter(x=>!x[2]||isMaster()).map(([v,t])=>`<a data-v="${v}" class="${view===v||(v==='agentes'&&view==='novo')?'on':''}">${t}</a>`).join('');
  nav.onclick=e=>{if(e.target.dataset.v)go(e.target.dataset.v)};
  if(view==='novo')return wizard(app);
  if(view==='agentes')return open?sheet(app):agentes(app);
  if(view==='ameacas')return threatsView(app);
  if(view==='biblioteca')return libView(app);
+ if(view==='tabuleiro')return VTT.view(app);
  mesa(app)}
 function authView(app,nav){nav.innerHTML='';let mode='in';
  const draw=()=>{app.innerHTML=`<div class="auth card"><h2>${mode==='in'?'Entrar':'Criar conta'}</h2><br>
@@ -669,7 +716,7 @@ async function campsView(app,nav){nav.innerHTML='';
  $('#cc').onclick=async()=>{const n=$('#cn').value.trim();if(!n)return alert('Dê um nome à campanha.');const r=await sb.rpc('create_campaign',{p_name:n});r.error?alert(r.error.message):enter(r.data)};
  $('#jj').onclick=async()=>{const r=await sb.rpc('join_campaign',{p_code:$('#jc').value});r.error?alert(r.error.message):enter(r.data)}}
 async function enter(id){
- const {data}=await sb.from('campaigns').select('*').eq('id',id).single();camp=data;view='agentes';open=null;
+ const {data}=await sb.from('campaigns').select('*').eq('id',id).single();camp=data;view='agentes';open=null;VTT.reset();
  const [c,t,r,m,si]=await Promise.all([sb.from('characters').select('*').eq('campaign_id',id).order('name'),
   isMaster()?sb.from('threats').select('*').eq('campaign_id',id):{data:[]},
   sb.from('rolls').select('*').eq('campaign_id',id).order('created_at',{ascending:false}).limit(100),
@@ -1300,7 +1347,7 @@ function threatsView(app){
  const rs=()=>{W=cv.width=innerWidth;H=cv.height=innerHeight};rs();addEventListener('resize',rs);
  const mk=i=>({x:Math.random()*W,y:i?Math.random()*H:H+10,r:.6+Math.random()*1.7,v:.15+Math.random()*.45,dx:(Math.random()-.5)*.25,a:.15+Math.random()*.45,ph:Math.random()*6.28});
  for(let i=0;i<(innerWidth<700?14:34);i++)P.push(mk(1));
- function tick(t){if(!document.hidden&&!reduce&&document.documentElement.dataset.theme!=='papel'){x.clearRect(0,0,W,H);P.forEach((p,i)=>{p.y-=p.v;p.x+=p.dx+Math.sin(t/1800+p.ph)*.25;if(p.y<-10)P[i]=mk();const g=x.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*4);g.addColorStop(0,'rgba(224,90,60,'+(p.a*.8)+')');g.addColorStop(1,'rgba(224,90,60,0)');x.fillStyle=g;x.beginPath();x.arc(p.x,p.y,p.r*4,0,6.28);x.fill()})}requestAnimationFrame(tick)}
+ function tick(t){if(!document.hidden&&!reduce&&document.documentElement.dataset.theme!=='papel'&&!document.body.classList.contains('vtt-on')){x.clearRect(0,0,W,H);P.forEach((p,i)=>{p.y-=p.v;p.x+=p.dx+Math.sin(t/1800+p.ph)*.25;if(p.y<-10)P[i]=mk();const g=x.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*4);g.addColorStop(0,'rgba(224,90,60,'+(p.a*.8)+')');g.addColorStop(1,'rgba(224,90,60,0)');x.fillStyle=g;x.beginPath();x.arc(p.x,p.y,p.r*4,0,6.28);x.fill()})}requestAnimationFrame(tick)}
  requestAnimationFrame(tick)})();
 
 /* ---------- sessão ---------- */
