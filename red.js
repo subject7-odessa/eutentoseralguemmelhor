@@ -157,20 +157,20 @@ const RANGED=[
 ['Grenade Launcher','Heavy Weapons','6d6',2,1,2,0,500,'Explosivo.'],
 ['Rocket Launcher','Heavy Weapons','8d6',1,1,2,0,500,'Explosivo.']].map(([n,skill,dmg,mag,rof,hands,conc,cost,sp])=>({n,k:'ranged',skill,dmg,mag,rof,hands,conc,cost,ex:sp}));
 const EXOTIC=[
-['Air Pistol','Very Heavy Pistol que dispara bolas de tinta (e ácido!).',100],
-['Battleglove','Manopla pesada com três espaços para opções de Cyberarm/Cyberlimb.',1000],
-['Constitution Arms Hurricane Assault Weapon','Shotgun com ROF 2. Exige BODY 11+ para atirar.',5000],
-['Dartgun','Very Heavy Pistol que dispara flechas não básicas.',100],
-['Flamethrower','Shotgun que dispara cartuchos incendiários, atirada com a perícia Heavy Weapons.',500],
-['Kendachi Mono-Three','Arma corpo a corpo Very Heavy de duas mãos. Ignora armadura abaixo de SP11.',5000],
-['Malorian Arms 3516','Very Heavy Pistol de qualidade Excellent. Causa 5d6 de dano.',10000],
-['Microwaver','Very Heavy Pistol que desliga cyberware e eletrônicos carregados.',500],
-['Militech "Cowboy" U-56 Grenade Launcher','Grenade Launcher com ROF 2. Exige BODY 11+.',5000],
-['Rhinemetall EMG-86 Railgun','Assault Rifle que ignora armadura abaixo de SP11, atirada com Heavy Weapons. Exige BODY 11+.',5000],
-['Shrieker','Very Heavy Pistol que causa o Critical Injury Damaged Ear.',500],
-['Stun Baton','Medium Melee Weapon "não letal".',100],
-['Stun Gun','Heavy Pistol "não letal".',100],
-['Tsunami Arms Helix','Assault Rifle que só atira em Autofire (multiplicador maior que o padrão). Exige BODY 11+.',5000]];
+['Air Pistol','Medium Pistol exótica que dispara bolas de tinta (sem dano). Com ácido, cada acerto reduz em 1 o SP da armadura do local atingido. Não causa Critical Injury. A munição custa como a da Medium Pistol.',100],
+['Battleglove','Manopla pesada com 3 slots de opções de Cyberarm ou Cyberlimb. Vestir e tirar gasta uma Ação. Não dá para esconder.',1000],
+['Constitution Arms Hurricane Assault Weapon','Shotgun exótica com ROF 2, sem Aimed Shot, tambor de 16 tiros. Recarregar gasta duas Ações. Exige BODY 11 ou mais, salvo se estiver montada.',5000],
+['Dartgun','Very Heavy Pistol exótica que só carrega flechas não básicas, num clip de 8. Recarrega como uma pistola comum.',100],
+['Flamethrower','Shotgun exótica atirada com Heavy Weapons. Só dispara cartuchos incendiários. Alvos em chamas sofrem 4 de dano nos HP ao fim do turno. Não causa Critical Injury nem Aimed Shot.',500],
+['Kendachi Mono-Three','Very Heavy Melee Weapon exótica de duas mãos, Excellent Quality. Com a chave biométrica certa, ignora armadura abaixo de SP11.',5000],
+['Malorian Arms 3516','Very Heavy Pistol exótica Excellent Quality, 5d6 por tiro, com Smartgun Link instalado (exige Interface Plugs ou Subdermal Grip para funcionar).',10000],
+['Microwaver','Very Heavy Pistol exótica. Em vez de dano, o alvo faz Cybertech DV15 ou o Mestre escolhe 2 peças de cyberware ou eletrônicos para ficarem inoperantes por 1 minuto. A bateria dura 8 tiros (extra: 50eb).',500],
+['Militech "Cowboy" U-56 Grenade Launcher','Grenade Launcher exótico com ROF 2 e 4 granadas, que dispara todas as granadas. Recarregar gasta duas Ações. Exige BODY 11 ou mais, salvo se estiver montado.',5000],
+['Rhinemetall EMG-86 Railgun','Assault Rifle exótico, sem Autofire nem Aimed Shot, atirado com Heavy Weapons, 4 tiros. Ignora armadura abaixo de SP11. Recarregar gasta duas Ações. Exige BODY 11 ou mais.',5000],
+['Shrieker','Very Heavy Pistol exótica. Sem proteção auricular, quem atira sofre Damaged Ear. Em vez de dano, o alvo faz Resist Torture/Drugs DV15 ou sofre Damaged Ear. A bateria dura 8 tiros (extra: 50eb).',500],
+['Stun Baton','Medium Melee Weapon exótica de uma mão. Se o dano levaria o alvo abaixo de 1 HP, ele fica inconsciente com 1 HP. Não causa Critical Injury nem ablaciona armadura.',100],
+['Stun Gun','Heavy Pistol exótica com o mesmo efeito do Stun Baton. A bateria dura 8 tiros (extra: 50eb).',100],
+['Tsunami Arms Helix','Assault Rifle exótico atirado só com Autofire (sem tiro único nem Aimed Shot), 40 balas e 20 por ataque, com multiplicador máximo 5. Recarregar gasta duas Ações. Exige BODY 11 ou mais.',5000]];
 const ARMORS=[
 {n:'Leathers',sp:4,pen:0,cost:20,d:'Favorita de nômades e motoqueiros.'},
 {n:'Kevlar®',sp:7,pen:0,cost:50,d:'Pode virar roupas, coletes, jaquetas, ternos e até biquínis.'},
@@ -305,6 +305,177 @@ Fixer:['Cyberaudio Suite','Internal Agent','Subdermal Pocket',['*','Voice Stress
 Nomad:[['*','Interface Plugs','Wolvers'],'Neural Link']};
 const hlTxt=x=>x[4]?x[4]+(x[5]?' ('+x[5]+')':''):'0';
 function hlRoll(x){const d=x[5];if(!d)return {v:0,t:''};const m=d.match(/^(\d+)d6(\/2)?$/);const n=+m[1],ds=Array.from({length:n},()=>1+Math.floor(Math.random()*6)),sum=ds.reduce((a,b)=>a+b,0);return {v:m[2]?Math.ceil(sum/2):sum,t:d+' ['+ds.join(', ')+']'}}
+
+/* ---------------- Netrunning ---------------- */
+const DECKS=[['Poor Quality Cyberdeck',100,5],['Cyberdeck',500,7],['Excellent Quality Cyberdeck',1000,9]];
+const HARDWARE=[['Backup Drive',100,2,'Enquanto instalado, "salva" Programs Booster, Defender ou Attacker (não Black ICE) que seriam destruídos, puxando-os para o drive um instante antes. Como Meat Action, o Netrunner reinstala todos os salvos se tiver slots. Se removido do deck, apaga o conteúdo.'],['DNA Lock',100,2,'Trava e destrava o Cyberdeck por biometria (digital, íris, sangue). Sem a chave, só com um teste de Electronics/Security Tech DV17.'],['Hardened Circuitry',100,1,'O Cyberdeck não é desativado, danificado nem destruído por efeitos de EMP (como Microwaver) nem por efeitos de Programs que não sejam Black ICE.'],['Insulated Wiring',100,1,'O Cyberdeck não pega fogo, nem faz as roupas do usuário pegarem fogo, por efeito de Program.'],['KRASH Barrier',100,2,'Imune a qualquer efeito de Program que force o Netrunner a dar Jack Out, seguro ou não.'],['Range Upgrade',100,1,'O Cyberdeck conecta a um ponto de acesso a até 8 m (em vez de 6 m).']];
+/* [nome, classe, ATK, DEF, REZ, efeito, custo] */
+const PROGRAMS=[
+['Eraser','Booster',0,0,7,'+2 em todos os testes de Cloak enquanto estiver Rezzed.',20],
+['See Ya','Booster',0,0,7,'+2 em todos os testes de Pathfinder enquanto estiver Rezzed.',20],
+['Speedy Gonzalvez','Booster',0,0,7,'+2 de Speed enquanto estiver Rezzed.',100],
+['Worm','Booster',0,0,7,'+2 em todos os testes de Backdoor enquanto estiver Rezzed.',50],
+['Armor','Defender',0,0,7,'Reduz em 4 todo o dano cerebral que você receberia, enquanto estiver Rezzed. Só 1 cópia ativa por vez; cada cópia é usada uma vez por Netrun.',50],
+['Flak','Defender',0,0,7,'Reduz a 0 o ATK de todos os Programs Attacker (que não sejam Black ICE) usados contra você, enquanto estiver Rezzed. Só 1 cópia ativa por vez; cada cópia é usada uma vez por Netrun.',50],
+['Shield','Defender',0,0,7,'Bloqueia o primeiro efeito de Program (não Black ICE) que causaria dano cerebral. Depois de bloquear, o Shield se derruba sozinho. Só 1 cópia ativa por vez; cada cópia é usada uma vez por Netrun.',20],
+['Banhammer','Anti-Program Attacker',1,0,0,'Causa 3d6 de REZ num Program que não seja Black ICE, ou 2d6 de REZ num Black ICE.',50],
+['Sword','Anti-Program Attacker',1,0,0,'Causa 3d6 de REZ num Black ICE, ou 2d6 de REZ num Program que não seja Black ICE.',50],
+['DeckKRASH','Anti-Personnel Attacker',0,0,0,'O Netrunner inimigo é forçado a dar Jack Out de forma insegura, sofrendo o efeito de todos os Black ICE Rezzed inimigos que encontrou no Architecture.',100],
+['Hellbolt','Anti-Personnel Attacker',2,0,0,'Causa 2d6 de dano direto no cérebro do Netrunner inimigo. Se o deck não for isolado, ele e as roupas pegam fogo: até gastar uma Meat Action para apagar, sofre 2 de dano nos HP ao fim de cada turno (não soma).',100],
+['Nervescrub','Anti-Personnel Attacker',0,0,0,'INT, REF e DEX do Netrunner inimigo caem 1d6 cada por 1 hora (mínimo 1). Efeito psicossomático, sem sequela permanente.',100],
+['Poison Flatline','Anti-Personnel Attacker',0,0,0,'Destrói, ao acaso, um Program que não seja Black ICE instalado no Cyberdeck do alvo.',100],
+['Superglue','Anti-Personnel Attacker',2,0,0,'O Netrunner inimigo não pode avançar no Architecture nem dar Jack Out com segurança por 1d6 rodadas (ainda pode dar Jack Out inseguro). Cada cópia é usada uma vez por Netrun.',100],
+['Vrizzbolt','Anti-Personnel Attacker',1,0,0,'Causa 1d6 de dano direto no cérebro do Netrunner e reduz em 1 o total de NET Actions dele no próximo turno (mínimo 2).',50]];
+/* Black ICE: [nome, classe, PER, SPD, ATK, DEF, REZ, efeito, custo] (ocupa 2 slots no deck) */
+const BICE=[
+['Asp','Anti-Personnel',4,6,2,2,15,'Destrói, ao acaso, um Program instalado no Cyberdeck do Netrunner inimigo.',100],
+['Giant','Anti-Personnel',2,2,8,4,25,'Causa 3d6 de dano direto no cérebro. O Netrunner é forçado a dar Jack Out de forma insegura, sofrendo o efeito de todos os Black ICE Rezzed que encontrou (menos o Giant).',1000],
+['Hellhound','Anti-Personnel',6,6,6,2,20,'Causa 2d6 de dano direto no cérebro. Se o deck não for isolado, ele e as roupas pegam fogo: 2 de dano nos HP ao fim de cada turno até gastar uma Meat Action para apagar (não soma).',500],
+['Kraken','Anti-Personnel',6,2,8,4,30,'Causa 3d6 de dano direto no cérebro. Até o fim do próximo turno, o Netrunner não avança no Architecture nem dá Jack Out com segurança.',1000],
+['Liche','Anti-Personnel',8,2,6,2,25,'INT, REF e DEX do Netrunner caem 1d6 cada por 1 hora (mínimo 1). Efeito psicossomático.',500],
+['Raven','Anti-Personnel',6,4,4,2,15,'Derruba (Derez) um Program Defender Rezzed ao acaso, depois causa 1d6 de dano direto no cérebro.',50],
+['Scorpion','Anti-Personnel',2,6,2,2,15,'O MOVE do Netrunner cai 1d6 por 1 hora (mínimo 1). Efeito psicossomático.',100],
+['Skunk','Anti-Personnel',2,4,4,2,10,'Até o Skunk ser derrubado, o Netrunner atingido faz todos os testes de Slide com -2. Cada Skunk afeta um Netrunner por vez, e vários Skunks somam.',500],
+['Wisp','Anti-Personnel',4,4,4,2,15,'Causa 1d6 de dano direto no cérebro e reduz em 1 o total de NET Actions do Netrunner no próximo turno (mínimo 2).',50],
+['Dragon','Anti-Program',6,4,6,6,30,'Causa 6d6 de dano num Program. Se o dano bastasse para derrubá-lo (Derez), ele é destruído.',1000],
+['Killer','Anti-Program',4,8,6,2,20,'Causa 4d6 de dano num Program. Se o dano bastasse para derrubá-lo (Derez), ele é destruído.',500],
+['Sabertooth','Anti-Program',8,6,6,2,25,'Causa 6d6 de dano num Program. Se o dano bastasse para derrubá-lo (Derez), ele é destruído.',1000]];
+const DEMONS=[['Imp',15,3,2,14,1000],['Efreet',25,4,3,14,5000],['Balron',30,7,4,14,10000]];
+const IFACE=[['Scanner','Meat Action: descobre onde ficam os pontos de acesso de Architectures numa área. Quanto maior o teste, mais coisa você acha e de mais longe. O Mestre decide.'],['Backdoor','NET Action: quebra uma Password do Architecture. Se você sabe a senha, passa direto.'],['Cloak','NET Action: esconde seus rastros e qualquer Virus. O DV do Pathfinder de outro Netrunner para vencer o seu Cloak é o resultado que você tirou. Sem Cloak antes de dar Jack Out, outro Netrunner descobre tudo o que você fez ao usar Pathfinder.'],['Control','NET Action: toma um Control Node (câmeras, drones, torres, elevadores). Cada Node tem um DV. Operar cada coisa ligada ao Node custa outra NET Action, e cada Node só ativa uma vez por turno. Você perde os Nodes ao dar Jack Out. Para tomar um Node de outro Netrunner ou Demon, o DV é o teste dele.'],['Eye-Dee','NET Action: descobre o que é um dado encontrado (File) e quanto vale. Alguns Files têm DV.'],['Pathfinder','NET Action: revela parte do mapa do Architecture. Você enxerga um número de andares igual ao teste, ou até a primeira obstrução (geralmente Password) com DV maior que o seu teste.'],['Slide','NET Action: foge de um Black ICE (que não seja Demon). Teste contra PER do Black ICE + 1d10. Se passar, vai para o andar adjacente (não além de Password); o Black ICE vira armadilha parada onde você o deixou. Só uma tentativa por turno e não vale preventivamente.'],['Virus','No andar mais baixo, deixa um Virus que faz até 2 ações ou mudanças dentro do razoável. O Mestre define o DV e quantas NET Actions. O DV para destruir o Virus é o seu teste. É a única mudança permanente num Architecture.'],['Zap','NET Action: ataque contra um Program (Defense + 1d10) ou um Netrunner (Interface + 1d10). Se acertar, causa 1d6 de REZ ao Program ou 1d6 direto no cérebro do Netrunner.']];
+const NET_RULES=[
+['O que é preciso para fazer Netrunning','Um Neural Link, Interface Plugs, um Cyberdeck e a habilidade de função Interface (sem ela, não dá para fazer Netrunning). Cyberdeck: Poor Quality (5 slots, 100eb), Cyberdeck (7 slots, 500eb) ou Excellent Quality (9 slots, 1.000eb). Programs e Hardware ocupam os mesmos slots, e Black ICE próprio ocupa 2. Virtuality Goggles projetam a NET sobre a visão do mundo; sem elas, você fica efetivamente inconsciente até dar Jack Out. Só dá para ligar a um Cyberdeck por vez; trocar custa uma Meat Action.'],
+['Meat Actions e NET Actions','No seu turno você faz uma Meat Action ou tantas NET Actions quanto o seu Interface permitir, e sempre tem a Move Action. NET Actions por turno: Rank 1–3: 2; Rank 4–6: 3; Rank 7–9: 4; Rank 10: 5. Fazer qualquer coisa num Architecture gasta uma NET Action, exceto andar (quanto quiser, mas sem passar por obstrução) e salvar cópia de um File.'],
+['Jack In e Jack Out','Entrar (Jack In) é uma NET Action e exige estar a até 6 m (sem parede no meio) de um ponto de acesso. Sair dando Jack Out gasta uma NET Action e "reinicia" as defesas do Architecture; você terá de recomeçar do início. Seus Programs saem com você. Se você se afastar do ponto de acesso, ou for forçado, o Jack Out é inseguro: você sofre o efeito de todos os Black ICE inimigos que encontrou e não derrubou.'],
+['Teste de Interface','Para usar uma habilidade de Interface (menos Zap): Interface + 1d10 contra o DV. A NET parece um elevador: cada andar é uma porta com algo atrás (File, Password, Control Node, Program, Black ICE, outro Netrunner). Não dá para pular andares.'],
+['Combate na NET','Interface + ATK do Program + 1d10, ou ATK do Black ICE + 1d10, contra Interface + 1d10 do alvo ou DEF do Program/Black ICE + 1d10. Acertando, o alvo sofre o efeito. Um Program é Derezzed ao chegar a 0 de REZ (não sai do deck; custa 2 NET Actions, uma para desativar e outra para ativar, para voltar ao REZ cheio). Se for Destroyed, é apagado e você precisa comprar outro.'],
+['Programs','Ativar ou desativar um Program é uma NET Action, e cada Program só pode ser ativado uma vez por rodada. Programs Booster e Defender ficam Rezzed até serem desativados; Attacker desativam sozinhos depois de ativados. Programs de classe com alvo (Anti-Personnel, Anti-Program) só funcionam contra esse alvo. Cópias do mesmo Program somam, a menos que o texto diga o contrário. Instalar ou desinstalar leva 1 hora.'],
+['Black ICE','Quando você encontra um Black ICE parado, rola Interface + qualquer bônus de Speed ativo + 1d10 contra o SPD + 1d10 dele. Se ele vencer, o efeito vale na hora, e ele entra no topo da iniciativa (um número acima do maior). Nos turnos seguintes, ele ataca uma vez com ATK + 1d10 contra o seu Interface + 1d10 (ou DEF + 1d10 de um Program, se for Anti-Program). Ele persegue o alvo até ser derrubado ou até você usar Slide. Black ICE Anti-Program ataca um Program Rezzed ao acaso. Quem joga o Black ICE é o Mestre.'],
+['Demons','Sistemas inteligentes de Black ICE que operam Control Nodes para atacar alvos no mundo real (drones, torres). Têm só duas habilidades: Zap e Control. Não são barrados por Passwords, sempre notam o Netrunner, vencem qualquer disputa de Speed contra Programs e não dá para fugir deles com Slide. Entram no topo da iniciativa quando detectam um intruso. Priorizam os gatilhos dos Control Nodes e usam o que sobra de NET Actions em Zap.'],
+['Cuidados do Netrunner','Cyberware não pode ser hackeado com Interface (usa-se Cybertech). Eletrônicos analógicos, Agents e câmeras que só usam a CitiNet não têm Architecture, mas podem ser enfrentados com Electronics/Security Tech.']];
+const DEFENSES=[
+['Air Swarm','Ativa','Nuvem de drones do tamanho de mosquitos com fios de corte. Trate a nuvem como uma única entidade com Very Heavy Melee Weapon. MOVE 8, 15 HP. Contra com Electronics/Security Tech DV17 (5 min).'],
+['Ground Drone','Ativa','Rolante, de esteira, de rodas ou cobra. Duas opções: Very Heavy Pistol (8 Armor Piercing), SMG (30 Basic), câmera. MOVE 4, 30 HP. DV21 (5 min).'],
+['Large Air Drone','Ativa','Duas opções: Dartgun (8 Poison Arrows), Very Heavy Pistol (8 Armor Piercing), câmera. MOVE 6, 20 HP. DV21 (5 min).'],
+['Mini Air Drone','Ativa','Uma opção: Dartgun (8 Poison Arrows), Very Heavy Pistol (8 Armor Piercing), câmera. MOVE 6, 15 HP. DV17 (5 min).'],
+['Spider Walking Drone','Ativa','Duas opções: Grenade Launcher (2 Teargas), Very Heavy Melee Weapon, Heavy SMG (40 Basic), câmera. MOVE 4, 40 HP. DV21 (5 min).'],
+['Automated Blood Swarm','Fixa','Nanites no ar como névoa vermelha: quem estiver na área faz Resist Torture/Drugs DV15 ou sofre 3d6 direto nos HP (sem ablação). Filtros de gás bloqueiam. Ataque único em todos. DV21 (5 min).'],
+['Automated Melee Weapon','Fixa','Very Heavy Melee Weapon automática (cortador de água, fio de monofilamento) num canto. Ataca até todos morrerem ou saírem do alcance. Combat Number 14, 25 HP. DV17 (5 min).'],
+['Automated Turret','Fixa','Arma à distância no teto: Assault Rifle (25 Basic), Flamethrower (4 Incendiary), Dartgun (8 Poison), Very Heavy Pistol (8 Armor Piercing) ou Heavy SMG (40 Basic). Atira até o alvo morrer, sair do alcance ou mostrar o crachá. Combat Number 14, 25 HP. DV17 (5 min).'],
+['Observation Cameras','Ambiente','Veem no escuro, infravermelho e UV e enviam as imagens a um Demon ou segurança. Vê uma sala ou corredor inteiro. 5 HP. DV9 (1 min).'],
+['Tanglefoot Flooring','Ambiente','Rede de nanofios num carpete aparentemente normal. Ao ser ativada, prende pés e pernas e reduz o MOVE em 1d6 até o carpete ser destruído. Perception DV17 para notar. 20 HP. DV13 (1 min).'],
+['Electrical Flooring','Ambiente','Grade elétrica no piso: 6d6 de dano no corpo, reduzido pela armadura (sem ablação). Repete no fim do próximo turno e de todos os seguintes até sair do piso. Perception DV17. DV13 (1 min).'],
+['Laser Grid','Ambiente','Laser projetado do teto e das paredes. Tocar um laser equivale a um golpe de Very Heavy Melee Weapon no corpo. Dá para atravessar com Contortionist DV17 se perceber. Perception DV17. DV17 (5 min).'],
+['Tip-floor','Ambiente','Parte do piso contrapesada derruba o alvo num buraco. Athletics DV15 para se salvar (sem teste com Grapple Hand ou Grapple Gun à mão). O fundo pode ter 6d6 de dano no corpo, reduzido pela armadura. Perception DV17. DV13 (1 min).'],
+['Goop','Ambiente','Sprays que cobrem os pés e pernas de uma gosma espessa: MOVE reduzido em 2d6 até a gosma ser destruída ou o alvo sair da área. 10 HP. Perception DV17. DV13 (1 min).'],
+['Ceiling/Wall Punchers','Ambiente','Barras de aço que descem do teto ou saem da parede, causando 6d6 no corpo, reduzido pela armadura. 20 HP, ROF 1. Perception DV17. DV13 (5 min).'],
+['Slip-floor','Ambiente','Sprays de líquido escorregadio: quem se move na área faz Athletics DV15 ou cai Prone. 10 HP. Perception DV17. DV13 (1 min).'],
+['Stun Panels','Ambiente','Painéis na parede que parecem arte e disparam luz e som: Resist Torture/Drugs DV15 ou sofre Damaged Eye e Damaged Ear por 1 minuto (sem o dano bônus). Área de 10 x 10 m. 5 HP. Perception DV17. DV13 (1 min).'],
+['Sleep Gas','Ambiente','Todas as saídas do espaço são seladas e todos fazem Resist Torture/Drugs DV13 ou ficam inconscientes até receberem dano ou serem acordados. Dá para destruir a armadilha (60 HP) antes. Perception DV17. DV17 (5 min).']];
+const NET_COSTS=[['Architecture de 3 a 6 andares (portátil, até 2 Control Nodes)','1.000eb por andar'],['Architecture de 7 a 12 andares (até 3 Control Nodes)','5.000eb por andar'],['Architecture de 13 a 18 andares','10.000eb por andar'],['Password, Control Node ou File DV6 · DV8 · DV10 · DV12','500 · 1.000 · 5.000 · 10.000eb'],['Defesa (pelo DV para contra-atacar): DV9 · DV13 · DV17 · DV21','500 · 1.000 · 5.000 · 10.000eb'],['Demon: Imp · Efreet · Balron','1.000 · 5.000 · 10.000eb'],['Black ICE no Architecture','mesmo preço do deck (x2 se 2 por andar, x3 se 3)']];
+const LOBBY=['File DV6','Password DV6','Password DV8','Skunk','Wisp','Killer'];
+const BODY={3:['Hellhound','Hellhound x2','Kraken','Hellhound x3'],4:['Sabertooth','Hellhound, Killer','Hellhound, Scorpion','Asp x2'],5:['Raven x2','Skunk x2','Hellhound, Killer','Hellhound, Liche'],6:['Hellhound','Sabertooth','Raven x2','Wisp x3'],7:['Wisp','Scorpion','Sabertooth','Hellhound, Sabertooth'],8:['Raven','Hellhound','Hellhound','Kraken'],9:['Password DV6','Password DV8','Password DV10','Password DV12'],10:['File DV6','File DV8','File DV10','File DV12'],11:['Control Node DV6','Control Node DV8','Control Node DV10','Control Node DV12'],12:['Password DV6','Password DV8','Password DV10','Password DV12'],13:['Skunk','Asp','Killer','Giant'],14:['Asp','Killer','Liche','Dragon'],15:['Scorpion','Liche','Dragon','Killer, Scorpion'],16:['Killer, Skunk','Asp','Asp, Raven','Kraken'],17:['Wisp x3','Raven x3','Dragon, Wisp','Raven, Wisp, Hellhound'],18:['Liche','Liche, Raven','Giant','Dragon x2']};
+const DIFFS=[['Basic','Password/File/Control Node DV6 · netrunner com chance: Interface 2'],['Standard','DV8 · Interface 4'],['Uncommon','DV10 · Interface 6'],['Advanced','DV12 · Interface 8']];
+const dN=(n,s)=>Array.from({length:n},()=>1+Math.floor(Math.random()*s));
+function genArch(diff){
+ const sum=a=>a.reduce((x,y)=>x+y,0),total=sum(dN(3,6));let br=0;while(dN(1,10)[0]>=7&&br<4)br++;
+ const used=new Set(),floors=[];
+ const isProg=t=>/Password|Hellhound|Kraken|Sabertooth|Raven|Skunk|Asp|Wisp|Killer|Scorpion|Liche|Dragon|Giant/.test(t);
+ const key=t=>t.replace(/ x\d/,'');
+ for(let i=0;i<total;i++){let t,g=0;
+  do{t=i<2?LOBBY[dN(1,6)[0]-1]:BODY[sum(dN(3,6))][diff];g++}while(g<30&&isProg(t)&&t.split(', ').some(p=>used.has(key(p))&&/Password|Skunk|Wisp|Killer|Hellhound|Kraken|Sabertooth|Raven|Asp|Scorpion|Liche|Dragon|Giant/.test(p)&&!/^(File|Control)/.test(p)));
+  t.split(', ').forEach(p=>{if(isProg(p))used.add(key(p))});floors.push(t)}
+ return {total,br,floors}}
+
+/* ---------------- equipamento ---------------- */
+const GEAR=[
+['Agent',100,'Smartphone com IA adaptativa. Faz ligações, navega no Data Pool, mantém sua agenda, grava áudio e vídeo, liga-se ao cyberware e a aparelhos de casa e reordena itens Cheap, Everyday e Costly sozinho. Dá +2 em Library Search e +2 em Wardrobe & Style, este só se você vestir o que ele sugere. Vários Agents não somam.'],
+['Airhypo',50,'Injeta uma dose de droga com ar comprimido. Como Ação, aplica uma dose num alvo disposto; contra alvo não disposto, é um ataque corpo a corpo que aplica a dose em vez de causar dano. Recarregar não gasta Ação.'],
+['Anti-Smog Breathing Mask',20,'Filtra toxinas e fumaça. Imune a gases tóxicos e perigos inalados parecidos.'],
+['Audio Recorder',100,'Grava até 24 horas de áudio num Memory Chip padrão guardado no aparelho.'],
+['Auto Level Dampening Ear Protectors',100,'Proteção auditiva compacta. Imune a surdez e efeitos de ruídos altos, como flashbang.'],
+['Binoculars',50,'Dobram ou triplicam o tamanho do que você vê.'],
+['Braindance Viewer',1000,'Permite viver braindances: gravações de experiências vistas pelos olhos do ator, com todos os sentidos e emoções.'],
+['Bug Detector',500,'Apita a menos de 2 m de grampo, escuta ou aparelho parecido.'],
+['Carryall',20,'Bolsas de nylon resistente, de mensageiro a mochila grande.'],
+['Chemical Analyzer',1000,'Como Ação, testa a composição química de substâncias e identifica quase todas num banco de dados.'],
+['Computer',50,'Notebook ou desktop, usado para texto e Data Pool.'],
+['Cryopump',5000,'Maleta com saco e bomba. Em estase, o alvo fica inconsciente e não faz Death Save por até uma semana, enquanto o saco tiver 1 HP (conta como cobertura de 15 HP). Tem 1 carga; recarga de 50eb. Só um Medtech opera.'],
+['Cryotank',5000,'Tanque do tamanho de uma pessoa. Com Medical Tech DV13 do Medtech, mantém uma pessoa em estase, inconsciente, curando o dobro, enquanto o tanque tiver 1 HP (cobertura de 30 HP).'],
+['Cyberdeck (Poor Quality)',100,'Plataforma de Netrunning com 5 slots. Exige Interface Plugs e Neural Link.'],
+['Cyberdeck (Standard Quality)',500,'Plataforma de Netrunning com 7 slots. Exige Interface Plugs e Neural Link.'],
+['Cyberdeck (Excellent Quality)',1000,'Plataforma de Netrunning com 9 slots. Exige Interface Plugs e Neural Link.'],
+['Disposable Cell Phone',50,'Celular descartável, bom para quem não quer ser rastreado.'],
+['Drum Synthesizer',500,'Pads de plástico ligados a um processador que simula qualquer bateria. Precisa de amplificação.'],
+['Duct Tape',20,'Fita adesiva em várias cores; pode brilhar no escuro, mesmo sem luz prévia.'],
+['Electric Guitar or other Instrument',500,'Instrumento à sua escolha. Instrumentos eletrônicos precisam de amplificador.'],
+['Flashlight',20,'Recarregável, feixe de 100 m, dura 10 horas por carga.'],
+['Food Stick',10,'Barra de comida seca e granulada (sabores horríveis). Uma refeição.'],
+['Glow Paint',20,'Tinta spray que brilha no escuro, para marcar locais e fazer arte.'],
+['Glow Stick',10,'Tubo de luz que ilumina 4 m por até 10 horas. Uso único.'],
+['Grapple Gun',100,'Como Ação, dispara um gancho a até 30 m que se prende em cobertura "Thick". O cabo suporta 2x o peso do usuário e tem 10 HP. Anula a penalidade de escalada, e recolhe sem Ação. Não serve como arma nem para Grab.'],
+['Handcuffs',50,'Algemas. Quebram fácil com BODY maior que 10.'],
+['Homing Tracer',500,'Segue um rastreador ligado a até 1,6 km. Vem com 1 rastreador do tamanho de um botão; reposição de 50eb.'],
+['Inflatable Bed & Sleep-bag',20,'Colchão que se infla sozinho com saco de dormir fino. Dobra num pacote de 15 cm.'],
+['Kibble Pack',10,'Pacote de ração seca, equivalente a uma refeição.'],
+['Linear Frame β (Beta)',5000,'Exoesqueleto motorizado: BODY vira 14 enquanto ligado (não passa de 14, não altera HP nem Death Save). Exige 2 instalações de Interface Plugs.'],
+['Linear Frame Σ (Sigma)',1000,'Exoesqueleto motorizado: BODY vira 12 enquanto ligado (não passa de 12, não altera HP nem Death Save). Exige 1 instalação de Interface Plugs.'],
+['Lock Picking Set',20,'Bolsa de ferramentas para abrir fechaduras mecânicas.'],
+['Medscanner',1000,'Escâner com sondas que diagnostica ferimentos e doenças. +2 em First Aid e Paramedic (não soma).'],
+['Medtech Bag',100,'Kit médico com grampeador de pele, spray de pele, bisturis estéreis e o necessário para salvar vidas.'],
+['Memory Chips',10,'Lâminas de plástico que guardam informação de todo tipo.'],
+['MRE',10,'Refeição autoaquecível: junte água e em 2 minutos há uma refeição quente.'],
+['Personal CarePak',20,'Escova com pasta, lenços, creme depilatório, pente e itens de higiene.'],
+['Pocket Amplifier',50,'Amplificador do tamanho de um livro. Som a até 100 m por 6 horas, para até dois instrumentos.'],
+['Radar Detector',500,'Apita se houver feixe de radar ativo a até 100 m.'],
+['Radio Communicator',100,'Fone de rádio com alcance de 1,6 km.'],
+['Radio Scanner / Music Player',50,'Toca música do Data Pool ou de um Memory Chip, ou sintoniza canais de rádio a até 1,6 km (alguns precisam de Descrambler).'],
+['Road Flare',10,'Ilumina 100 m por 1 hora, em várias cores. Uso único.'],
+['Rope (60 m)',20,'Corda de nylon que suporta 360 kg.'],
+['Scrambler / Descrambler',500,'Embaralha suas comunicações de saída. Vem com o Descrambler.'],
+['Smart Glasses',500,'Óculos com 2 slots de opções de Cybereye. As opções contam como pareadas e custam o preço de uma instalação.'],
+['Tech Bag',500,'Kit completo de reparo: Techtool, peças elétricas, fita, fios, parafusos, módulos, maçarico, pés de cabra e martelo.'],
+['Techscanner',1000,'Escâner que diagnostica máquinas e eletrônicos. +2 em Basic Tech, Cybertech, Land/Sea/Air Vehicle Tech, Electronics/Security Tech e Weaponstech (não soma).'],
+['Techtool',100,'Ferramentas pequenas para consertar eletrônicos e máquinas.'],
+['Tent & Camping Equipment',50,'Barraca tubo para uma pessoa, panela autoaquecível e colher metálica.'],
+['Vial of Biotoxin',500,'Um frasco passado numa Light Melee Weapon (uma Ação) vale por 30 minutos. O alvo faz Resist Torture/Drugs DV15 ou sofre 3d6 direto nos HP (sem ablação), em vez do dano da arma.'],
+['Vial of Poison',100,'Um frasco passado numa Light Melee Weapon (uma Ação) vale por 30 minutos. O alvo faz Resist Torture/Drugs DV13 ou sofre 2d6 direto nos HP (sem ablação), em vez do dano da arma.'],
+['Video Camera',100,'Grava até 12 horas de vídeo e áudio num Memory Chip guardado.'],
+['Virtuality Goggles',100,'Projeta o ciberespaço sobre a visão do mundo. Indicado para Netrunners.']];
+const AMMO=[
+['Basic Ammunition',10,'Todas, menos Grenades e Rockets','Munição padrão, sem efeito especial.'],
+['Armor-Piercing Ammunition',100,'Todas, menos Shotgun Shells','Ao ablacionar armadura, você ablaciona 2 em vez de 1.'],
+['Biotoxin Ammunition',500,'Arrows e Grenades','Sem dano. Quem for atingido em carne faz Resist Torture/Drugs DV15 ou sofre 3d6 direto nos HP (sem ablação).'],
+['EMP Ammunition',500,'Grenades','Sem dano. Quem for atingido faz Cybertech DV15; se falhar, o Mestre escolhe 2 peças de cyberware ou eletrônicos para ficarem inoperantes por 1 minuto.'],
+['Expansive Ammunition',100,'Arrows, Bullets e Slugs','Sempre que você causar o Critical Injury Foreign Object, a vítima rola de novo até sair outro ferimento, e sofre os dois (o segundo sem dano bônus).'],
+['Flashbang Ammunition',100,'Grenades','Sem dano. Quem for atingido faz Resist Torture/Drugs DV15 ou sofre Damaged Eye e Damaged Ear por 1 minuto (sem dano bônus).'],
+['Incendiary Ammunition',100,'Arrows, Bullets, Grenades e Shotgun Shells','Se o dano passar pela armadura, o alvo pega fogo: 2 de dano direto nos HP ao fim de cada turno até gastar uma Ação para apagar (não soma).'],
+['Poison Ammunition',100,'Arrows e Grenades','Sem dano. Quem for atingido em carne faz Resist Torture/Drugs DV13 ou sofre 2d6 direto nos HP (sem ablação).'],
+['Rubber Ammunition',10,'Arrows, Bullets e Slugs','O dano não causa Critical Injury nem ablaciona armadura. Se o dano levasse um alvo com mais de 1 HP abaixo de 0, ele fica com 1 HP.'],
+['Sleep Ammunition',500,'Arrows e Grenades','Sem dano. Quem for atingido faz Resist Torture/Drugs DV13 ou fica Prone e Unconscious por 1 minuto ou até receber dano ou ser acordado.'],
+['Smart Ammunition',500,'Arrows, Bullets e Rockets','Exige Targeting Scope. Se você erra um tiro único por 4 ou menos, ele ganha uma segunda chance contra o mesmo DV, rolando de novo com +10 no lugar dos bônus (menos LUCK). Quem esquiva pode esquivar de novo.'],
+['Smoke Ammunition',50,'Grenades','Cobre 10 x 10 m de fumaça por 1 minuto. Fazer algo na fumaça tem -4.'],
+['Teargas Ammunition',50,'Grenades','Sem dano. Quem tem olhos de carne e for atingido faz Resist Torture/Drugs DV13 ou sofre Damaged Eye por 1 minuto (sem dano bônus).']];
+const ATTACH=[['Bayonet',100,1,'Armas de Shoulder Arms. Também serve como Light Melee Weapon. Não dá para esconder a arma.'],['Drum Magazine',500,1,'Todas, menos arcos e bestas. Carregador de tambor (tabela de carregadores). Não dá para esconder a arma.'],['Extended Magazine',100,1,'Todas, menos arcos e bestas. Carregador estendido. Não dá para esconder a arma.'],['Grenade Launcher Underbarrel',500,2,'Shoulder Arms. Com as duas mãos, a arma também serve de Grenade Launcher com 1 granada.'],['Infrared Nightvision Scope',500,1,'Zera as penalidades de escuridão, fumaça e neblina ao atirar. Distingue carne quente de metal frio.'],['Shotgun Underbarrel',500,2,'Shoulder Arms. Com as duas mãos, a arma também serve de Shotgun com 2 tiros.'],['Smartgun Link',500,2,'Exige Interface Plugs ou Subdermal Grip e Neural Link. +1 no teste de ataque à distância. Instalar leva 1 hora.'],['Sniping Scope',100,1,'Enxerga detalhes a 800 m. +1 em tiro único ou Aimed Shot contra alvo a 51 m ou mais. Não soma com TeleOptics.']];
+const CLIPS=[['Medium Pistol',12,18,36],['Heavy Pistol',8,14,28],['Very Heavy Pistol',8,14,28],['SMG',30,40,50],['Heavy SMG',40,50,60],['Shotgun',4,8,16],['Assault Rifle',25,35,45],['Sniper Rifle',4,8,12],['Grenade Launcher',2,4,6],['Rocket Launcher',1,2,3]];
+const QUAL_TXT='Armas Poor Quality (20/50/100eb para as bases de 50/100/500eb) falham sempre que você tira um 1 no ataque: gasta uma Ação para desemperrar (sem teste). Armas Excellent Quality (100/500/1.000eb) dão +1 no teste de ataque. Armas exóticas são sempre Average Quality, salvo quando a descrição disser outra coisa. Cada arma à distância comum tem 3 slots de acessório.';
+const DRUGS=[['Black Lace',50,'24 horas',17,'Perde 2d6 de Humanity ao tomar, devolvidos se você não sofrer o efeito secundário. Enquanto durar, ignora os efeitos de Seriously Wounded.','Se falhar no teste, a Humanity não volta e você vira viciado: sem a droga ativa, REF -2.'],['Blue Glass',20,'4 horas',15,'Você "apaga" de vez em quando, alucinando cores em rajadas curtas, e perde a Ação nesse turno.','Se falhar, vicia. Viciado "apaga" cerca de uma vez por hora, e a droga passa a dar imunidade a isso: você toma para ficar estável.'],['Boost',50,'24 horas',17,'INT +2 (pode passar de 8).','Se falhar, vicia. Viciado tem INT -2 sem a droga.'],['Smash',10,'4 horas',15,'Euforia: +2 em Dance, Contortionist, Conversation, Human Perception, Persuasion e Acting.','Se falhar, vicia (efeito completo na p. 357 do livro).'],['Synthcoke',20,'4 horas',15,'Estimulante. Detalhes dos efeitos primário e secundário na p. 357 do livro.','Ver livro.']];
+const LIFE=[['Kibble',100,'Comida horrível. Uma vez por mês, cinema ou braindance.'],['Generic Prepak',300,'Comida bem melhor que Kibble. Todo fim de semana, um bar bom ou um restaurante.'],['Good Prepak',600,'Comida de qualidade de restaurante, artificial. Frequenta bares e restaurantes excelentes. Uma vez por mês, show ao vivo ou evento esportivo.'],['Fresh Food',1500,'Comida de verdade. Uma vez por mês, hotel por perto se estiver cansado e longe de casa. Frequenta bar executivo e, uma vez por mês, restaurante de classe mundial.']];
+const HOUSE=[['Living on The Street','—','—','Sem segurança, aquecimento ou eletricidade. Sem DV15 em Endurance, você acorda fatigado (-2 em tudo).'],['Living on The Street in a Vehicle','—','—','Exige veículo de vidro fechado. Segurança limitada sem upgrade e janelas à prova de bala.'],['Cube Hotel','500eb','—','Quarto sem janela com trava forte. Banheiro coletivo no corredor. Mais de uma pessoa no cubo é sempre dormir desconfortável.'],['Cargo Container','1.000eb','15.000eb','Cama, mesa, eletricidade, geladeira, micro-ondas e pia. Banheiro e lavanderia coletivos.'],['Studio Apartment','1.500eb','25.000eb','Cama, cozinha pequena, banheiro privado e uma vaga de garagem protegida.'],['Two-Bedroom Apartment','2.500eb','35.000eb','Dois quartos, cozinha completa, um banheiro, sala e lavanderia. Duas vagas protegidas.'],['Corporate Conapt','dado pela Corp','—','Dois quartos, dois banheiros, cozinha, sala e varanda. Vigilância da Corp em todos os cômodos, menos banheiros.'],['Upscale Conapt','7.500eb','85.000eb','Moradia de luxo em área segura.'],['Luxury Penthouse','15.000eb','500.000eb','Cobertura de luxo.'],['Corporate Beaverville House','dado pela Corp','200.000eb','Casa de subúrbio corporativo.'],['Corporate Beaverville McMansion','dado pela Corp','500.000eb','Mansão de subúrbio corporativo.']];
+const SLEEP='Menos de 6 horas de sono por dia dão -2 em tudo para cada dia sem dormir 6 horas. Dormir desconfortável (apertado: mais gente que 1 + número de quartos; na rua sem DV15 em Endurance; na natureza sem DV15 em Wilderness Survival) deixa você fatigado: -2 em tudo no dia seguinte. Quem não paga o estilo de vida no início do mês tem uma semana de prazo; depois disso rola um Death Save por dia.';
+const FASHION='Os estilos são Bag Lady Chic, Gang Colors, Generic Chic, Bohemian, Leisurewear, Nomad Leathers, Asia Pop, Urban Flash, Businesswear e High Fashion. Cada peça (Bottoms, Top, Jacket, Footwear, Jewelry, Mirrorshades, Glasses, Contact Lenses, Hats) tem um preço que vai de 10eb (Cheap) a 5.000eb (Luxury) conforme o estilo e o nível (por exemplo, High Fashion chega a Luxury e Couture, de 5.000eb até 50.000eb). A tabela completa está na p. 356 do livro.';
+/* ---------------- NPCs ---------------- */
+const NPCS=[
+{n:'Bodyguard',t:'Mook',st:{INT:3,REF:6,DEX:5,TECH:2,COOL:4,WILL:4,MOVE:4,BODY:6,EMP:3},hp:35,sw:18,ds:6,head:7,body:7,arm:'Kevlar®',w:[['Shotgun (Poor Quality)','5d6'],['Very Heavy Pistol','4d6']],sk:'Athletics 9, Brawling 11, Concentration 6, Conversation 5, Drive Land Vehicle 10, Education 5, Endurance 9, Evasion 7, First Aid 4, Handgun 10, Human Perception 5, Interrogation 6, Language (Native) 5, Language (Streetslang) 5, Local Expert (Your Home) 5, Perception 9, Persuasion 6, Resist Torture/Drugs 8, Shoulder Arms 10, Stealth 7',g:'Slug Ammo x25, Very Heavy Pistol Ammo x25, Radio Communicator'},
+{n:'Boosterganger',t:'Mook',st:{INT:2,REF:6,DEX:5,TECH:2,COOL:4,WILL:2,MOVE:4,BODY:4,EMP:3},hp:20,sw:10,ds:4,head:4,body:4,arm:'Leather',w:[['Very Heavy Pistol (Poor Quality)','4d6'],['Rippers','2d6']],sk:'Athletics 9, Brawling 9, Conceal/Reveal Object 4, Concentration 4, Conversation 5, Drive Land Vehicle 10, Education 4, Endurance 6, Evasion 7, First Aid 4, Handgun 12, Human Perception 5, Interrogation 6, Language (Native) 4, Language (Streetslang) 4, Local Expert (Your Home) 4, Melee Weapon 11, Perception 6, Persuasion 6, Resist Torture/Drugs 4, Stealth 7',g:'Very Heavy Pistol Ammo x30, Disposable Cell Phone, Rippers, Techhair'},
+{n:'Road Ganger',t:'Mook',st:{INT:4,REF:6,DEX:4,TECH:4,COOL:3,WILL:3,MOVE:3,BODY:3,EMP:3},hp:25,sw:13,ds:3,head:4,body:4,arm:'Leather',w:[['Crossbow','4d6'],['Very Heavy Pistol (Poor Quality)','4d6'],['Light Melee Weapon (Poor Quality)','1d6']],sk:'Archery 10, Athletics 10, Brawling 6, Concentration 5, Conversation 6, Drive Land Vehicle 12, Education 6, Endurance 5, Evasion 6, First Aid 6, Handgun 10, Human Perception 5, Land Vehicle Tech 10, Language (Native) 6, Language (Streetslang) 6, Local Expert (Your Home) 6, Melee Weapon 8, Perception 6, Persuasion 5, Stealth 8, Tracking 8, Wilderness Survival 8',g:'Very Heavy Pistol Ammo x20, Arrow Ammo x20, Rope, Flashlight, Neural Link (Interface Plugs)'},
+{n:'Security Operative',t:'Mook',st:{INT:3,REF:7,DEX:4,TECH:2,COOL:2,WILL:3,MOVE:3,BODY:5,EMP:3},hp:30,sw:15,ds:5,head:7,body:7,arm:'Kevlar®',w:[['Assault Rifle (Poor Quality)','5d6'],['Very Heavy Pistol','4d6'],['Medium Melee Weapon (Poor Quality)','2d6']],sk:'Athletics 8, Autofire 10, Brawling 6, Concentration 7, Conversation 5, Education 5, Evasion 6, First Aid 4, Handgun 10, Human Perception 5, Interrogation 6, Language (Native) 5, Language (Streetslang) 5, Local Expert (Your Home) 5, Melee Weapon 6, Perception 5, Persuasion 4, Resist Torture/Drugs 5, Shoulder Arms 10, Stealth 6',g:'Rifle Ammo x40, Very Heavy Pistol Ammo x20, Radio Communicator'},
+{n:'Netrunner (NPC)',t:'Lieutenant',st:{INT:7,REF:5,DEX:4,TECH:7,COOL:4,WILL:5,MOVE:5,BODY:3,EMP:4},hp:30,sw:15,ds:3,head:11,body:11,arm:'Bodyweight Suit',w:[['Very Heavy Pistol (Poor Quality)','4d6']],sk:'Interface 4, Athletics 9, Basic Tech 13, Brawling 6, Conceal/Reveal Object 11, Concentration 9, Conversation 6, Cryptography 11, Deduction 11, Education 11, Electronics/Security Tech 11, Evasion 6, First Aid 9, Forgery 13, Handgun 10, Human Perception 6, Language (Native) 9, Language (Streetslang) 9, Local Expert (Your Home) 13, Library Search 9, Perception 11, Persuasion 6, Pick Lock 11, Resist Torture/Drugs 7, Stealth 8',g:'Very Heavy Pistol Ammo x50, Flashlight, Virtuality Goggles, Neural Link (Interface Plugs). Cyberdeck: Banhammer, DeckKRASH, Eraser, Hellbolt, Shield, Sword, Worm'},
+{n:'Reclaimer Chief',t:'Lieutenant',st:{INT:3,REF:6,DEX:6,TECH:5,COOL:4,WILL:5,MOVE:4,BODY:6,EMP:4},hp:40,sw:20,ds:6,head:11,body:11,arm:'Light Armorjack',w:[['Shotgun (Poor Quality)','5d6'],['Heavy Pistol','3d6'],['Heavy Melee Weapon','3d6'],['Light Melee Weapon (Poor Quality)','1d6']],sk:'Athletics 12, Basic Tech 9, Brawling 8, Concentration 7, Conversation 6, Deduction 7, Drive Land Vehicle 10, Education 5, Electronics/Security Tech 9, Endurance 11, Evasion 8, First Aid 7, Handgun 10, Human Perception 6, Land Vehicle Tech 7, Language (Native) 5, Language (Streetslang) 5, Local Expert (Your Home) 5, Melee Weapon 10, Paramedic 7, Perception 8, Persuasion 6, Pick Lock 7, Resist Torture/Drugs 10, Shoulder Arms 10, Stealth 10, Weaponstech 9, Wilderness Survival 7',g:'Slug Ammo x25, Heavy Pistol Ammo x25, Agent, Grapple Gun, Radio Communicator, Tent & Camping Equipment, Nasal Filters, Neural Link (Chipware Socket, Tactile Boost)'},
+{n:'Security Officer',t:'Lieutenant',st:{INT:4,REF:8,DEX:6,TECH:4,COOL:6,WILL:5,MOVE:6,BODY:7,EMP:4},hp:40,sw:20,ds:7,head:13,body:13,arm:'Medium Armorjack',w:[['Assault Rifle (Poor Quality)','5d6'],['Very Heavy Pistol','4d6'],['Medium Melee Weapon (Poor Quality)','2d6']],sk:'Athletics 10, Autofire 12, Brawling 10, Concentration 7, Conversation 6, Deduction 6, Drive Land Vehicle 12, Education 6, Evasion 10, First Aid 6, Handgun 10, Human Perception 6, Interrogation 8, Language (Native) 6, Language (Streetslang) 6, Local Expert (Your Home) 6, Melee Weapon 10, Perception 6, Persuasion 8, Resist Torture/Drugs 10, Shoulder Arms 10, Stealth 6, Tactics. As perícias de movimento e combate físico caem 2 com a armadura (REF 6, DEX 4, MOVE 4).',g:'Rifle Ammo x50, Very Heavy Pistol Ammo x30, Bulletproof Shield (10 HP), Binoculars, Disposable Cellphone, Flashlight, Handcuffs x2, Radio Communicator, Radio Scanner/Music Player, Neural Link (Kerenzikov Speedware)'},
+{n:'Outrider',t:'Mini Boss',st:{INT:6,REF:8,DEX:8,TECH:3,COOL:5,WILL:6,MOVE:6,BODY:6,EMP:6},hp:40,sw:20,ds:6,head:11,body:11,arm:'Light Armorjack',w:[['Assault Rifle','5d6'],['Very Heavy Pistol','4d6'],['Light Melee Weapon (Poor Quality)','1d6']],sk:'Moto Family 4, Animal Handling 8, Athletics 14, Autofire 12, Basic Tech 5, Brawling 14, Concentration 10, Conversation 6, Criminology 10, Drive Land Vehicle 14, Education 8, Endurance 10, Evasion 14, First Aid 5, Handgun 14, Human Perception 8, Land Vehicle Tech 7, Language (Native) 8, Language (Streetslang) 8, Local Expert (Badlands) 10, Local Expert (Your Home) 8, Melee Weapon 12, Perception 14, Persuasion 7, Resist Torture/Drugs 12, Shoulder Arms 14, Stealth 12, Streetwise 9, Tracking 10',g:'Rifle Ammo x60, Very Heavy Pistol Ammo x40, Handcuffs x2, Homing Tracers, Radio Communicator, Cyberaudio Suite (Amplified Hearing), Cybereye (Targeting Scope, TeleOptics), Neural Link (Interface Plugs)'},
+{n:'Pyro',t:'Mini Boss',st:{INT:5,REF:8,DEX:6,TECH:7,COOL:4,WILL:4,MOVE:6,BODY:5,EMP:3},hp:35,sw:18,ds:5,head:11,body:11,arm:'Light Armorjack',w:[['Flamethrower','5d6'],['Very Heavy Pistol','4d6'],['Heavy Melee Weapon (Poor Quality)','3d6']],sk:'Combat Awareness 4, Athletics 11, Basic Tech 12, Brawling 10, Concentration 8, Conversation 5, Demolitions 13, Drive Land Vehicle 10, Education 7, Evasion 13, First Aid 9, Handgun 14, Heavy Weapons 14, Human Perception 5, Interrogation 10, Language (Native) 7, Language (Streetslang) 7, Local Expert (Your Home) 7, Melee Weapon 13, Perception 12, Persuasion 6, Resist Torture/Drugs 14, Science (Chemistry) 10, Stealth 10, Streetwise 8, Tactics 8',g:'Flamethrower Ammo (Incendiary Shotgun Shells) x8, Very Heavy Pistol Ammo x50, Incendiary Grenade x1, Flashbang Grenade x1, Cyberaudio Suite (Level Dampers), Cybereye x2 (Anti-Dazzle x2), Nasal Filters'},
+{n:'Cyberpsycho',t:'Boss',st:{INT:5,REF:8,DEX:8,TECH:5,COOL:4,WILL:7,MOVE:8,BODY:10,EMP:0},hp:55,sw:28,ds:10,head:11,body:11,arm:'Subdermal Armor',w:[['Popup Grenade Launcher x2','6d6'],['Popup Heavy SMG','3d6'],['Wolvers','3d6'],['Cybersnake','4d6'],['Heavy Pistol','3d6']],sk:'Athletics 16, Autofire 14, Basic Tech 11, Brawling 15, Concentration 6, Conversation 2, Drive Land Vehicle 10, Education 7, Endurance 10, Evasion 13, First Aid 6, Handgun 12, Heavy Weapons 14, Human Perception 2, Interrogation 13, Language (Native) 7, Language (Streetslang) 7, Local Expert (Your Home) 7, Melee Weapon 17, Perception 9, Persuasion 6, Resist Torture/Drugs 15, Stealth 10, Tracking 10',g:'Armor Piercing Grenade x2, Heavy Pistol Ammo x100, Cyberarm x2 (Popup Grenade Launcher x2, Popup Heavy SMG, Wolvers), Cyberleg x2 (Jump Boosters x2), Cybersnake, Grafted Muscle & Bone Lace, Neural Link (Chipware Socket, Pain Editor), Subdermal Armor'}];
+const TIER_TXT={'Mook':'Adversário de nível baixo: um grupo de Edgerunners deve enfrentar um número igual de Mooks e ter boa chance de vencer.','Lieutenant':'Adversário de nível médio: use 1 Lieutenant para cada 2 Edgerunners.','Mini Boss':'Adversário de nível alto: use 1 Mini Boss para cada 3 Edgerunners.','Boss':'Chefão: só ponha em cena se o grupo estiver à altura do desafio.'};
 const DVS=[['Simple',9],['Everyday',13],['Difficult',15],['Professional',17],['Heroic',21],['Incredible',24],['Legendary',29]];
 const CRIT_BODY=[[2,'Dismembered Arm','O braço some. Solte o que segurava. Base Death Save Penalty +1.','N/A / Surgery DV17'],[3,'Dismembered Hand','A mão some. Solte o que segurava. Base Death Save Penalty +1.','N/A / Surgery DV17'],[4,'Collapsed Lung','-2 em MOVE (mínimo 1). Base Death Save Penalty +1.','Paramedic DV15 / Surgery DV15'],[5,'Broken Ribs','No fim de todo turno em que andar mais de 4m, sofre o dano bônus de novo direto nos HP.','Paramedic DV13 / Paramedic DV15 ou Surgery DV13'],[6,'Broken Arm','O braço não pode ser usado. Solte o que segurava.','Paramedic DV13 / Paramedic DV15 ou Surgery DV13'],[7,'Foreign Object','No fim de todo turno em que andar mais de 4m, sofre o dano bônus de novo direto nos HP.','First Aid ou Paramedic DV13 / o Quick Fix remove o efeito para sempre'],[8,'Broken Leg','-4 em MOVE (mínimo 1).','Paramedic DV13 / Paramedic DV15 ou Surgery DV13'],[9,'Torn Muscle','-2 em ataques corpo a corpo.','First Aid ou Paramedic DV13 / o Quick Fix remove o efeito para sempre'],[10,'Spinal Injury','No próximo turno não pode fazer Ação, só Move Action. Base Death Save Penalty +1.','Paramedic DV15 / Surgery DV15'],[11,'Crushed Fingers','-4 em todas as Ações que usam aquela mão.','Paramedic DV13 / Surgery DV15'],[12,'Dismembered Leg','A perna some. -6 em MOVE (mínimo 1). Não pode esquivar. Base Death Save Penalty +1.','N/A / Surgery DV17']];
 const CRIT_HEAD=[[2,'Lost Eye','O olho some. -4 em ataques à distância e em Perception visual. Base Death Save Penalty +1.','N/A / Surgery DV17'],[3,'Brain Injury','-2 em todas as Ações. Base Death Save Penalty +1.','N/A / Surgery DV17'],[4,'Damaged Eye','-2 em ataques à distância e em Perception visual.','Paramedic DV15 / Surgery DV13'],[5,'Concussion','-2 em todas as Ações.','First Aid ou Paramedic DV13 / o Quick Fix remove o efeito para sempre'],[6,'Broken Jaw','-4 em todas as Ações que envolvem fala.','Paramedic DV13 / Paramedic ou Surgery DV13'],[7,'Foreign Object','No fim de todo turno em que andar mais de 4m, sofre o dano bônus de novo direto nos HP.','First Aid ou Paramedic DV13 / o Quick Fix remove o efeito para sempre'],[8,'Whiplash','Base Death Save Penalty +1.','Paramedic DV13 / Paramedic ou Surgery DV13'],[9,'Cracked Skull','Tiros mirados na cabeça multiplicam o dano que passa do SP por 3 em vez de 2. Base Death Save Penalty +1.','Paramedic DV15 / Paramedic ou Surgery DV15'],[10,'Damaged Ear','Ao andar mais de 4m num turno, não pode fazer Move Action no próximo. -2 em Perception auditiva.','Paramedic DV13 / Surgery DV13'],[11,'Crushed Windpipe','Você não consegue falar. Base Death Save Penalty +1.','N/A / Surgery DV15'],[12,'Lost Ear','A orelha some. Ao andar mais de 4m num turno, não pode fazer Move Action no próximo. -4 em Perception auditiva. Base Death Save Penalty +1.','N/A / Surgery DV17']];
@@ -372,7 +543,7 @@ async function rollCheck(c,label,parts,dvOpt){
  const res=(ok==null?'':(ok?'Sucesso':'Falha')+' vs DV'+dv)+(crit==='e'?(ok==null?'':' · ')+'crítico (+d10)':crit==='f'?(ok==null?'':' · ')+'falha crítica (−d10)':'');
  const expr=parts.map(([n,v])=>n+' '+v).join(' + ')+' + d10 ('+r+(ex?(ex>0?' +':' −')+Math.abs(ex):'')+')'+(wp?' − ferido '+wp:'')+(m?(m>0?' + mod ':' − mod ')+Math.abs(m):'');
  await post(c,label,{kind:'red',total,res,cls,expr,fx:crit});
- return {total,ok,dv}}
+ return {total,ok,dv,crit}}
 const statParts=(c,k)=>[[k,stEff(c,k)]];
 function rollStat(c,k){return rollCheck(c,k,statParts(c,k))}
 function rollSkill(c,n,spec){const s=sk(n);if(!s)return;const stat=s[1],lv=skLv(c,n,spec);
@@ -388,7 +559,10 @@ function spend(c,w,n){if(!(+w.mag>0))return true;const a=w.ammo==null?+w.mag:+w.
 async function rollAtk(c,w){const s=sk(w.skill),stat=w.k==='melee'?'DEX':(s?s[1]:'REF');
  if(w.k==='ranged'&&!spend(c,w,1))return;
  let dv=null;if(w.k==='ranged'){dv=bandDv(w,0);if(dv===-1){alert('Fora de alcance para esta arma.');return}}
- return rollCheck(c,w.n+' (ataque)',[[stat,stEff(c,stat)],[w.skill,skLv(c,w.skill)]],dv)}
+ const parts=[[stat,stEff(c,stat)],[w.skill,skLv(c,w.skill)]];if(w.q==='Excellent')parts.push(['Excellent',1]);
+ const r=await rollCheck(c,w.n+' (ataque)',parts,dv);
+ if(r.crit==='f'&&w.q==='Poor')note('Arma Poor Quality: a falha crítica travou a arma. Gaste uma Ação para desemperrar.');
+ return r}
 async function rollAuto(c,w){const dv=bandDv(w,1);if(rband>=0&&(dv==null||dv===-1)){alert('Autofire não alcança essa distância.');return}
  if(!spend(c,w,10))return;
  const r=await rollCheck(c,w.n+' (Autofire)',[['REF',stEff(c,'REF')],['Autofire',skLv(c,'Autofire')]],dv==null?null:dv);
@@ -422,7 +596,7 @@ function blank(w){const stats={...w.stats};
  return {sys:'red',fv:2,player:w.jogador,role:w.role,rank:4,stats,skills,weapons,armor,cw,
   equip:gear.join('\n'),cyber:'',notes:'',vidaAtual:10+5*Math.ceil((stats.BODY+stats.WILL)/2),humAtual:Math.max(0,stats.EMP*10-hl),luckUsada:0,dsPen:0,
   eb:w.method==='complete'?2550:500,ip:0,metodo:w.method}}
-const mkWeapon=x=>({n:x.n,k:x.k,skill:x.skill,dmg:x.dmg,rof:x.rof,mag:x.mag,ammo:x.mag,notes:x.ex||'',rt:RT[x.n]||'',af:AUTO_MAX[x.n]||0,shell:x.n==='Shotgun'?1:0});
+const mkWeapon=x=>({n:x.n,k:x.k,skill:x.skill,dmg:x.dmg,rof:x.rof,mag:x.mag,ammo:x.mag,notes:x.ex||'',q:x.q||'',rt:RT[x.n]||'',af:AUTO_MAX[x.n]||0,shell:x.n==='Shotgun'?1:0});
 
 /* ---------------- interface ---------------- */
 const CSS=`.rd-st{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
@@ -466,7 +640,8 @@ const opt=(v,t,sel)=>`<option value="${esc(v)}"${sel?' selected':''}>${esc(t)}</
 function sheet(app){
  const c=chars.find(x=>x.id===open);if(!c||!vis(c)){open=null;return cardList(app)}
  const ed=canEdit(c),M=isMaster(),mx=hpMax(c),pv=clamp(100*(+c.vidaAtual||0)/mx,0,100),R=ROLES[c.role]||{ab:'',abd:''},dis=ed?'':' disabled';
- c.skills=c.skills||[];c.weapons=c.weapons||[];c.cw=c.cw||[];c.armor=c.armor||{head:null,body:null};
+ c.skills=c.skills||[];c.weapons=c.weapons||[];c.cw=c.cw||[];
+ if(c.role==='Netrunner'&&!c.net)c.net={deck:'Cyberdeck',progs:[],hw:[]};if(c.net){c.net.progs=c.net.progs||[];c.net.hw=c.net.hw||[]}c.armor=c.armor||{head:null,body:null};
  const num=(f,v,extra)=>`<input type="number" data-f="${f}" value="${esc(v)}"${dis} ${extra||''}>`;
  const pen=armPen(c);
  const statHtml=STATS.map(([k,n])=>{const e=stEff(c,k),b=k==='EMP'?stBase(c,k):stBase(c,k);return `<div class="rd-sc${e!==b?' pen':''}" title="${esc(STAT_DESC[k])}"><b>${k}</b><span class="mu">${n}</span><input type="number" min="0" max="15" data-f="st:${k}" value="${b}"${dis}>${e!==b?`<span class="mu">efetivo ${e}</span>`:''}<br><button data-a="rs" data-k="${k}">🎲 ${k}</button></div>`}).join('');
@@ -476,7 +651,7 @@ function sheet(app){
   if(needs)return ent.map(o=>line(o)).join('')+(ed?`<div class="rd-sk z"><span class="n">${esc(n)}<small>${stat}${x2?' ×2':''}</small></span><button data-a="sadd" data-n="${esc(n)}">+ adicionar</button></div>`:'');
   return line(ent[0]||null)}).join('');
  const skHtml=CATS.map(([cat,pt])=>{const has=c.skills.some(x=>(sk(x.n)||[])[2]===cat&&+x.l>0);return `<details class="xc"${has?' open':''}><summary><b>${pt}</b></summary><div style="padding:6px 12px">${rows(cat)}</div></details>`}).join('');
- const wRow=(w,i)=>`<div class="rd-w"><div><b>${esc(w.n)}</b> <span class="rd-tag">${w.k==='melee'?'corpo a corpo':'à distância'} · ${esc(w.skill)} · ${esc(w.dmg)} · ROF ${w.rof}</span>${w.notes?`<div class="mu">${esc(w.notes)}</div>`:''}</div><div class="c"><button class="pr" data-a="atk" data-i="${i}">⚔ Atacar</button><button data-a="dmg" data-i="${i}">💥 Dano</button>${w.af?`<button data-a="auto" data-i="${i}" title="Gasta 10 balas e a Ação. Usa Autofire.">Autofire</button>`:''}${w.shell?`<button data-a="shell" data-i="${i}" title="DV13, 3d6 em área até 6 m">Shotgun Shell</button>`:''}${+w.mag>0?`<span class="mu">munição</span><input type="number" min="0" data-f="wa:${i}" value="${w.ammo==null?w.mag:w.ammo}"${dis}><button data-a="rel" data-i="${i}">Recarregar</button>`:''}${ed&&!w.virt?`<button class="x" data-a="wdel" data-i="${i}">✕</button>`:''}</div></div>`;
+ const wRow=(w,i)=>`<div class="rd-w"><div><b>${esc(w.n)}</b>${w.q?` <span class="tag">${w.q}</span>`:''} <span class="rd-tag">${w.k==='melee'?'corpo a corpo':'à distância'} · ${esc(w.skill)} · ${esc(w.dmg)} · ROF ${w.rof}</span>${w.notes?`<div class="mu">${esc(w.notes)}</div>`:''}</div><div class="c"><button class="pr" data-a="atk" data-i="${i}">⚔ Atacar</button><button data-a="dmg" data-i="${i}">💥 Dano</button>${w.af?`<button data-a="auto" data-i="${i}" title="Gasta 10 balas e a Ação. Usa Autofire.">Autofire</button>`:''}${w.shell?`<button data-a="shell" data-i="${i}" title="DV13, 3d6 em área até 6 m">Shotgun Shell</button>`:''}${+w.mag>0?`<span class="mu">munição</span><input type="number" min="0" data-f="wa:${i}" value="${w.ammo==null?w.mag:w.ammo}"${dis}><button data-a="rel" data-i="${i}">Recarregar</button>`:''}${ed&&!w.virt?`<button class="x" data-a="wdel" data-i="${i}">✕</button>`:''}</div></div>`;
  const wHtml=wRow(virtBrawl(c),'b')+c.weapons.map((w,i)=>wRow(w,i)).join('');
  const armSel=k=>{const a=c.armor[k];return `<div class="row"><b style="width:70px">${k==='head'?'Cabeça':'Corpo'}</b><select data-f="ar:${k}"${dis}>${opt('','Sem armadura',!a)}${ARMORS.map(x=>opt(x.n,x.n+' (SP '+x.sp+')',a&&a.n===x.n)).join('')}</select>${a?`<span>SP <b>${a.cur}</b> / ${a.sp}</span><button data-a="abl" data-k="${k}">Ablação −1</button><button data-a="rep" data-k="${k}">Consertar</button>`:''}</div>`};
  app.innerHTML=`<div class="row"><button data-a="back">← Personagens</button><h2 class="sp">${esc(c.name)}</h2><span class="tag">${roleTag(c)}</span>${M?`<button class="eye${c.oculto?' on':''}" data-a="oculto">${c.oculto?'Oculto dos jogadores':'Ocultar dos jogadores'}</button>`:''}</div><br>
@@ -496,13 +671,17 @@ function sheet(app){
  <div class="box"><h3>Perícias</h3><div class="rd-rb"><span>Modificador</span><input type="number" id="rmod" value="${rmod}"><span>DV</span><select id="rdv">${opt('0','Sem DV',!rdv)}${DVS.map(([n,v])=>opt(v,n+' ('+v+')',+rdv===v)).join('')}</select><span class="mu">Ferido: −${woundPen(c)} automático. O total é atributo + nível + 1d10.</span></div>${skHtml}</div>
  <div class="box"><h3>Cyberware instalado</h3>${c.cw.map((x,i)=>{const e=cwBy(x.n);return `<div class="rd-sk"><span class="n"><b>${esc(x.n)}</b><small>${esc(x.t)} · HL ${x.hl}</small>${e?`<div class="mu">${esc(e[6])}</div>`:''}</span>${ed?`<button class="x" data-a="cwdel" data-i="${i}" title="Remover (a Humanity perdida não volta)">✕</button>`:''}</div>`}).join('')||'<p class="mu">Nenhum cyberware instalado.</p>'}${ed?'<div class="row" style="margin-top:8px"><button data-a="cwadd">+ Instalar do catálogo</button></div>':''}
   <p class="mu">Perdeu Humanity: Humanity ${humCur(c)} / ${humMax(c)}. Cada 10 pontos perdidos tiram 1 de EMP.</p></div>
- <div class="rd-k"><div class="box"><h3>Equipamento</h3><textarea data-f="equip" rows="6"${dis} style="width:100%">${esc(c.equip||'')}</textarea></div>
+ ${c.net?netBox(c,ed,dis):''}
+ <div class="rd-k"><div class="box"><h3>Equipamento · ${c.eb||0}eb</h3>${ed?'<div class="row" style="margin-bottom:8px"><button data-a="buy">+ Comprar item</button></div>':''}<textarea data-f="equip" rows="6"${dis} style="width:100%">${esc(c.equip||'')}</textarea></div>
  <div class="box"><h3>Outros implantes e anotações de cyberware</h3><textarea data-f="cyber" rows="6"${dis} style="width:100%">${esc(c.cyber||'')}</textarea></div>
  <div class="box"><h3>Anotações</h3><textarea data-f="notes" rows="6"${dis} style="width:100%">${esc(c.notes||'')}</textarea></div></div>`;
  const redo=()=>{const y=scrollY;sheet(app);scrollTo(0,y)};
  const upd=()=>{save(c);twRender&&twRender()};
  app.onclick=async e=>{const b=e.target.closest('[data-a]');if(!b)return;const d=b.dataset,a=d.a;
   if(a==='back')return go('agentes');
+  if(a==='iface')return rollIface(c,d.n);
+  if(a==='patk')return rollProg(c,c.net.progs[+d.i]);
+  if(a==='pdmg')return rollDice(c,c.net.progs[+d.i].n+' (dano)',PDMG[c.net.progs[+d.i].n]);
   if(a==='rs')return rollStat(c,d.k);
   if(a==='rk')return rollSkill(c,d.n,d.s||undefined);
   if(a==='ini')return rollCheck(c,'Iniciativa',[['REF',stEff(c,'REF')]],0);
@@ -530,6 +709,12 @@ function sheet(app){
     if(rl.v>0)await post(c,'Humanity Loss: '+x[0],{kind:'red',total:rl.v,res:'Humanity '+humCur(c)+' / '+humMax(c)+' (EMP '+empCur(c)+')',cls:'f',expr:rl.t});
     redo()}return}
   if(a==='cwdel'){if(await ask('Remover este cyberware? A Humanity perdida não volta.')){c.cw.splice(+d.i,1);upd();redo()}return}
+  if(a==='buy'){const g=await pickGear();if(g){if(g.deduct)c.eb=(+c.eb||0)-g.c;c.equip=(c.equip?c.equip+'\n':'')+g.n;upd();if((+c.eb||0)<0)note('Atenção: suas eb ficaram negativas.');redo()}return}
+  if(a==='netadd'){const r=await pickNet();if(r){if(r.k==='p'){const x=PROGRAMS[r.i];c.net.progs.push({n:x[0],bi:0,on:false,rez:x[4]})}else if(r.k==='b'){const x=BICE[r.i];c.net.progs.push({n:x[0],bi:1,on:false,rez:x[6]})}else c.net.hw.push(HARDWARE[r.i][0]);upd();redo()}return}
+  if(a==='ptog'){const p=c.net.progs[+d.i];p.on=!p.on;upd();return redo()}
+  if(a==='prez'){const p=c.net.progs[+d.i],e=p.bi?BICE.find(x=>x[0]===p.n):PROGRAMS.find(x=>x[0]===p.n),mx=p.bi?e[6]:e[4];p.rez=clamp((p.rez==null?mx:p.rez)+(+d.d),0,mx);upd();return redo()}
+  if(a==='pdel'){c.net.progs.splice(+d.i,1);upd();return redo()}
+  if(a==='hdel'){c.net.hw.splice(+d.i,1);upd();return redo()}
   if(a==='oculto'){c.oculto=!c.oculto;upd();return redo()}
   if(a==='foto')return $('#fotoIn').click()};
  const fi=$('#fotoIn');if(fi)fi.onchange=async e=>{const f=e.target.files[0];if(!f)return;try{c.foto=await fotoResize(f);upd();redo()}catch(er){alert(er.message)}};
@@ -539,7 +724,8 @@ function sheet(app){
   const f=t.dataset.f;if(!f||!ed)return;const v=t.value;
   if(f==='name'){c.name=v.trim()||c.name}
   else if(f==='player')c.player=v;
-  else if(f==='role'){c.role=v}
+  else if(f==='role'){c.role=v;if(v==='Netrunner'&&!c.net)c.net={deck:'Cyberdeck',progs:[],hw:[]}}
+  else if(f==='deck'){c.net.deck=v}
   else if(f==='rank')c.rank=clamp(+v||1,1,10);
   else if(f==='eb')c.eb=+v||0;else if(f==='ip')c.ip=+v||0;
   else if(f==='hum')c.humAtual=clamp(+v||0,0,humMax(c));
@@ -558,8 +744,57 @@ function pickCw(){return new Promise(res=>{const o=document.createElement('div')
  o.onclick=e=>{const b=e.target.closest('button');if(!b)return;const fx=o.querySelector('#cwfix').checked;o.remove();res(b.dataset.i!=null?{x:CW[+b.dataset.i],fixed:fx}:null)};document.body.append(o)})}
 function pickWeapon(){return new Promise(res=>{const o=document.createElement('div');o.className='modal';
  const all=[...MELEE,...RANGED];
- o.innerHTML=`<div class="mbox card"><h3>Adicionar arma</h3><p class="mu">Tipos genéricos do livro. O custo aparece ao lado.</p><div class="tiles">${all.map((w,i)=>`<button class="tile" data-i="${i}"><span>${esc(w.n)}<br><small class="mu">${w.dmg} · ${w.k==='melee'?'corpo a corpo':w.skill} · ${w.cost}eb</small></span></button>`).join('')}</div><div class="row" style="margin-top:12px"><span class="sp"></span><button data-x="1">Cancelar</button></div></div>`;
- o.onclick=e=>{const b=e.target.closest('button');if(!b)return;o.remove();res(b.dataset.i!=null?all[+b.dataset.i]:null)};document.body.append(o)})}
+ o.innerHTML=`<div class="mbox card"><h3>Adicionar arma</h3><p class="mu">Tipos do livro. O custo base aparece ao lado. Armas Poor Quality travam com falha crítica; Excellent Quality dão +1 no ataque.</p><div class="row"><span>Qualidade</span><select id="wq"><option value="">Average</option><option value="Poor">Poor</option><option value="Excellent">Excellent</option></select></div><div class="tiles">${all.map((w,i)=>`<button class="tile" data-i="${i}"><span>${esc(w.n)}<br><small class="mu">${w.dmg} · ${w.k==='melee'?'corpo a corpo':w.skill} · ${w.cost}eb</small></span></button>`).join('')}<button class="tile" data-i="c"><span>Arma personalizada ou exótica<br><small class="mu">Você informa nome, perícia e dano (veja a Biblioteca)</small></span></button></div><div class="row" style="margin-top:12px"><span class="sp"></span><button data-x="1">Cancelar</button></div></div>`;
+ o.onclick=e=>{const b=e.target.closest('button');if(!b)return;const q=o.querySelector('#wq').value;o.remove();
+  if(b.dataset.i==null)return res(null);
+  if(b.dataset.i==='c'){const n=prompt('Nome da arma (ex.: Malorian Arms 3516)');if(!n)return res(null);const kind=confirm('É uma arma à distância? (OK = distância, Cancelar = corpo a corpo)')?'ranged':'melee';const skill=prompt('Perícia usada (ex.: Handgun, Shoulder Arms, Melee Weapon)',kind==='melee'?'Melee Weapon':'Handgun')||'Handgun';const dmg=prompt('Dano (ex.: 4d6)','3d6')||'3d6';const mag=kind==='ranged'?(+prompt('Tamanho do carregador (0 se não usa)','8')||0):0;
+   return res({n:n.trim(),k:kind,skill,dmg,rof:kind==='melee'?2:1,mag,ex:'',q})}
+  res({...all[+b.dataset.i],q})};document.body.append(o)})}
+function pickGear(){return new Promise(res=>{const o=document.createElement('div');o.className='modal';
+ const L=[...GEAR.map(x=>({n:x[0],c:x[1],g:'Equipamento'})),...AMMO.map(x=>({n:x[0],c:x[1],g:'Munição (pacote de 10; granadas e foguetes são por unidade)'})),...ATTACH.map(x=>({n:x[0],c:x[1],g:'Acessório de arma'})),...HARDWARE.map(x=>({n:x[0],c:x[1],g:'Hardware de Cyberdeck'})),...DRUGS.map(x=>({n:x[0]+' (dose)',c:x[1],g:'Droga de rua'}))];
+ const groups=[...new Set(L.map(x=>x.g))];
+ o.innerHTML=`<div class="mbox card"><h3>Comprar equipamento</h3><div class="row"><label><input type="checkbox" id="gdeb" checked> Descontar o custo das suas eb</label></div>${groups.map(g=>`<h4>${g}</h4><div class="tiles">${L.map((x,i)=>x.g===g?`<button class="tile" data-i="${i}"><span>${esc(x.n)}<br><small class="mu">${x.c}eb</small></span></button>`:'').join('')}</div>`).join('')}<div class="row" style="margin-top:12px"><span class="sp"></span><button data-x="1">Cancelar</button></div></div>`;
+ o.onclick=e=>{const b=e.target.closest('button');if(!b)return;const d=o.querySelector('#gdeb').checked;o.remove();res(b.dataset.i!=null?{...L[+b.dataset.i],deduct:d}:null)};document.body.append(o)})}
+function pickNet(){return new Promise(res=>{const o=document.createElement('div');o.className='modal';
+ o.innerHTML=`<div class="mbox card"><h3>Instalar no Cyberdeck</h3><p class="mu">Programs e Hardware usam slots do deck. Black ICE próprio ocupa 2 slots. Instalar leva 1 hora.</p>
+ <h4>Programs</h4><div class="tiles">${PROGRAMS.map((x,i)=>`<button class="tile" data-k="p" data-i="${i}"><span>${esc(x[0])}<br><small class="mu">${x[1]} · ${x[6]}eb</small></span></button>`).join('')}</div>
+ <h4>Black ICE (2 slots)</h4><div class="tiles">${BICE.map((x,i)=>`<button class="tile" data-k="b" data-i="${i}"><span>${esc(x[0])}<br><small class="mu">${x[1]} · ${x[8]}eb</small></span></button>`).join('')}</div>
+ <h4>Hardware</h4><div class="tiles">${HARDWARE.map((x,i)=>`<button class="tile" data-k="h" data-i="${i}"><span>${esc(x[0])}<br><small class="mu">${x[2]} slot(s) · ${x[1]}eb</small></span></button>`).join('')}</div>
+ <div class="row" style="margin-top:12px"><span class="sp"></span><button data-x="1">Cancelar</button></div></div>`;
+ o.onclick=e=>{const b=e.target.closest('button');if(!b)return;o.remove();res(b.dataset.k?{k:b.dataset.k,i:+b.dataset.i}:null)};document.body.append(o)})}
+/* ---------------- Netrunning na ficha ---------------- */
+const PDMG={Banhammer:'3d6',Sword:'3d6',Hellbolt:'2d6',Vrizzbolt:'1d6',Dragon:'6d6',Killer:'4d6',Sabertooth:'6d6',Giant:'3d6',Hellhound:'2d6',Kraken:'3d6',Raven:'1d6',Wisp:'1d6'};
+const netActs=r=>r>=10?5:r>=7?4:r>=4?3:2;
+const deckInfo=c=>DECKS.find(d=>d[0]===(c.net||{}).deck)||DECKS[1];
+const slotsUsed=c=>(c.net.progs||[]).reduce((a,p)=>a+(p.bi?2:1),0)+(c.net.hw||[]).reduce((a,n)=>a+((HARDWARE.find(h=>h[0]===n)||[0,0,1])[2]),0);
+async function rollDice(c,label,dmg){const p=parseDmg(dmg);if(!p)return;const ds=Array.from({length:p.n},()=>1+Math.floor(Math.random()*p.s)),t=ds.reduce((a,b)=>a+b,0)+p.b;await post(c,label,{kind:'red',total:t,res:'',cls:'',expr:dmg+' ['+ds.join(', ')+']'})}
+async function rollIface(c,n){const rk=+c.rank||1,parts=[['Interface',rk]],bn={Backdoor:'Worm',Cloak:'Eraser',Pathfinder:'See Ya'}[n];
+ if(bn&&c.net.progs.some(p=>p.n===bn&&p.on))parts.push([bn,2]);
+ const r=await rollCheck(c,'Interface: '+n,parts);if(n==='Zap'&&r.ok)await rollDice(c,'Zap (dano)','1d6')}
+async function rollProg(c,p){const e=p.bi?BICE.find(x=>x[0]===p.n):PROGRAMS.find(x=>x[0]===p.n);if(!e)return;const atk=p.bi?e[4]:e[2];
+ return rollCheck(c,p.n+' (ataque)',[['Interface',+c.rank||1],['ATK',atk]])}
+function netBox(c,ed,dis){const n=c.net,dk=deckInfo(c),used=slotsUsed(c),rk=+c.rank||1;
+ return `<div class="box"><h3>Netrunning</h3><p class="mu">Interface ${rk} · ${netActs(rk)} NET Actions por turno. Exige Neural Link, Interface Plugs e Cyberdeck. Os testes usam Interface + 1d10 contra o DV da barra de perícias.</p>
+ <div class="row"><select data-f="deck"${dis}>${DECKS.map(d=>opt(d[0],d[0]+' ('+d[2]+' slots, '+d[1]+'eb)',d[0]===dk[0])).join('')}</select><b class="${used>dk[2]?'rd':''}">Slots ${used} / ${dk[2]}</b></div>
+ <div class="row" style="margin:8px 0;flex-wrap:wrap">${IFACE.map(([k,d])=>`<button data-a="iface" data-n="${k}" title="${esc(d)}">${k}</button>`).join('')}</div>
+ ${(n.progs||[]).map((p,i)=>{const e=p.bi?BICE.find(x=>x[0]===p.n):PROGRAMS.find(x=>x[0]===p.n);if(!e)return '';const atk=p.bi?e[4]:e[2],cls=p.bi?e[1]+' Black ICE':e[1],eff=p.bi?e[7]:e[5],rz=p.bi?e[6]:e[4];
+  const att=/Attacker/.test(cls)||p.bi;
+  return `<div class="rd-w"><div><b>${esc(p.n)}</b> <span class="rd-tag">${esc(cls)}${p.bi?' · PER '+e[2]+' SPD '+e[3]+' ATK '+e[4]+' DEF '+e[5]:' · ATK '+e[2]+' DEF '+e[3]}${rz?' · REZ '+(p.rez==null?rz:p.rez)+'/'+rz:''}</span><div class="mu">${esc(eff)}</div></div><div class="c">${att?`<button class="pr" data-a="patk" data-i="${i}">Atacar</button>`:''}${PDMG[p.n]?`<button data-a="pdmg" data-i="${i}">Dano ${PDMG[p.n]}</button>`:''}<button data-a="ptog" data-i="${i}" class="${p.on?'on':''}">${p.on?'Rezzed':'Desativado'}</button>${rz?`<button data-a="prez" data-i="${i}" data-d="-1">−REZ</button><button data-a="prez" data-i="${i}" data-d="1">+REZ</button>`:''}${ed?`<button class="x" data-a="pdel" data-i="${i}">✕</button>`:''}</div></div>`}).join('')}
+ ${(n.hw||[]).map((h,i)=>`<div class="rd-sk"><span class="n"><b>${esc(h)}</b><small>Hardware</small><div class="mu">${esc((HARDWARE.find(x=>x[0]===h)||[0,0,0,''])[3])}</div></span>${ed?`<button class="x" data-a="hdel" data-i="${i}">✕</button>`:''}</div>`).join('')}
+ ${ed?'<div class="row" style="margin-top:8px"><button data-a="netadd">+ Instalar Program, Black ICE ou Hardware</button></div>':''}</div>`}
+
+/* ---------------- NPCs (mestre) ---------------- */
+async function toCombat(n,qty){let row=sess.find(x=>x.kind==='combate');if(!row){row=await sAdd('combate',{round:1,atual:null,itens:[]},true);if(!row)return}
+ const d=cbData(row);for(let i=1;i<=qty;i++)d.itens.push({id:uid(),tipo:'ameaca',n:qty>1?n.n+' '+i:n.n,ini:n.st.REF+d10(),vida:n.hp,max:n.hp,def:null,ref:null,sec:false});
+ sSave(row);note(qty+' x '+n.n+' no combate (aba Mesa).')}
+let npcQ='';
+function ameacas(app){
+ if(!isMaster()){app.innerHTML='<div class="box"><p class="mu">Só o mestre vê os NPCs.</p></div>';return}
+ const q=npcQ.toLowerCase(),L=NPCS.filter(x=>!q||(x.n+' '+x.t).toLowerCase().includes(q));
+ app.innerHTML=`<div class="row"><h2 class="sp">NPCs · Cyberpunk RED</h2><input id="nq" placeholder="Buscar…" value="${esc(npcQ)}" style="min-width:180px"></div><p class="mu">Valores de perícia já somam atributo, perícia e bônus de cyberware, como no livro. Os NPCs não têm função, habilidade de função nem LUCK, salvo quando indicado. Os blocos vêm da p. 413 a 416.</p>
+ ${Object.keys(TIER_TXT).map(t=>{const l=L.filter(x=>x.t===t);return l.length?`<h3>${t}</h3><p class="mu">${TIER_TXT[t]}</p><div class="grid">${l.map(x=>`<div class="card"><h3 style="margin:0">${esc(x.n)}</h3><div class="mu">${STATS.map(([k])=>k+' '+(x.st[k]??'—')).join(' · ')}</div><div class="mu">HP ${x.hp} · Seriously Wounded ${x.sw} · Death Save ${x.ds} · SP cabeça ${x.head} / corpo ${x.body} (${esc(x.arm)})</div><div><b>Armas:</b> ${x.w.map(w=>esc(w[0])+' '+w[1]).join('; ')}</div><details class="xc"><summary>Perícias e equipamento</summary><p class="mu">${esc(x.sk)}</p><p><b>Equipamento:</b> ${esc(x.g)}</p></details><div class="row" style="margin-top:8px"><button class="pr" data-a="addnpc" data-n="${esc(x.n)}">Colocar no combate</button></div></div>`).join('')}</div>`:''}).join('')}`;
+ app.onclick=async e=>{const b=e.target.closest('[data-a=addnpc]');if(!b)return;const n=NPCS.find(x=>x.n===b.dataset.n),qs=prompt('Quantos?','1');if(qs===null)return;await toCombat(n,clamp(Math.trunc(+qs||1),1,12))};
+ app.oninput=e=>{if(e.target.id==='nq'){npcQ=e.target.value;const p=e.target.selectionStart;ameacas(app);const n=$('#nq');n.focus();n.setSelectionRange(p,p)}}}
 
 /* ---------------- assistente de criação ---------------- */
 let wz=null;
@@ -634,9 +869,9 @@ async function finish(){const w=wz;if(!w)return;
  if(!chars.find(x=>x.id===data.id))chars.push(toChar(data));wz=null;go('agentes',data.id)}
 
 /* ---------------- biblioteca ---------------- */
-let libTab='Regras',libQ='';
+let libTab='Regras',libQ='',libDiff=1,libArch=null;
 function lib(app){
- const tabs=['Regras','Combate','Funções','Perícias','Armas','Armaduras','Cyberware','Critical Injury'];
+ const tabs=['Regras','Combate','Funções','Perícias','Armas','Armaduras','Cyberware','Netrunning','Equipamento','Drogas','Vida','Critical Injury'];
  const q=libQ.toLowerCase();let body='';
  const match=s=>!q||s.toLowerCase().includes(q);
  if(libTab==='Regras')body=RULES.filter(r=>match(r[0]+' '+r[1])).map(([t,x])=>`<div class="box"><h3>${t}</h3><p>${esc(x)}</p></div>`).join('');
@@ -651,13 +886,33 @@ function lib(app){
   body=`<div class="box"><h3>Armas comuns</h3><table class="rd-tbl"><tr><th>Arma</th><th>Perícia</th><th>Dano</th><th>Mun.</th><th>ROF</th><th>Custo</th></tr>${m.map(w=>`<tr><td><b>${w.n}</b><div class="mu">${esc(w.ex)}</div></td><td>${w.skill}</td><td>${w.dmg}</td><td>${w.mag||'—'}</td><td>${w.rof}</td><td>${w.cost}eb<div class="mu">${PRICE[w.cost]}</div></td></tr>`).join('')}</table></div>
   <div class="box"><h3>Armas exóticas</h3><table class="rd-tbl">${ex.map(x=>`<tr><td><b>${x[0]}</b></td><td>${esc(x[1])}</td><td>${x[2].toLocaleString('pt-BR')}eb<div class="mu">${PRICE[x[2]]}</div></td></tr>`).join('')}</table></div>`}
  if(libTab==='Cyberware')body=`<div class="box"><p>Perda de Humanity (HL): na criação o valor é fixo; depois, é rolado nos dados indicados. Benefícios de cyberware repetido não somam, a menos que o item diga o contrário. Local de instalação: <b>Mall</b> (loja de bio-mod), <b>Clinic</b> (Medtech numa clínica) ou <b>Hospital</b> (cirurgia maior). Cyberware com item fundamental (Neural Link, Cybereye, Cyberaudio Suite, Cyberarm, Cyberleg) tem Option Slots; Fashionware, Internal e External somam 7 slots no total. Custos e HL seguem as listas resumidas do livro (pp. 110 a 116); a lista completa está na p. 358.</p></div>`+CW_TYPES.map(([t,l])=>{const it=CW.filter(x=>x[1]===t&&match(x[0]+' '+x[6]));return it.length?`<div class="box"><h3>${l}</h3><table class="rd-tbl"><tr><th>Nome</th><th>Local</th><th>Custo</th><th>HL</th></tr>${it.map(x=>`<tr><td><b>${esc(x[0])}</b><div class="mu">${esc(x[6])}</div></td><td>${x[2]}</td><td>${x[3].toLocaleString('pt-BR')}eb<div class="mu">${PRICE[x[3]]||''}</div></td><td>${hlTxt(x)}</td></tr>`).join('')}</table></div>`:''}).join('');
+ if(libTab==='Netrunning'){
+  const pt=(arr)=>arr.filter(x=>match(x[0]+' '+x[x.length-2]));
+  body=NET_RULES.filter(r=>match(r[0]+' '+r[1])).map(([t,x])=>`<div class="box"><h3>${t}</h3><p>${esc(x)}</p></div>`).join('')+
+  `<div class="box"><h3>Habilidades de Interface</h3><table class="rd-tbl">${IFACE.filter(x=>match(x[0]+' '+x[1])).map(x=>`<tr><td><b>${x[0]}</b></td><td>${esc(x[1])}</td></tr>`).join('')}</table></div>
+  <div class="box"><h3>Cyberdecks e Hardware</h3><table class="rd-tbl">${DECKS.map(d=>`<tr><td><b>${d[0]}</b></td><td>${d[2]} slots</td><td>${d[1]}eb</td></tr>`).join('')}${HARDWARE.filter(x=>match(x[0]+' '+x[3])).map(x=>`<tr><td><b>${x[0]}</b><div class="mu">${esc(x[3])}</div></td><td>${x[2]} slot(s)</td><td>${x[1]}eb</td></tr>`).join('')}</table></div>
+  <div class="box"><h3>Programs</h3><table class="rd-tbl"><tr><th>Nome</th><th>Classe</th><th>ATK</th><th>DEF</th><th>REZ</th><th>Custo</th></tr>${PROGRAMS.filter(x=>match(x[0]+' '+x[5])).map(x=>`<tr><td><b>${x[0]}</b><div class="mu">${esc(x[5])}</div></td><td>${x[1]}</td><td>${x[2]}</td><td>${x[3]}</td><td>${x[4]||'—'}</td><td>${x[6]}eb</td></tr>`).join('')}</table></div>
+  <div class="box"><h3>Black ICE (2 slots no deck)</h3><table class="rd-tbl"><tr><th>Nome</th><th>Classe</th><th>PER</th><th>SPD</th><th>ATK</th><th>DEF</th><th>REZ</th><th>Custo</th></tr>${BICE.filter(x=>match(x[0]+' '+x[7])).map(x=>`<tr><td><b>${x[0]}</b><div class="mu">${esc(x[7])}</div></td><td>${x[1]}</td><td>${x[2]}</td><td>${x[3]}</td><td>${x[4]}</td><td>${x[5]}</td><td>${x[6]}</td><td>${x[8]}eb</td></tr>`).join('')}</table></div>
+  <div class="box"><h3>Demons</h3><table class="rd-tbl"><tr><th>Nome</th><th>REZ</th><th>Interface</th><th>NET Actions</th><th>Combat Number</th><th>Custo</th></tr>${DEMONS.map(x=>`<tr><td><b>${x[0]}</b></td><td>${x[1]}</td><td>${x[2]}</td><td>${x[3]}</td><td>${x[4]}</td><td>${x[5]}eb</td></tr>`).join('')}</table></div>
+  <div class="box"><h3>Defesas para Control Nodes</h3><table class="rd-tbl">${DEFENSES.filter(x=>match(x[0]+' '+x[2])).map(x=>`<tr><td><b>${x[0]}</b><div class="rd-tag">${x[1]}</div></td><td>${esc(x[2])}</td></tr>`).join('')}</table></div>
+  <div class="box"><h3>Comprar um Architecture</h3><table class="rd-tbl">${NET_COSTS.map(x=>`<tr><td>${x[0]}</td><td>${x[1]}</td></tr>`).join('')}</table></div>
+  <div class="box"><h3>Gerador de NET Architecture (mestre)</h3><p class="mu">Rola 3d6 andares e a chance de ramos (um d10 de 7 ou mais cria um ramo; role de novo até falhar). Ramos só depois do andar 2, e o ramo mais longo é o fundo. Os dois primeiros andares usam a tabela do Lobby; os outros usam a tabela da dificuldade.</p><div class="row"><select id="adiff">${DIFFS.map((d,i)=>opt(i,d[0]+' · '+d[1],libDiff===i)).join('')}</select><button class="pr" data-a="gen">Gerar Architecture</button></div>${libArch?`<p><b>${libArch.total} andares</b> · ${libArch.br} ramo(s): divida os andares entre o ramo principal e os ramos, como preferir.</p><table class="rd-tbl">${libArch.floors.map((f,i)=>`<tr><td>Andar ${i+1}</td><td>${esc(f)}</td></tr>`).join('')}</table>`:''}</div>`}
+ if(libTab==='Equipamento')body=`<div class="box"><h3>Equipamento geral</h3><table class="rd-tbl">${GEAR.filter(x=>match(x[0]+' '+x[2])).map(x=>`<tr><td><b>${x[0]}</b><div class="mu">${esc(x[2])}</div></td><td>${x[1].toLocaleString('pt-BR')}eb<div class="mu">${PRICE[x[1]]||''}</div></td></tr>`).join('')}</table></div>
+  <div class="box"><h3>Qualidade das armas</h3><p>${esc(QUAL_TXT)}</p></div>
+  <div class="box"><h3>Acessórios de arma (3 slots por arma)</h3><table class="rd-tbl"><tr><th>Acessório</th><th>Slots</th><th>Custo</th></tr>${ATTACH.filter(x=>match(x[0]+' '+x[3])).map(x=>`<tr><td><b>${x[0]}</b><div class="mu">${esc(x[3])}</div></td><td>${x[2]}</td><td>${x[1]}eb</td></tr>`).join('')}</table><table class="rd-tbl" style="margin-top:10px"><tr><th>Carregador</th><th>Padrão</th><th>Estendido</th><th>Tambor</th></tr>${CLIPS.map(x=>`<tr><td>${x[0]}</td><td>${x[1]}</td><td>${x[2]}</td><td>${x[3]}</td></tr>`).join('')}</table></div>
+  <div class="box"><h3>Munição</h3><p class="mu">Comprada em pacotes de 10 (granadas e foguetes por unidade), no tipo de munição da arma: Bullet (Medium, Heavy, Very Heavy Pistol, Slug ou Rifle), Shotgun Shell, Arrow, Grenade ou Rocket.</p><table class="rd-tbl"><tr><th>Tipo</th><th>Custo</th><th>Vale para</th></tr>${AMMO.filter(x=>match(x[0]+' '+x[3])).map(x=>`<tr><td><b>${x[0]}</b><div class="mu">${esc(x[3])}</div></td><td>${x[1]}eb</td><td>${esc(x[2])}</td></tr>`).join('')}</table></div>`;
+ if(libTab==='Drogas')body=`<div class="box"><h3>Drogas de rua</h3><table class="rd-tbl"><tr><th>Droga</th><th>Duração</th><th>DV do efeito secundário</th><th>Dose</th></tr>${DRUGS.filter(x=>match(x[0]+' '+x[4])).map(x=>`<tr><td><b>${x[0]}</b><div class="mu">Efeito primário: ${esc(x[4])}</div><div class="mu">Efeito secundário: ${esc(x[5])}</div></td><td>${x[2]}</td><td>${x[3]}</td><td>${x[1]}eb</td></tr>`).join('')}</table></div>`;
+ if(libTab==='Vida')body=`<div class="box"><h3>Estilo de vida (por mês)</h3><table class="rd-tbl">${LIFE.map(x=>`<tr><td><b>${x[0]}</b><div class="mu">${esc(x[2])}</div></td><td>${x[1]}eb</td></tr>`).join('')}</table><p class="mu">${esc(SLEEP)}</p></div>
+  <div class="box"><h3>Moradia</h3><table class="rd-tbl"><tr><th>Tipo</th><th>Aluguel (mês)</th><th>Compra</th></tr>${HOUSE.map(x=>`<tr><td><b>${x[0]}</b><div class="mu">${esc(x[3])}</div></td><td>${x[1]}</td><td>${x[2]}</td></tr>`).join('')}</table></div>
+  <div class="box"><h3>Moda</h3><p>${esc(FASHION)}</p></div>`;
  if(libTab==='Armaduras')body=`<div class="box"><h3>Armaduras</h3><table class="rd-tbl"><tr><th>Armadura</th><th>SP</th><th>Penalidade</th><th>Custo</th></tr>${ARMORS.filter(a=>match(a.n+' '+a.d)).map(a=>`<tr><td><b>${a.n}</b><div class="mu">${esc(a.d)}</div></td><td>${a.sp}</td><td>${a.pen?'−'+a.pen+' REF, DEX, MOVE':'nenhuma'}</td><td>${a.cost.toLocaleString('pt-BR')}eb<div class="mu">${PRICE[a.cost]}</div></td></tr>`).join('')}<tr><td><b>Bulletproof Shield</b><div class="mu">Escudo transparente que ocupa um braço. Tem 10 HP e recebe o dano no lugar de você.</div></td><td>—</td><td>nenhuma</td><td>100eb<div class="mu">Premium</div></td></tr></table></div>`;
  if(libTab==='Critical Injury')body=[['Corpo',CRIT_BODY],['Cabeça',CRIT_HEAD]].map(([t,T])=>`<div class="box"><h3>Critical Injuries: ${t} (2d6)</h3><table class="rd-tbl"><tr><th>2d6</th><th>Ferimento</th><th>Efeito</th><th>Tratamento (Quick Fix / Treatment)</th></tr>${T.filter(x=>match(x[1]+' '+x[2])).map(x=>`<tr><td>${x[0]}</td><td><b>${x[1]}</b></td><td>${esc(x[2])}</td><td>${esc(x[3])}</td></tr>`).join('')}</table><p class="mu">Todo Critical Injury causa também 5 de dano bônus direto nos HP.</p></div>`).join('');
  app.innerHTML=`<div class="row"><h2 class="sp">Biblioteca · Cyberpunk RED</h2><input id="lq" placeholder="Buscar…" value="${esc(libQ)}" style="min-width:180px"></div><div class="tabs">${tabs.map(t=>`<a data-t="${t}" class="${t===libTab?'on':''}">${t}</a>`).join('')}</div>${body||'<p class="mu">Nada encontrado.</p>'}`;
- app.onclick=e=>{const a=e.target.closest('a[data-t]');if(a){libTab=a.dataset.t;lib(app)}};
+ app.onclick=e=>{const a=e.target.closest('a[data-t]');if(a){libTab=a.dataset.t;return lib(app)}if(e.target.closest('[data-a=gen]')){libDiff=+$('#adiff').value;libArch=genArch(libDiff);lib(app)}};
+ app.onchange=e=>{if(e.target.id==='adiff')libDiff=+e.target.value};
  app.oninput=e=>{if(e.target.id==='lq'){libQ=e.target.value;const p=e.target.selectionStart;lib(app);const n=$('#lq');n.focus();n.setSelectionRange(p,p)}}}
 
 function agentes(app){return open?sheet(app):cardList(app)}
-return {is:()=>!!camp&&camp.system==='red',agentes,wizard,lib,calc,iniRoll,
- nav:[['agentes','Personagens'],['biblioteca','Biblioteca'],['mesa','Mesa'],['tabuleiro','Tabuleiro']]}
+return {is:()=>!!camp&&camp.system==='red',agentes,wizard,lib,ameacas,calc,iniRoll,
+ nav:[['agentes','Personagens'],['ameacas','NPCs',1],['biblioteca','Biblioteca'],['mesa','Mesa'],['tabuleiro','Tabuleiro']]}
 })();

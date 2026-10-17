@@ -693,8 +693,7 @@ function render(){
  const isRed=camp.system==='red';
  nav.innerHTML=(isRed?RED.nav:[['agentes','Agentes'],['ameacas','Ameaças',1],['biblioteca','Biblioteca'],['mesa','Mesa'],['tabuleiro','Tabuleiro']]).filter(x=>!x[2]||isMaster()).map(([v,t])=>`<a data-v="${v}" class="${view===v||(v==='agentes'&&view==='novo')?'on':''}">${t}</a>`).join('');
  nav.onclick=e=>{if(e.target.dataset.v)go(e.target.dataset.v)};
- if(isRed&&['agentes','novo','biblioteca'].includes(view)){if(view==='novo')return RED.wizard(app);if(view==='biblioteca')return RED.lib(app);return RED.agentes(app)}
- if(isRed&&view==='ameacas')view='agentes';
+ if(isRed&&['agentes','novo','biblioteca','ameacas'].includes(view)){if(view==='novo')return RED.wizard(app);if(view==='biblioteca')return RED.lib(app);if(view==='ameacas')return RED.ameacas(app);return RED.agentes(app)}
  if(view==='novo')return wizard(app);
  if(view==='agentes')return open?sheet(app):agentes(app);
  if(view==='ameacas')return threatsView(app);
