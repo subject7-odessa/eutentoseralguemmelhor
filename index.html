@@ -502,6 +502,7 @@ body.vtt-on #app{display:none}
 <div id="toasts"></div>
 <script src="catalogo.js"></script>
 <script src="tabuleiro.js"></script>
+<script src="red.js"></script>
 <script>
 /* ====== CONFIGURAÇÃO: cole os dados do seu projeto Supabase ====== */
 const SUPABASE_URL='https://hylwmeyaffacifgopyhm.supabase.co';
@@ -548,7 +549,7 @@ const sval=(c,s)=>(+(s.ini??baseOf(s.n))||0)+(+s.pts||0);
 const migrate=c=>{if((c.fv||1)>=2)return c;
  c.legado={fv:1,em:new Date().toISOString().slice(0,10),attrs:{...(c.attrs||{})},extra:{...(c.extra||{})},skills:JSON.parse(JSON.stringify(c.skills||[]))};
  c.skills=(c.skills||[]).map(x=>({...x,ini:tot(c,x.attr)*5+(+x.pts||0),pts:0,src:'legado'}));c.fv=2;c.migrou=true;return c};
-const calc=c=>{const r={};ATT.forEach(([k])=>r[k]=tot(c,k)*5);r.vida=10+2*tot(c,'RES');r.defv=tot(c,'COO')*5+(+c.defPts||0);r.defp=25+Math.floor(r.defv/2);r.ini=tot(c,'COO')*5;return r};
+const calc=c=>{if(c.sys==='red')return RED.calc(c);const r={};ATT.forEach(([k])=>r[k]=tot(c,k)*5);r.vida=10+2*tot(c,'RES');r.defv=tot(c,'COO')*5+(+c.defPts||0);r.defp=25+Math.floor(r.defv/2);r.ini=tot(c,'COO')*5;return r};
 const newData=()=>({player:prof.name,prof:'',attrs:{FOR:2,COO:2,RES:2,RAC:2,PER:2,CON:2},extra:{},defPts:0,vidaAtual:14,pressao:0,fv:2,skills:SK.map(([n,a])=>({n,attr:a,ini:BASE[n],pts:0,src:'base'})),weapons:[],notes:''});
 const toChar=r=>migrate({...r.data,id:r.id,owner:r.owner,name:r.name,created:r.created_at||r.updated_at});
 const grade=(r,t)=>r>=96?['Falha crítica*','f']:r<=5?['Sucesso excepcional','e']:r<=t?['Sucesso','s']:['Falha','f'];
@@ -570,15 +571,16 @@ function rollWeapon(c,w,onlyDmg){
  o.kind='atk';o.expr=w.dmg;o.dmg=(o.cls==='s'||o.cls==='e')?dmg(w.dmg):null;post(c,w.name,o)}
 function toast0(o){const d=o.data||{},el=document.createElement('div');el.className='toast '+(d.cls||'');
  const head=`<div class="mu mono">${esc(o.who)} · ${esc(o.label)}${d.target?` (alvo ${d.target}${d.mod?`, mod ${d.mod>0?'+':''}${d.mod}`:''})`:''}</div>`;
- el.innerHTML=d.kind==='atk'?head+`<div class="big">ataque=${d.roll} / dano=${d.dmg??'—'}</div><span class="res ${d.cls}">${d.res}${d.dmg==null?'':' · '+esc(d.expr)}</span>`
+ el.innerHTML=d.kind==='red'?head+`<div class="row"><span class="big">${d.total}</span><span class="res ${d.cls}">${esc(d.res||'')}</span></div><div class="mu">${esc(d.expr||'')}</div>${d.note?`<div>${esc(d.note)}</div>`:''}`
+  :d.kind==='atk'?head+`<div class="big">ataque=${d.roll} / dano=${d.dmg??'—'}</div><span class="res ${d.cls}">${d.res}${d.dmg==null?'':' · '+esc(d.expr)}</span>`
   :d.kind==='dmg'?head+`<div class="big">dano=${d.dmg??'?'}</div><span class="res mu">${esc(d.expr)}</span>`
   :head+`<div class="row"><span class="big">${d.roll}</span><span class="res ${d.cls}">${d.res}</span></div>`;
  $('#toasts').append(el);setTimeout(()=>el.remove(),8000);
  const bg=el.querySelector('.big');if(bg&&!d.kind&&d.roll!=null){const fin=bg.textContent;let n=0;const iv=setInterval(()=>{bg.textContent=String(1+Math.floor(Math.random()*100));if(++n>9){clearInterval(iv);bg.textContent=fin}},45)}}
 function fx(k){const e=$('#fx');e.className='';void e.offsetWidth;e.className='fx-'+k;if(k==='f'){const m=$('#app');m.classList.remove('shk');void m.offsetWidth;m.classList.add('shk')}}
-function toast(o){toast0(o);const d=o.data||{};if(d.roll!=null&&(!d.kind||d.kind==='atk')){if(d.roll>=96)fx('f');else if(d.roll<=5)fx('e')}}
+function toast(o){toast0(o);const d=o.data||{};if(d.kind==='red'&&d.fx)fx(d.fx);if(d.roll!=null&&(!d.kind||d.kind==='atk')){if(d.roll>=96)fx('f');else if(d.roll<=5)fx('e')}}
 function logLine(o){const d=o.data||{},t=new Date(o.created_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
- const r=d.kind==='atk'?`ataque=${d.roll} / dano=${d.dmg??'—'} <span class="${d.cls}">${d.res}</span>`:d.kind==='dmg'?`dano=${d.dmg??'?'}`:`${d.roll} <span class="${d.cls}">${d.res}</span>`;
+ const r=d.kind==='red'?`${d.total} <span class="${d.cls}">${esc(d.res||'')}</span> <span class="mu">${esc(d.expr||'')}</span>${d.note?' · '+esc(d.note):''}`:d.kind==='atk'?`ataque=${d.roll} / dano=${d.dmg??'—'} <span class="${d.cls}">${d.res}</span>`:d.kind==='dmg'?`dano=${d.dmg??'?'}`:`${d.roll} <span class="${d.cls}">${d.res}</span>`;
  return `<p><span class="mu mono">${t}</span> <b>${esc(o.who)}</b> · ${esc(o.label)}${d.target?` (${d.target})`:''} → ${r}</p>`}
 const renderLog=()=>$('#logl').innerHTML=rolls.map(logLine).join('')||'<p class="mu">Nenhuma rolagem ainda.</p>';
 $('#logbtn').onclick=()=>$('#log').classList.add('on');$('#logx').onclick=()=>$('#log').classList.remove('on');
@@ -688,8 +690,11 @@ function render(){
  $('#out').style.display=user?'':'none';$('#logbtn').style.display=camp&&view!=='novo'?'':'none';
  if(!user)return authView(app,nav);
  if(!camp)return campsView(app,nav);
- nav.innerHTML=[['agentes','Agentes'],['ameacas','Ameaças',1],['biblioteca','Biblioteca'],['mesa','Mesa'],['tabuleiro','Tabuleiro']].filter(x=>!x[2]||isMaster()).map(([v,t])=>`<a data-v="${v}" class="${view===v||(v==='agentes'&&view==='novo')?'on':''}">${t}</a>`).join('');
+ const isRed=camp.system==='red';
+ nav.innerHTML=(isRed?RED.nav:[['agentes','Agentes'],['ameacas','Ameaças',1],['biblioteca','Biblioteca'],['mesa','Mesa'],['tabuleiro','Tabuleiro']]).filter(x=>!x[2]||isMaster()).map(([v,t])=>`<a data-v="${v}" class="${view===v||(v==='agentes'&&view==='novo')?'on':''}">${t}</a>`).join('');
  nav.onclick=e=>{if(e.target.dataset.v)go(e.target.dataset.v)};
+ if(isRed&&['agentes','novo','biblioteca'].includes(view)){if(view==='novo')return RED.wizard(app);if(view==='biblioteca')return RED.lib(app);return RED.agentes(app)}
+ if(isRed&&view==='ameacas')view='agentes';
  if(view==='novo')return wizard(app);
  if(view==='agentes')return open?sheet(app):agentes(app);
  if(view==='ameacas')return threatsView(app);
@@ -711,11 +716,12 @@ async function campsView(app,nav){nav.innerHTML='';
  const {data}=await sb.from('campaigns').select('*').order('created_at');camps=data||[];
  const ids=camps.map(c=>c.id),mm=ids.length?((await sb.from('members').select('campaign_id').in('campaign_id',ids)).data||[]):[],cnt={};
  mm.forEach(m=>cnt[m.campaign_id]=(cnt[m.campaign_id]||0)+1);
- app.innerHTML=`<div class="row"><h2 class="sp">Campanhas: ${camps.length}</h2></div><div class="grid">${camps.map(c=>`<div class="card cc"><div class="mu">👥 ${cnt[c.id]||1} participante(s)</div><h2 style="font-size:20px;margin:36px 0 2px">${esc(c.name)}</h2><div class="mu">Iniciada em ${fmt(c.created_at)} | ${c.master===user.id?'Mestre · código <b>'+c.code+'</b>':'Jogador'}</div><div class="row" style="margin-top:10px"><button class="pr" data-e="${c.id}">Acessar</button><span class="sp"></span>${c.master===user.id?`<button class="x" data-dc="${c.id}" title="Excluir campanha">✕</button>`:''}</div></div>`).join('')||'<p class="mu">Você ainda não está em nenhuma campanha.</p>'}</div><br>
- <div class="row camp2"><div class="card sp"><h3>Nova campanha (você será o mestre)</h3><div class="row"><input id="cn" placeholder="Nome da campanha" style="flex:1"><button class="pr" id="cc">Criar</button></div></div>
+ app.innerHTML=`<div class="row"><h2 class="sp">Campanhas: ${camps.length}</h2></div><div class="grid">${camps.map(c=>`<div class="card cc"><div class="mu">👥 ${cnt[c.id]||1} participante(s)</div><h2 style="font-size:20px;margin:36px 0 2px">${esc(c.name)}</h2><div class="mu">${c.system==='red'?'<b>Cyberpunk RED</b> | ':'Supernatural | '}Iniciada em ${fmt(c.created_at)} | ${c.master===user.id?'Mestre · código <b>'+c.code+'</b>':'Jogador'}</div><div class="row" style="margin-top:10px"><button class="pr" data-e="${c.id}">Acessar</button><span class="sp"></span>${c.master===user.id?`<button class="x" data-dc="${c.id}" title="Excluir campanha">✕</button>`:''}</div></div>`).join('')||'<p class="mu">Você ainda não está em nenhuma campanha.</p>'}</div><br>
+ <div class="row camp2"><div class="card sp"><h3>Nova campanha (você será o mestre)</h3><div class="seg" id="csys" style="margin-bottom:8px"><button class="sg on" data-sy="supernatural">Supernatural</button><button class="sg" data-sy="red">Cyberpunk RED</button></div><div class="row"><input id="cn" placeholder="Nome da campanha" style="flex:1"><button class="pr" id="cc">Criar</button></div></div>
  <div class="card sp"><h3>Entrar com código</h3><div class="row"><input id="jc" placeholder="Código de 6 letras" style="flex:1"><button id="jj">Entrar</button></div></div></div>`;
  app.onclick=async e=>{const d=e.target.dataset;if(d.e)enter(d.e);if(d.dc&&await ask('Excluir a campanha e TODAS as fichas dela? Isso não pode ser desfeito.')){if(await delRow('campaigns',d.dc))campsView(app,nav)}};
- $('#cc').onclick=async()=>{const n=$('#cn').value.trim();if(!n)return alert('Dê um nome à campanha.');const r=await sb.rpc('create_campaign',{p_name:n});r.error?alert(r.error.message):enter(r.data)};
+ $('#cc').onclick=async()=>{const n=$('#cn').value.trim();if(!n)return alert('Dê um nome à campanha.');const sy=document.querySelector('#csys .on').dataset.sy;const r=await sb.rpc('create_campaign',sy==='red'?{p_name:n,p_system:'red'}:{p_name:n});r.error?alert(sy==='red'&&/function|p_system|schema cache/i.test(r.error.message)?'Para criar campanha de Cyberpunk RED, rode o arquivo red.sql no Supabase (SQL Editor) uma vez.':r.error.message):enter(r.data)};
+ $('#csys').onclick=e=>{const b=e.target.closest('[data-sy]');if(!b)return;document.querySelectorAll('#csys button').forEach(x=>x.classList.toggle('on',x===b))};
  $('#jj').onclick=async()=>{const r=await sb.rpc('join_campaign',{p_code:$('#jc').value});r.error?alert(r.error.message):enter(r.data)}}
 async function enter(id){
  const {data}=await sb.from('campaigns').select('*').eq('id',id).single();camp=data;view='agentes';open=null;VTT.reset();
@@ -917,7 +923,7 @@ function mesaCombate(mb,app){const M=isMaster(),r=sK('combate')[0];
   if(k.cf)return cbAbrir(d,k.cf);
   if(k.cb==='passar')return passarTurno();
   if(!M)return;
-  if(k.cb==='agentes'){chars.forEach(c=>{if(!d.itens.some(x=>x.ref===c.id))d.itens.push({id:uid(),tipo:'agente',ref:c.id,n:c.name,ini:calc(c).ini})});return save()}
+  if(k.cb==='agentes'){chars.forEach(c=>{if(!d.itens.some(x=>x.ref===c.id))d.itens.push({id:uid(),tipo:'agente',ref:c.id,n:c.name,ini:c.sys==='red'?RED.iniRoll(c):calc(c).ini})});return save()}
   if(k.cb==='ameaca'){const L=await cbAddAmeaca();if(L&&L.length){const r2=sK('combate')[0]||r,d2=cbData(r2);L.forEach(x=>d2.itens.push(x));sSave(r2);mesa(app);twRender()}return}
   if(k.cb==='next'){if(!d.iniciado)d.iniciado=true;else cbNext(d);return save()}
   if(k.cb==='end'){if(await ask('Encerrar o combate? A ordem de iniciativa será apagada.')){await sDel(r);mesa(app)}return}
