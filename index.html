@@ -671,6 +671,35 @@ function libView(app){const E=libEntries(),cats=['Todos',...new Set(E.map(x=>x.c
  app.oninput=e=>{if(e.target.id==='lq'){libQ=e.target.value;upd()}};
  app.onclick=e=>{const b=e.target.closest('.lc');if(b){libCat=b.dataset.c;upd()}};
  upd()}
+
+/* ---------------- Livro de regras (carregado sob demanda de livro.js) ---------------- */
+let livroP=null,lvCap=null,lvQ='',lvTab='cap',lvOpen=false,lvNomes=[];
+const livroLoad=()=>livroP||(livroP=new Promise((res,rej)=>{if(typeof LIVRO!=='undefined')return res();const s=document.createElement('script');s.src='livro.js';s.onload=()=>res();s.onerror=()=>{livroP=null;rej()};document.head.append(s)}));
+function livroView(app){app.innerHTML='<p class="mu">Carregando o livro…</p>';
+ livroLoad().then(()=>{if(view==='livro')livroRender(app)}).catch(()=>{app.innerHTML='<div class="box"><h3>Livro</h3><p>Não foi possível carregar o livro. Confira se o arquivo <b>livro.js</b> está na mesma pasta do site.</p></div>'})}
+const lvLabel=c=>typeof c.c==='number'?'Cap. '+c.c+' · '+c.t:'Apêndice '+c.c+' · '+c.t;
+function livroRender(app){const M=isMaster(),caps=LIVRO.filter(c=>M||!c.m);
+ if(!caps.some(c=>String(c.c)===String(lvCap)))lvCap=caps[0].c;
+ if(!M)lvTab='cap';
+ const tabs=M?[['cap','Capítulos'],['tab','Tabelas d20'],['nom','Nomes']]:[['cap','Capítulos']];
+ let body='';
+ if(lvTab==='cap'){
+  const q=lvQ.trim().toLowerCase();
+  if(q){const hits=[];caps.forEach(c=>c.s.forEach(s=>s.p.forEach(p=>{if(p.toLowerCase().includes(q))hits.push([c,s,p])})));
+   body=`<p class="mu">${hits.length} trecho(s) encontrados${hits.length>40?' (mostrando 40)':''}.</p>`+hits.slice(0,40).map(([c,s,p])=>{const i=p.toLowerCase().indexOf(q),a=Math.max(0,i-120),b=Math.min(p.length,i+q.length+220);return `<div class="box"><div class="mu">${esc(lvLabel(c))}${s.h?' · '+esc(s.h):''}</div><p>${a?'…':''}${esc(p.slice(a,i))}<mark>${esc(p.slice(i,i+q.length))}</mark>${esc(p.slice(i+q.length,b))}${b<p.length?'…':''}</p></div>`}).join('')||'<p class="mu">Nada encontrado.</p>'}
+  else{const c=caps.find(x=>String(x.c)===String(lvCap));
+   body=`<div class="row"><h3 class="sp">${esc(lvLabel(c))}</h3><button id="lvall">${lvOpen?'Fechar tudo':'Abrir tudo'}</button></div>`+c.s.map(s=>`<details class="xc"${lvOpen||c.s.length===1?' open':''}><summary><span class="sp"><b>${esc(s.h||'Abertura')}</b></span><span class="mu">${s.p.length} par.</span></summary><div class="xb">${s.p.map(p=>`<p>${esc(p)}</p>`).join('')}</div></details>`).join('')}}
+ if(lvTab==='tab')body=LTAB.map((t,i)=>`<div class="box"><div class="row"><h3 class="sp">${esc(t.n)}</h3><button class="pr" data-roll="${i}">Rolar d20</button></div><div id="lr${i}"></div><details class="xc"><summary>Ver os ${t.i.length} resultados</summary><div class="xb"><ol>${t.i.map(x=>`<li>${esc(x)}</li>`).join('')}</ol></div></details></div>`).join('');
+ if(lvTab==='nom')body=`<div class="box"><h3>Gerador de nomes</h3><p class="mu">Pessoas comuns em um cenário de língua portuguesa. Evite repetir o mesmo nome em duas pessoas importantes do mesmo caso.</p><div class="row"><button class="pr" data-nm="f">Mulher</button><button class="pr" data-nm="m">Homem</button><button data-nm="e">Estabelecimento</button></div><div id="lvn">${lvNomes.map(x=>`<p>${esc(x)}</p>`).join('')}</div></div>`;
+ app.innerHTML=`<div class="row"><h2 class="sp">Livro de regras</h2></div><div class="chips">${tabs.map(([k,n])=>`<button class="lc${lvTab===k?' on':''}" data-lt="${k}">${n}</button>`).join('')}</div>${lvTab==='cap'?`<div class="row" style="margin:8px 0"><select id="lvc">${caps.map(c=>`<option value="${c.c}"${String(c.c)===String(lvCap)?' selected':''}>${esc(lvLabel(c))}${c.m?' (mestre)':''}</option>`).join('')}</select><input id="lvq" class="lq" placeholder="Buscar em todo o livro…" value="${esc(lvQ)}"></div>`:''}${body}`;
+ const R=()=>livroRender(app);
+ app.onclick=e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.lt){lvTab=b.dataset.lt;return R()}
+  if(b.id==='lvall'){lvOpen=!lvOpen;return R()}
+  if(b.dataset.roll!=null){const t=LTAB[+b.dataset.roll],n=1+Math.floor(Math.random()*t.i.length);$('#lr'+b.dataset.roll).innerHTML=`<p><b>${n}.</b> ${esc(t.i[n-1])}</p>`;return}
+  if(b.dataset.nm){const k=b.dataset.nm,r=a=>a[Math.floor(Math.random()*a.length)];lvNomes.unshift(k==='e'?r(LNOM.e):r(LNOM[k])+' '+r(LNOM.s));lvNomes=lvNomes.slice(0,12);$('#lvn').innerHTML=lvNomes.map(x=>`<p>${esc(x)}</p>`).join('')}};
+ app.onchange=e=>{if(e.target.id==='lvc'){lvCap=e.target.value;lvQ='';R()}};
+ app.oninput=e=>{if(e.target.id==='lvq'){lvQ=e.target.value;const p=e.target.selectionStart;R();const n=$('#lvq');n.focus();n.setSelectionRange(p,p)}}}
 function palette(){if(!camp||document.querySelector('.pal'))return;const E=libEntries();
  const o=document.createElement('div');o.className='modal pal';o.innerHTML=`<div class="card mbox"><input id="pq" class="lq" placeholder="Buscar em tudo… (Esc fecha)" autocomplete="off"><div id="pl"></div><div class="row" style="margin-top:10px"><span class="mu sp" id="pn"></span><button class="pr" id="pall">Ver tudo na Biblioteca</button></div></div>`;
  document.body.append(o);const q=o.querySelector('#pq');q.focus();
@@ -691,7 +720,7 @@ function render(){
  if(!user)return authView(app,nav);
  if(!camp)return campsView(app,nav);
  const isRed=camp.system==='red';
- nav.innerHTML=(isRed?RED.nav:[['agentes','Agentes'],['ameacas','Ameaças',1],['biblioteca','Biblioteca'],['mesa','Mesa'],['tabuleiro','Tabuleiro']]).filter(x=>!x[2]||isMaster()).map(([v,t])=>`<a data-v="${v}" class="${view===v||(v==='agentes'&&view==='novo')?'on':''}">${t}</a>`).join('');
+ nav.innerHTML=(isRed?RED.nav:[['agentes','Agentes'],['ameacas','Ameaças',1],['biblioteca','Biblioteca'],['livro','Livro'],['mesa','Mesa'],['tabuleiro','Tabuleiro']]).filter(x=>!x[2]||isMaster()).map(([v,t])=>`<a data-v="${v}" class="${view===v||(v==='agentes'&&view==='novo')?'on':''}">${t}</a>`).join('');
  nav.onclick=e=>{if(e.target.dataset.v)go(e.target.dataset.v)};
  if(isRed&&['agentes','novo','biblioteca','ameacas'].includes(view)){if(view==='novo')return RED.wizard(app);if(view==='biblioteca')return RED.lib(app);if(view==='ameacas')return RED.ameacas(app);return RED.agentes(app)}
  if(view==='novo')return wizard(app);
@@ -699,6 +728,7 @@ function render(){
  if(view==='ameacas')return threatsView(app);
  if(view==='biblioteca')return libView(app);
  if(view==='tabuleiro')return VTT.view(app);
+ if(view==='livro')return livroView(app);
  mesa(app)}
 function authView(app,nav){nav.innerHTML='';let mode='in';
  const draw=()=>{app.innerHTML=`<div class="auth card"><h2>${mode==='in'?'Entrar':'Criar conta'}</h2><br>
