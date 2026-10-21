@@ -455,7 +455,7 @@ body.vtt-on #app{display:none}
 .vt-top{position:absolute;left:12px;top:12px;max-width:calc(100% - 90px);display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--p);border:1px solid var(--ln);border-left:3px solid var(--rd);padding:6px 12px;box-shadow:0 6px 18px #0009}
 .vt-top[hidden],.vt-tools[hidden],.vt-zoom[hidden],.vt-msg[hidden],.vt-pop[hidden],.vt-tok[hidden]{display:none}
 .vt-top b{font-size:14px}.vt-top button{padding:3px 12px;font-size:12px}
-.vt-tools{position:absolute;left:12px;top:64px;display:flex;flex-direction:column;gap:6px;background:var(--p);border:1px solid var(--ln);padding:6px;box-shadow:0 6px 18px #0009}
+.vt-tools{max-height:calc(100% - 80px);overflow-y:auto;position:absolute;left:12px;top:64px;display:flex;flex-direction:column;gap:6px;background:var(--p);border:1px solid var(--ln);padding:6px;box-shadow:0 6px 18px #0009}
 .vt-b{display:flex;align-items:center;justify-content:center;width:40px;height:40px;padding:0;background:var(--p2);border:1px solid var(--ln);color:var(--tx);cursor:pointer}
 .vt-b:hover{border-color:var(--rd)}.vt-b.on{background:var(--rd2);border-color:var(--rd);color:#fff}
 .vt-sep{height:1px;background:var(--ln);margin:2px 0}
@@ -612,7 +612,7 @@ function printHTML(c){
  <div class="pf-foot">${code} · gerado em ${new Date().toLocaleDateString('pt-BR')} · uso restrito à mesa</div></div></section>`}
 function printFichas(list){
  document.getElementById('pr')?.remove();
- const el=document.createElement('div');el.id='pr';el.innerHTML=list.map(printHTML).join('');document.body.append(el);document.body.classList.add('printing');
+ const el=document.createElement('div');el.id='pr';el.innerHTML=list.map(c=>c.sys==='red'?RED.printHTML(c):printHTML(c)).join('');document.body.append(el);document.body.classList.add('printing');
  const end=()=>{document.body.classList.remove('printing');el.remove();removeEventListener('afterprint',end)};addEventListener('afterprint',end);
  Promise.all([...el.querySelectorAll('img')].map(i=>i.decode?i.decode().catch(()=>0):0)).then(()=>setTimeout(()=>window.print(),80))}
 
@@ -630,7 +630,7 @@ async function importBackup(file){let j;try{j=JSON.parse(await file.text())}catc
  const M=isMaster(),nA=M?(j.ameacas||[]).length:0,nS=M?(j.sessao||[]).length:0;
  if(!await ask(`Importar ${j.fichas.length} ficha(s)${nA?`, ${nA} ameaça(s)`:''}${nS?`, ${nS} item(ns) de sessão`:''} do backup de ${fmt(j.exportado)}? Tudo entra como registro novo nesta campanha. Nada que já existe é alterado ou apagado.`))return;
  let ok=0,fail=0;
- for(const f of j.fichas){if(!f||!f.name||!f.data||typeof f.data!=='object'||!f.data.attrs||!Array.isArray(f.data.skills)){fail++;continue}
+ for(const f of j.fichas){if(!f||!f.name||!f.data||typeof f.data!=='object'||!(f.data.attrs||f.data.stats)||!Array.isArray(f.data.skills)){fail++;continue}
   const name=chars.some(c=>c.name===f.name)?f.name+' (importada)':f.name;
   const {data,error}=await sb.from('characters').insert({campaign_id:camp.id,owner:user.id,name,data:f.data}).select().single();
   if(error){fail++;continue}ok++;if(!chars.find(x=>x.id===data.id))chars.push(toChar(data))}
@@ -673,15 +673,72 @@ function libView(app){const E=libEntries(),cats=['Todos',...new Set(E.map(x=>x.c
  upd()}
 
 /* ---------------- Livro de regras (carregado sob demanda de livro.js) ---------------- */
-let livroP=null,lvCap=null,lvQ='',lvTab='cap',lvOpen=false,lvNomes=[];
+let livroP=null,lvCap=null,lvQ='',lvTab='cap',lvOpen=false,lvNomes=[],lvPriv=[],lvPrivOk=false,lvErr='',lvBusy='';
 const livroLoad=()=>livroP||(livroP=new Promise((res,rej)=>{if(typeof LIVRO!=='undefined')return res();const s=document.createElement('script');s.src='livro.js';s.onload=()=>res();s.onerror=()=>{livroP=null;rej()};document.head.append(s)}));
+async function lvPrivLoad(force){if(!isMaster()){lvPriv=[];return}if(lvPrivOk&&!force)return;lvErr='';
+ const {data,error}=await sb.from('conteudo_mestre').select('chave,dados').eq('owner',user.id);
+ if(error){lvPriv=[];lvErr=/does not exist|42P01|schema cache/i.test(error.message+(error.code||''))?'tabela':error.message;return}
+ lvPriv=(data||[]).map(r=>r.dados).filter(Boolean);lvPrivOk=true}
+async function lvImport(file){try{const arr=JSON.parse(await file.text());if(!Array.isArray(arr)||!arr.length||!arr[0].s)throw new Error('Este não parece ser o arquivo mestre.json.');
+  const rows=arr.map(c=>({owner:user.id,chave:'cap-'+c.c,dados:c}));
+  for(let i=0;i<rows.length;i+=3){lvBusy='Importando '+Math.min(i+3,rows.length)+' de '+rows.length+'…';const app=$('#app');if(view==='livro')livroRender(app);
+   const {error}=await sb.from('conteudo_mestre').upsert(rows.slice(i,i+3),{onConflict:'owner,chave'});if(error)throw new Error(error.message)}
+  lvBusy='';await lvPrivLoad(true);note('Conteúdo do mestre importado.')}catch(e){lvBusy='';alert('Não foi possível importar: '+e.message)}
+ if(view==='livro')livroRender($('#app'))}
 function livroView(app){app.innerHTML='<p class="mu">Carregando o livro…</p>';
- livroLoad().then(()=>{if(view==='livro')livroRender(app)}).catch(()=>{app.innerHTML='<div class="box"><h3>Livro</h3><p>Não foi possível carregar o livro. Confira se o arquivo <b>livro.js</b> está na mesma pasta do site.</p></div>'})}
+ Promise.all([livroLoad(),lvPrivLoad()]).then(()=>{if(view==='livro')livroRender(app)}).catch(()=>{app.innerHTML='<div class="box"><h3>Livro</h3><p>Não foi possível carregar o livro. Confira se o arquivo <b>livro.js</b> está na mesma pasta do site.</p></div>'})}
 const lvLabel=c=>typeof c.c==='number'?'Cap. '+c.c+' · '+c.t:'Apêndice '+c.c+' · '+c.t;
-function livroRender(app){const M=isMaster(),caps=LIVRO.filter(c=>M||!c.m);
+
+/* ---------------- Construtor de criaturas (Cap. 23) ---------------- */
+const BLD_ATTR=[['FOR','Força'],['COO','Coordenação'],['RES','Resistência'],['RAC','Raciocínio'],['PER','Percepção'],['CON','Controle']];
+const BLD_VIDA=[[0,'Humano: 10 + 2 × Resistência'],[8,14],[15,25],[25,40],[40,60]];
+const BLD_DANO=[['Leve','1d6'],['Moderado','1d10'],['Pesado','2d10'],['Devastador','3d10'],['Catastrófico','4d10']];
+const BLD_RES=[['Mente','Controle × 5'],['Corpo','Resistência × 5'],['Percepção','Percepção × 5'],['Contato ou pontaria','Defesa, ativa ou passiva']];
+const BLD_NV=['Humana (sem poder sobrenatural)','Sobrenatural frágil','Sobrenatural estabelecido','Ameaça de caso maior','Ameaça regional','Ameaça histórica','Ameaça cósmica'];
+let bld={n:'',fam:'Outros Seres',nv:2,at:{FOR:2,COO:2,RES:2,RAC:2,PER:2,CON:2},def:20,vida:20,sk:[],atk:[],cap:[],vul:'',anc:'',sin:'',pre:0,verd:'',comp:'',inac:''};
+const bldPas=()=>25+Math.floor(((+bld.at.COO||0)*5+(+bld.def||0))/2);
+const bldPen=v=>v<=40?'nenhuma':v<=55?'−10':v<=70?'−20':'−30';
+function bldVidaRef(){const nv=+bld.nv;if(nv===0)return 10+2*(+bld.at.RES||0);const r=BLD_VIDA[nv];return r?r[0]+' a '+r[1]:'sem Vida numérica'}
+function bldTxt(){const b=bld,pv=bldPas(),L=[];
+ L.push((b.n||'(sem nome)').toUpperCase()+' · '+b.fam+' · Nível de Ameaça '+b.nv+' ('+BLD_NV[b.nv]+')');
+ L.push('Atributos: '+BLD_ATTR.map(([k])=>k+' '+(+b.at[k]||0)).join(' · '));
+ const Sk=b.sk.filter(x=>x.n).map(x=>x.n+' '+x.v);if(Sk.length)L.push('Perícias: '+Sk.join(', '));
+ L.push('Defesa Passiva: '+pv+' ('+bldPen(pv)+')'+(+b.nv>=5?'':'   Vida: '+(+b.vida||0)));
+ const A=b.atk.filter(x=>x.n).map(x=>x.n+' (teste '+x.v+', '+BLD_DANO[x.d][0]+' '+BLD_DANO[x.d][1]+')'),Cp=b.cap.filter(x=>x.n).map(x=>x.n+' '+x.v+' (resistido por '+BLD_RES[x.r][1]+(x.l?'; limite: '+x.l:'')+')');
+ if(A.length)L.push('Ataques: '+A.join('; '));
+ if(Cp.length)L.push('Capacidades: '+Cp.join('; '));
+ if(b.vul.trim())L.push('Vulnerabilidades: '+b.vul.trim());
+ if(b.anc.trim())L.push('Âncora: '+b.anc.trim());
+ if(b.sin.trim())L.push('Sinais: '+b.sin.trim().split('\n').filter(Boolean).join('; '));
+ L.push('Pressão: '+(+b.pre||0));
+ if(b.verd.trim())L.push('\nVerdade: '+b.verd.trim());
+ if(b.comp.trim())L.push('Comportamento: '+b.comp.trim());
+ if(b.inac.trim())L.push('Se ninguém agir: '+b.inac.trim());
+ return L.join('\n')}
+function bldAvisos(){const b=bld,w=[],ns=b.sin.split('\n').filter(x=>x.trim()).length;
+ if(!b.n.trim())w.push('Dê um nome à criatura.');
+ if(ns<3||ns>6)w.push('Sinais: o livro pede de 3 a 6 sinais observáveis (hoje '+ns+').');
+ if(!b.vul.trim())w.push('Falta ao menos uma vulnerabilidade que mude a estratégia.');
+ if(!b.verd.trim())w.push('Escreva a Verdade: o que a criatura é, o que quer e o que a mantém no mundo.');
+ if(!b.inac.trim())w.push('Responda o que acontece se os investigadores não fizerem nada.');
+ b.cap.forEach(c=>{if(c.n&&!c.l.trim())w.push('A capacidade "'+c.n+'" precisa de ao menos um limite.');if(c.n&&(c.v<10||c.v>95))w.push('Valor do Poder de "'+c.n+'" deve ficar entre 10 e 95.')});
+ if(+b.nv>=1&&+b.nv<=4){const r=BLD_VIDA[+b.nv];if(b.vida<r[0]||b.vida>r[1])w.push('Vida fora da faixa do Nível '+b.nv+' ('+r[0]+' a '+r[1]+').')}
+ if(+b.nv>=5)w.push('Níveis 5 e 6 dispensam Vida numérica: trate a derrota como evento de campanha.');
+ BLD_ATTR.forEach(([k])=>{if(+b.at[k]>5)w.push(k+' acima de 5: só se a natureza da criatura justificar.')});
+ return w}
+function bldBody(){const b=bld,opt=(v,t,s)=>`<option value="${v}"${s?' selected':''}>${esc(t)}</option>`,pv=bldPas();
+ return `<div class="box"><h3>Identidade</h3><div class="row"><input data-b="n" placeholder="Nome (técnico e curto)" value="${esc(b.n)}" style="flex:1;min-width:160px"><select data-b="fam">${(typeof FAMS!=='undefined'?FAMS:['Outros Seres']).map(f=>opt(f,f,f===b.fam)).join('')}</select><select data-b="nv">${BLD_NV.map((t,i)=>opt(i,'Nível '+i+' · '+t,+b.nv===i)).join('')}</select></div></div>
+ <div class="box"><h3>Atributos, Defesa e Vida</h3><div class="row" style="flex-wrap:wrap">${BLD_ATTR.map(([k,n])=>`<label class="mu">${n}<br><input type="number" min="0" max="9" data-ba="${k}" value="${b.at[k]}" style="width:64px"></label>`).join('')}<label class="mu">Perícia Defesa<br><input type="number" min="0" max="50" data-b="def" value="${b.def}" style="width:72px"></label><label class="mu">Vida<br><input type="number" min="0" data-b="vida" value="${b.vida}" style="width:72px"></label></div><p class="mu">Defesa Passiva: <b>${pv}</b> (penalidade ${bldPen(pv)}). Vida de referência para o Nível ${b.nv}: ${bldVidaRef()}. <button data-bsug="1">Usar a referência</button></p></div>
+ <div class="box"><h3>Perícias</h3>${b.sk.map((x,i)=>`<div class="row"><input data-bs="${i}:n" placeholder="Perícia" value="${esc(x.n)}" style="flex:1"><input type="number" min="0" max="50" data-bs="${i}:v" value="${x.v}" style="width:72px"><button class="x" data-bdel="sk:${i}">✕</button></div>`).join('')}<button data-badd="sk">+ Perícia</button><p class="mu">Escala de 0 a 50; liste só as que a criatura usa.</p></div>
+ <div class="box"><h3>Ataques</h3>${b.atk.map((x,i)=>`<div class="row"><input data-ba2="${i}:n" placeholder="Ataque" value="${esc(x.n)}" style="flex:1"><input type="number" min="0" max="95" data-ba2="${i}:v" value="${x.v}" style="width:72px" title="Valor de teste"><select data-ba2="${i}:d">${BLD_DANO.map((d,j)=>opt(j,d[0]+' '+d[1],+x.d===j)).join('')}</select><button class="x" data-bdel="atk:${i}">✕</button></div>`).join('')}<button data-badd="atk">+ Ataque</button></div>
+ <div class="box"><h3>Capacidades (Valor do Poder, 10 a 95)</h3>${b.cap.map((x,i)=>`<div class="row" style="flex-wrap:wrap"><input data-bc="${i}:n" placeholder="Capacidade" value="${esc(x.n)}" style="flex:1;min-width:140px"><input type="number" min="10" max="95" data-bc="${i}:v" value="${x.v}" style="width:72px"><select data-bc="${i}:r">${BLD_RES.map((r,j)=>opt(j,'Resiste: '+r[0],+x.r===j)).join('')}</select><input data-bc="${i}:l" placeholder="Limite (obrigatório)" value="${esc(x.l)}" style="flex:1;min-width:160px"><button class="x" data-bdel="cap:${i}">✕</button></div>`).join('')}<button data-badd="cap">+ Capacidade</button><p class="mu">Ao usar o poder, o Mestre rola contra o Valor; se tiver sucesso, o alvo resiste com o atributo ×5 do tipo. Proteção específica (sal, ferro, símbolos, rituais) dá +20 a +40 na resistência.</p></div>
+ <div class="box"><h3>Os cinco passos</h3><label class="mu">1. Verdade: o que é, o que quer e o que a mantém no mundo (uma frase)</label><textarea data-b="verd" rows="2" style="width:100%">${esc(b.verd)}</textarea><label class="mu">2. Sinais observáveis antes da manifestação (um por linha, de 3 a 6)</label><textarea data-b="sin" rows="4" style="width:100%">${esc(b.sin)}</textarea><label class="mu">3. Comportamento: como escolhe vítimas, onde age, o que faz quando ameaçada</label><textarea data-b="comp" rows="3" style="width:100%">${esc(b.comp)}</textarea><label class="mu">4. Limites: vulnerabilidades que mudam a estratégia</label><textarea data-b="vul" rows="2" style="width:100%">${esc(b.vul)}</textarea><div class="row"><label class="mu" style="flex:1">Âncora (o que a mantém ligada ao mundo, se houver)<input data-b="anc" value="${esc(b.anc)}" style="width:100%"></label><label class="mu">Pressão<br><input type="number" min="0" max="10" data-b="pre" value="${b.pre}" style="width:72px"></label></div><label class="mu">5. Se os investigadores não fizerem nada, o que acontece?</label><textarea data-b="inac" rows="2" style="width:100%">${esc(b.inac)}</textarea></div>
+ <div class="box"><h3>Ficha de Ameaça</h3><pre id="bldout" style="white-space:pre-wrap;font:13px/1.5 'Courier New',monospace"></pre><div id="bldav"></div><div class="row" style="margin-top:8px"><button class="pr" data-bact="copy">Copiar ficha</button><button data-bact="save">Salvar em Ameaças</button><button data-bact="combat">Colocar no combate</button><button data-bact="clear">Limpar</button></div></div>`}
+function bldRefresh(){const o=$('#bldout');if(!o)return;o.textContent=bldTxt();const w=bldAvisos();$('#bldav').innerHTML=w.length?'<ul class="mu">'+w.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'<p class="mu">Ficha consistente com o livro.</p>'}
+function livroRender(app){const M=isMaster(),caps=(M?[...LIVRO,...lvPriv]:LIVRO).sort((a,b)=>a.o-b.o);
  if(!caps.some(c=>String(c.c)===String(lvCap)))lvCap=caps[0].c;
  if(!M)lvTab='cap';
- const tabs=M?[['cap','Capítulos'],['tab','Tabelas d20'],['nom','Nomes']]:[['cap','Capítulos']];
+ const tabs=M?[['cap','Capítulos'],['tab','Tabelas d20'],['nom','Nomes'],['bld','Construtor de criatura']]:[['cap','Capítulos']];
  let body='';
  if(lvTab==='cap'){
   const q=lvQ.trim().toLowerCase();
@@ -690,22 +747,49 @@ function livroRender(app){const M=isMaster(),caps=LIVRO.filter(c=>M||!c.m);
   else{const c=caps.find(x=>String(x.c)===String(lvCap));
    body=`<div class="row"><h3 class="sp">${esc(lvLabel(c))}</h3><button id="lvall">${lvOpen?'Fechar tudo':'Abrir tudo'}</button></div>`+c.s.map(s=>`<details class="xc"${lvOpen||c.s.length===1?' open':''}><summary><span class="sp"><b>${esc(s.h||'Abertura')}</b></span><span class="mu">${s.p.length} par.</span></summary><div class="xb">${s.p.map(p=>`<p>${esc(p)}</p>`).join('')}</div></details>`).join('')}}
  if(lvTab==='tab')body=LTAB.map((t,i)=>`<div class="box"><div class="row"><h3 class="sp">${esc(t.n)}</h3><button class="pr" data-roll="${i}">Rolar d20</button></div><div id="lr${i}"></div><details class="xc"><summary>Ver os ${t.i.length} resultados</summary><div class="xb"><ol>${t.i.map(x=>`<li>${esc(x)}</li>`).join('')}</ol></div></details></div>`).join('');
+ if(lvTab==='bld')body=bldBody();
  if(lvTab==='nom')body=`<div class="box"><h3>Gerador de nomes</h3><p class="mu">Pessoas comuns em um cenário de língua portuguesa. Evite repetir o mesmo nome em duas pessoas importantes do mesmo caso.</p><div class="row"><button class="pr" data-nm="f">Mulher</button><button class="pr" data-nm="m">Homem</button><button data-nm="e">Estabelecimento</button></div><div id="lvn">${lvNomes.map(x=>`<p>${esc(x)}</p>`).join('')}</div></div>`;
- app.innerHTML=`<div class="row"><h2 class="sp">Livro de regras</h2></div><div class="chips">${tabs.map(([k,n])=>`<button class="lc${lvTab===k?' on':''}" data-lt="${k}">${n}</button>`).join('')}</div>${lvTab==='cap'?`<div class="row" style="margin:8px 0"><select id="lvc">${caps.map(c=>`<option value="${c.c}"${String(c.c)===String(lvCap)?' selected':''}>${esc(lvLabel(c))}${c.m?' (mestre)':''}</option>`).join('')}</select><input id="lvq" class="lq" placeholder="Buscar em todo o livro…" value="${esc(lvQ)}"></div>`:''}${body}`;
+ const ban=M&&lvTab==='cap'?(lvBusy?`<div class="box"><p>${esc(lvBusy)}</p></div>`:lvErr==='tabela'?`<div class="box"><h3>Conteúdo do mestre</h3><p>Rode o arquivo <b>conteudo.sql</b> no Supabase (SQL Editor) uma vez e recarregue esta página.</p></div>`:lvErr?`<div class="box"><p>Erro: ${esc(lvErr)}</p></div>`:!lvPriv.length?`<div class="box"><h3>Conteúdo do mestre ainda não importado</h3><p>Os capítulos do mestre (Cap. 17 a 41, apêndices B e E) não ficam no site: ficam na sua conta e só você lê. Escolha o arquivo <b>mestre.json</b> para importar. Faz-se uma vez só.</p><input type="file" id="lvf" accept=".json,application/json"></div>`:`<p class="mu">Conteúdo do mestre carregado (${lvPriv.length} capítulos). <label class="lk">Reimportar<input type="file" id="lvf" accept=".json,application/json" hidden></label></p>`):'';
+ app.innerHTML=`<div class="row"><h2 class="sp">Livro de regras</h2></div>${ban}<div class="chips">${tabs.map(([k,n])=>`<button class="lc${lvTab===k?' on':''}" data-lt="${k}">${n}</button>`).join('')}</div>${lvTab==='cap'?`<div class="row" style="margin:8px 0"><select id="lvc">${caps.map(c=>`<option value="${c.c}"${String(c.c)===String(lvCap)?' selected':''}>${esc(lvLabel(c))}${c.m?' (mestre)':''}</option>`).join('')}</select><input id="lvq" class="lq" placeholder="Buscar em todo o livro…" value="${esc(lvQ)}"></div>`:''}${body}`;
  const R=()=>livroRender(app);
+ if(lvTab==='bld'){bldRefresh();
+  app.oninput=e=>{const t=e.target,d=t.dataset;
+   if(d.b){bld[d.b]=['def','vida','pre'].includes(d.b)||d.b==='nv'?(+t.value||0):t.value;if(d.b==='nv'){return R()}if(d.b==='def')return R();}
+   else if(d.ba)bld.at[d.ba]=+t.value||0;
+   else if(d.bs){const[i,k]=d.bs.split(':');bld.sk[+i][k]=k==='v'?(+t.value||0):t.value}
+   else if(d.ba2){const[i,k]=d.ba2.split(':');bld.atk[+i][k]=k==='n'?t.value:(+t.value||0)}
+   else if(d.bc){const[i,k]=d.bc.split(':');bld.cap[+i][k]=k==='n'||k==='l'?t.value:(+t.value||0)}
+   else return;
+   if(d.ba==='COO'||d.ba)return R();bldRefresh()};
+  app.onchange=e=>{if(e.target.dataset.b==='fam'){bld.fam=e.target.value;bldRefresh()}if(e.target.dataset.b==='nv'||e.target.dataset.ba2||e.target.dataset.bc){const t=e.target,d=t.dataset;if(d.ba2){const[i,k]=d.ba2.split(':');bld.atk[+i][k]=+t.value||0}if(d.bc){const[i,k]=d.bc.split(':');if(k==='r')bld.cap[+i].r=+t.value}if(d.b==='nv')bld.nv=+t.value;bldRefresh()}if(e.target.id==='lvf'&&e.target.files[0])lvImport(e.target.files[0])};
+  app.onclick=async e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+   if(d.lt){lvTab=d.lt;return R()}
+   if(d.bsug){const v=bldVidaRef();if(+bld.nv===0)bld.vida=10+2*(+bld.at.RES||0);else if(BLD_VIDA[+bld.nv])bld.vida=Math.round((BLD_VIDA[+bld.nv][0]+BLD_VIDA[+bld.nv][1])/2);return R()}
+   if(d.badd){({sk:()=>bld.sk.push({n:'',v:20}),atk:()=>bld.atk.push({n:'',v:40,d:1}),cap:()=>bld.cap.push({n:'',v:50,r:0,l:''})})[d.badd]();return R()}
+   if(d.bdel){const[k,i]=d.bdel.split(':');bld[k].splice(+i,1);return R()}
+   if(d.bact==='copy'){try{await navigator.clipboard.writeText(bldTxt());note('Ficha copiada.')}catch(er){prompt('Copie a ficha:',bldTxt())}return}
+   if(d.bact==='clear'){if(await ask('Limpar o construtor?')){bld={n:'',fam:'Outros Seres',nv:2,at:{FOR:2,COO:2,RES:2,RAC:2,PER:2,CON:2},def:20,vida:20,sk:[],atk:[],cap:[],vul:'',anc:'',sin:'',pre:0,verd:'',comp:'',inac:''};R()}return}
+   if(d.bact==='save'){if(!bld.n.trim())return alert('Dê um nome à criatura.');const r=await sb.from('threats').insert({campaign_id:camp.id,name:bld.n.trim(),text:bldTxt(),data:{cat:bld.fam,nivel:+bld.nv}});r.error?alert(r.error.message):note('Salva em Ameaças: '+bld.n.trim());return}
+   if(d.bact==='combat'){if(!bld.n.trim())return alert('Dê um nome à criatura.');let row=sess.find(x=>x.kind==='combate');if(!row){row=await sAdd('combate',{round:1,atual:null,itens:[]},true);if(!row)return}
+    const dd=cbData(row),v=+bld.vida||1;dd.itens.push({id:uid(),tipo:'ameaca',n:bld.n.trim(),ini:(+bld.at.COO||0)*5,vida:v,max:v,def:bldPas(),ref:null,sec:false});sSave(row);note(bld.n.trim()+' entrou no combate (aba Mesa).');return}};
+  return}
  app.onclick=e=>{const b=e.target.closest('button');if(!b)return;
   if(b.dataset.lt){lvTab=b.dataset.lt;return R()}
   if(b.id==='lvall'){lvOpen=!lvOpen;return R()}
   if(b.dataset.roll!=null){const t=LTAB[+b.dataset.roll],n=1+Math.floor(Math.random()*t.i.length);$('#lr'+b.dataset.roll).innerHTML=`<p><b>${n}.</b> ${esc(t.i[n-1])}</p>`;return}
   if(b.dataset.nm){const k=b.dataset.nm,r=a=>a[Math.floor(Math.random()*a.length)];lvNomes.unshift(k==='e'?r(LNOM.e):r(LNOM[k])+' '+r(LNOM.s));lvNomes=lvNomes.slice(0,12);$('#lvn').innerHTML=lvNomes.map(x=>`<p>${esc(x)}</p>`).join('')}};
- app.onchange=e=>{if(e.target.id==='lvc'){lvCap=e.target.value;lvQ='';R()}};
+ app.onchange=e=>{if(e.target.id==='lvc'){lvCap=e.target.value;lvQ='';R()}if(e.target.id==='lvf'&&e.target.files[0])lvImport(e.target.files[0])};
  app.oninput=e=>{if(e.target.id==='lvq'){lvQ=e.target.value;const p=e.target.selectionStart;R();const n=$('#lvq');n.focus();n.setSelectionRange(p,p)}}}
+const lvHits=t=>{if(typeof LIVRO==='undefined'||!camp||camp.system==='red')return[];const M=isMaster(),caps=M?[...LIVRO,...lvPriv]:LIVRO,s=t.toLowerCase(),out=[];
+ for(const c of caps){for(const sec of c.s){const p=sec.p.find(x=>x.toLowerCase().includes(s));if(p)out.push([c,sec,p]);if(out.length>=60)break}if(out.length>=60)break}return out};
+const lvPalHtml=t=>{const l=lvHits(t.trim());if(!t.trim()||!l.length)return '';const s=t.trim().toLowerCase();return `<h4 style="margin-top:12px">No livro (${l.length} seção(ões))</h4>`+l.slice(0,6).map(([c,sec,p])=>{const i=p.toLowerCase().indexOf(s),a=Math.max(0,i-60);return `<div class="box" data-lv="1" style="cursor:pointer"><div class="mu">${esc(lvLabel(c))}${sec.h?' · '+esc(sec.h):''}</div><p>${a?'…':''}${esc(p.slice(a,i))}<mark>${esc(p.slice(i,i+s.length))}</mark>${esc(p.slice(i+s.length,i+s.length+120))}…</p></div>`}).join('')};
 function palette(){if(!camp||document.querySelector('.pal'))return;const E=libEntries();
  const o=document.createElement('div');o.className='modal pal';o.innerHTML=`<div class="card mbox"><input id="pq" class="lq" placeholder="Buscar em tudo… (Esc fecha)" autocomplete="off"><div id="pl"></div><div class="row" style="margin-top:10px"><span class="mu sp" id="pn"></span><button class="pr" id="pall">Ver tudo na Biblioteca</button></div></div>`;
  document.body.append(o);const q=o.querySelector('#pq');q.focus();
- const upd=()=>{const l=q.value.trim()?libFilter(E,'Todos',q.value):[];o.querySelector('#pl').innerHTML=q.value.trim()?libCards(l,12):'<p class="mu">Digite para buscar talentos, poderes, rituais, itens, condições e regras.</p>';o.querySelector('#pn').textContent=q.value.trim()?(l.length>12?'12 de '+l.length+' resultados':l.length+' resultado(s)'):''};
+ const upd=()=>{const l=q.value.trim()?libFilter(E,'Todos',q.value):[];o.querySelector('#pl').innerHTML=q.value.trim()?libCards(l,12)+lvPalHtml(q.value):'<p class="mu">Digite para buscar talentos, poderes, rituais, itens, condições e regras.</p>';o.querySelector('#pn').textContent=q.value.trim()?(l.length>12?'12 de '+l.length+' resultados':l.length+' resultado(s)'):''};
  q.oninput=upd;upd();
- o.onclick=e=>{if(e.target===o)o.remove();if(e.target.id==='pall'){libQ=q.value;libCat='Todos';o.remove();go('biblioteca')}}}
+ if(camp.system!=='red')Promise.all([livroLoad(),lvPrivLoad()]).then(()=>{if(document.body.contains(o))upd()}).catch(()=>{});
+ o.onclick=e=>{if(e.target===o)o.remove();if(e.target.closest('[data-lv]')){lvQ=q.value;lvTab='cap';o.remove();return go('livro')}if(e.target.id==='pall'){libQ=q.value;libCat='Todos';o.remove();go('biblioteca')}}}
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();palette()}if(e.key==='Escape')document.querySelector('.pal')?.remove()});
 $('#sk').onclick=palette;
 const THEMES=[['','Noir'],['papel','Papel'],['sangue','Sangue'],['matrix','Matrix']];
