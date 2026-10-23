@@ -674,7 +674,15 @@ const CSS=`.rd-st{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
 .rd-w input[type=number]{width:60px}
 .rd-tbl{width:100%;border-collapse:collapse;font-size:13px}.rd-tbl td,.rd-tbl th{border-bottom:1px solid var(--ln);padding:6px 8px;text-align:left;vertical-align:top}
 .rd-tag{font-size:11px;color:var(--mu)}
-@media(max-width:700px){.rd-st{grid-template-columns:repeat(2,1fr)}.rd-w{grid-template-columns:1fr}}`;
+@media(max-width:700px){
+.rd-st{grid-template-columns:repeat(5,1fr);gap:5px}
+.rd-sc{padding:5px 2px}.rd-sc b{font-size:11px;letter-spacing:0}.rd-sc>.mu{display:none}
+.rd-sc input{width:46px;font-size:17px;margin:3px 0;padding:4px 0}
+.rd-sc button{font-size:0;padding:4px 8px;min-height:30px}.rd-sc button::before{content:'🎲';font-size:15px}
+.rd-w{grid-template-columns:1fr}.rd-tbl{font-size:12px}.rd-tbl td,.rd-tbl th{padding:5px 4px;word-break:break-word}
+.rd-sk{flex-wrap:wrap}.rd-sk input[type=number]{width:46px}.rd-rb{gap:6px}.rd-rb select{max-width:100%}
+.box:has(.rd-tbl){overflow-x:auto}
+}`;
 (function(){const s=document.createElement('style');s.textContent=CSS;document.head.append(s)})();
 
 const roleTag=c=>`${esc(c.role||'')} · Rank ${+c.rank||1}`;

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0c0a09">
+<meta name="theme-color" content="#0c0a09"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-180.png"><link rel="icon" type="image/png" href="icon-192.png">
 <meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Arquivo Sombrio</title>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Special+Elite&display=swap" rel="stylesheet">
@@ -204,10 +204,10 @@ input[type=checkbox]:checked::after{content:'';position:absolute;left:4px;top:1p
  #sk,.th-btn,#out{min-height:36px;padding:4px 10px}
  nav{position:fixed;left:0;right:0;bottom:0;z-index:40;margin:0;gap:0;background:var(--hd);border-top:2px solid var(--rd2);padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -8px 24px #000a;order:0;width:auto;overflow:visible}
  nav:empty{display:none}
- nav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 4px 8px;font-size:11px;letter-spacing:.06em;border-bottom:0;border-top:2px solid transparent;margin-top:-2px}
+ nav a{flex:1 1 0;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 2px 8px;font-size:10px;letter-spacing:.02em;border-bottom:0;border-top:2px solid transparent;margin-top:-2px}
  nav a::before{font-size:18px;line-height:1;filter:grayscale(.6)}
  nav a.on{border-top-color:var(--rd);background:linear-gradient(180deg,#b3261e22,transparent)}nav a.on::before{filter:none}
- nav a[data-v=agentes]::before{content:'🗂'}nav a[data-v=ameacas]::before{content:'☠'}nav a[data-v=biblioteca]::before{content:'📖'}nav a[data-v=mesa]::before{content:'🕯'}
+ nav a[data-v=agentes]::before{content:'🗂'}nav a[data-v=ameacas]::before{content:'☠'}nav a[data-v=biblioteca]::before{content:'📖'}nav a[data-v=mesa]::before{content:'🕯'}nav a[data-v=livro]::before{content:'📜'}nav a[data-v=tabuleiro]::before{content:'🗺'}
  main{padding:12px 12px 24px}
  h2{font-size:19px}
  #logbtn{left:auto;right:12px;bottom:calc(76px + env(safe-area-inset-bottom));min-height:40px;border-radius:20px;padding:0 14px;box-shadow:0 4px 16px #000a}
@@ -446,6 +446,8 @@ body.tw-on #app{padding-right:58px}
  #csp button{padding:13px 14px;font-size:15px}
 }
 
+input[type=file]{max-width:100%;font:13px 'Courier New',monospace;color:var(--mu);padding:6px;background:var(--in);border:1px solid var(--ln)}input[type=file]::file-selector-button{font:inherit;color:var(--tx);background:var(--p2);border:1px solid var(--ln);padding:8px 12px;margin-right:10px;cursor:pointer;min-height:36px}
+html{-webkit-tap-highlight-color:transparent}button,a,summary,select,label{touch-action:manipulation}body.vtt-on{overscroll-behavior:none}
 /* ---- Tabuleiro virtual (tabuleiro.js) ---- */
 #vtt{position:fixed;left:0;right:0;top:0;bottom:0;z-index:10;background:var(--bg);overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
 #vtt[hidden]{display:none}
@@ -481,13 +483,18 @@ body.vtt-on #app{display:none}
 .vt-sc .sp{min-width:180px}.vt-sc input{width:100%;margin-bottom:2px}
 .vt-sa{display:flex;gap:6px;flex-wrap:wrap}.vt-sa button{padding:4px 10px;font-size:12px}
 @media(max-width:700px){
- .vt-top{left:8px;top:8px;max-width:calc(100% - 76px)}
- .vt-tools{left:8px;top:56px;flex-direction:row;flex-wrap:wrap;max-width:calc(100% - 80px)}
- .vt-tools .vt-sep{width:1px;height:auto;margin:0 2px}
- .vt-zoom{right:8px;top:8px}.vt-sl{height:96px}
- .vt-pop{left:8px;top:112px;width:auto;right:8px;max-width:none}
- .vt-tok{bottom:8px;width:calc(100% - 16px)}.vt-trow input{width:100%}
- .vt-b{width:44px;height:44px}
+ .vt-top{left:8px;top:8px;right:64px;max-width:none;padding:4px 8px;gap:6px}.vt-top b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:45%}
+ .vt-tools{left:0;right:0;top:auto;bottom:0;flex-direction:row;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;max-height:none;max-width:none;border-width:1px 0 0 0;padding:6px 8px;gap:6px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+ .vt-tools::-webkit-scrollbar{display:none}
+ .vt-tools .vt-sep{width:1px;height:auto;align-self:stretch;flex:none;margin:0 2px}
+ .vt-b{flex:none;width:46px;height:46px}
+ .vt-zoom{right:8px;top:8px;padding:4px;gap:4px}.vt-sl{display:none}
+ .vt-pop{left:8px;right:8px;top:auto;bottom:66px;width:auto;max-width:none;max-height:46%}
+ .vt-tok{bottom:66px;width:calc(100% - 16px)}.vt-trow input{width:100%}
+ .vt-msg{width:calc(100% - 16px)}
+ .vt-pop{padding:8px;max-height:38%}.vt-pop p.mu{display:none}.vt-pop .vt-grow{margin-top:6px}.vt-pop .seg .sg{padding:5px 8px;min-width:0}
+ body.vtt-on #logbtn{bottom:calc(150px + env(safe-area-inset-bottom));width:44px;height:44px;min-height:44px;padding:0;font-size:0}body.vtt-on #logbtn::before{content:'🎲';font-size:20px}
+}
 }
 </style></head><body>
 <div class="fog"></div><canvas id="embers"></canvas><div id="fx"></div>
@@ -1478,4 +1485,6 @@ async function setUser(s){
  else{user=null;camp=null;chan&&sb.removeChannel(chan)}
  render()}
 sb.auth.onAuthStateChange((ev,s)=>{if(ev==='INITIAL_SESSION'||ev==='SIGNED_IN'||ev==='SIGNED_OUT')setTimeout(()=>setUser(s),0)});
+
+if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 </script></body></html>
