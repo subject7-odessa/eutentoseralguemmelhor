@@ -165,7 +165,7 @@ exception when duplicate_object then null;
 end $$;
 `;
 const KEY='as-vtt-';
-const S={ok:true,loaded:false,scenes:[],cur:null,tokens:[],sel:null,cam:{x:0,y:0,z:1},img:null,imgPath:'',imgErr:'',tool:'sel',gridEdit:false,drag:null,popup:'',camp:null,draws:[],dok:false,dcolor:'#e0b84a',dw:4,dnew:null,ruler:null,fbrush:3,fmode:'rev'};
+const S={ok:true,loaded:false,scenes:[],cur:null,tokens:[],sel:null,cam:{x:0,y:0,z:1},img:null,imgPath:'',imgErr:'',tool:'sel',gridEdit:false,drag:null,popup:'',camp:null,draws:[],models:[],mok:false,dok:false,dcolor:'#e0b84a',dw:4,dnew:null,ruler:null,fbrush:3,fmode:'rev'};
 const imgs=new Map(),ptrs=new Map();
 let root=null,cv=null,cx=null,dpr=1,dirty=true,raf=0,uiKey='',gridTimer=0,poll=0,pinch=null,chan=null,loading=false,fogCv=null;
 const q=s=>root&&root.querySelector(s);
@@ -187,12 +187,12 @@ const rad=t=>t.size*gsz()/2;
 const nowIso=()=>new Date().toISOString();
 
 /* ---------------- dados ---------------- */
-function reset(){clearInterval(poll);if(chan){try{sb.removeChannel(chan)}catch(e){}chan=null}if(dchan){try{sb.removeChannel(dchan)}catch(e){}dchan=null}S.draws=[];S.dok=false;S.dnew=null;S.ruler=null;S.scenes=[];S.tokens=[];S.cur=null;S.tokens=[];S.sel=null;S.img=null;S.imgPath='';S.imgErr='';S.popup='';S.drag=null;S.loaded=false;S.ok=true;S.camp=camp?camp.id:null}
+function reset(){clearInterval(poll);if(chan){try{sb.removeChannel(chan)}catch(e){}chan=null}if(dchan){try{sb.removeChannel(dchan)}catch(e){}dchan=null}S.draws=[];S.models=[];S.mok=false;S.dok=false;S.dnew=null;S.ruler=null;S.scenes=[];S.tokens=[];S.cur=null;S.tokens=[];S.sel=null;S.img=null;S.imgPath='';S.imgErr='';S.popup='';S.drag=null;S.loaded=false;S.ok=true;S.camp=camp?camp.id:null}
 async function load(){reset();const id=camp.id;
  const r=await sb.from('scenes').select('*').eq('campaign_id',id).order('created_at');
  if(!camp||camp.id!==id)return;
  if(errTab(r.error)){S.ok=false;S.loaded=true;return refresh()}
- S.scenes=r.data||[];pick();await loadTokens();await loadDraws();await loadImg();S.loaded=true;fit();refresh();
+ S.scenes=r.data||[];pick();await loadTokens();await loadDraws();await loadModels();await loadImg();S.loaded=true;fit();refresh();
  subscribe(id);subscribeD(id);
  clearInterval(poll);poll=setInterval(()=>{if(root&&!root.hidden&&S.ok)resync()},20000)}
 function subscribe(id){if(chan){try{sb.removeChannel(chan)}catch(e){}chan=null}
@@ -204,6 +204,8 @@ function pick(){let id=null;
  if(isMaster()){try{id=localStorage.getItem(KEY+camp.id)}catch(e){}if(!S.scenes.some(s=>s.id===id))id=(S.scenes.find(s=>s.active)||S.scenes[0]||{}).id||null}
  else id=(S.scenes.find(s=>s.active)||{}).id||null;
  S.cur=id}
+async function loadModels(){S.models=[];S.mok=false;if(!isMaster()||!camp)return;const r=await sb.from('token_modelos').select('*').eq('campaign_id',camp.id).order('created_at');
+ if(r.error)return;S.mok=true;S.models=r.data||[]}
 async function loadDraws(){S.draws=[];if(!S.cur){return}const r=await sb.from('scene_drawings').select('*').eq('scene_id',S.cur).order('created_at');
  if(r.error){S.dok=false;return}S.dok=true;S.draws=r.data||[]}
 function subscribeD(id){if(dchan){try{sb.removeChannel(dchan)}catch(e){}dchan=null}if(!S.dok)return;
@@ -254,7 +256,7 @@ function snapPos(x,y,t){const g=grid(),sc=scene();let p={x,y};
  if(sc){p.x=clamp(p.x,0,sc.map_w);p.y=clamp(p.y,0,sc.map_h)}return p}
 function tokenAt(w){for(let i=S.tokens.length-1;i>=0;i--){const t=S.tokens[i],r=rad(t);
   if(t.shape==='square'){if(Math.abs(w.x-t.x)<=r&&Math.abs(w.y-t.y)<=r)return t}else if(Math.hypot(w.x-t.x,w.y-t.y)<=r)return t}return null}
-const tokSrc=t=>t.kind==='char'?(chars.find(c=>c.id===t.char_id)?.foto||t.image||''):(t.image||'');
+const tokSrc=t=>t.kind==='char'?(t.image||chars.find(c=>c.id===t.char_id)?.foto||''):(t.image||'');
 function imgOf(src){if(!src)return null;let m=imgs.get(src);if(!m){m=new Image();m.onload=need;m.src=src;imgs.set(src,m)}return m.complete&&m.naturalWidth?m:null}
 function hpOf(t){
  if(t.kind==='char'){const c=chars.find(x=>x.id===t.char_id);return c?{v:+c.vidaAtual||0,m:calc(c).vida,edit:canEdit(c),c}:null}
@@ -430,13 +432,14 @@ function uiMsg(){const el=q('#vmsg');if(!el)return;let h='';const M=isMaster();
  el.hidden=!h;el.innerHTML=h}
 function uiTok(){const el=q('#vtok');if(!el)return;const t=tokById(S.sel);
  if(!t){el.hidden=true;uiKey='';return}
- const M=isMaster(),h=hpOf(t),key=[t.id,t.name,t.size,t.shape,t.hidden,h?h.v+'/'+h.m:'',M,canMove(t)].join('|');
+ const M=isMaster(),h=hpOf(t),key=[t.id,t.name,t.size,t.shape,t.hidden,h?h.v+'/'+h.m:'',M,canMove(t),S.mok,S.models.length,t.image?1:0].join('|');
  if(key===uiKey&&!el.hidden)return;if(el.contains(document.activeElement)&&el.querySelector('input')===document.activeElement&&!el.hidden){return}
  uiKey=key;el.hidden=false;
  el.innerHTML=`<div class="vt-trow">${M?`<input data-tn="${t.id}" value="${esc(t.name)}" aria-label="Nome do token">`:`<b>${esc(t.name)}</b>`}<span class="tag${t.kind==='threat'?' hidt':''}">${t.kind==='char'?'Personagem':t.kind==='threat'?'Ameaça':'Token'}</span>${canMove(t)?'':'<span class="mu">só leitura</span>'}</div>
  ${h&&h.m>0?`<div class="vt-trow"><span class="mu">Vida</span>${h.edit?'<button class="vt-s" data-a="hp-5">−5</button><button class="vt-s" data-a="hp-1">−1</button>':''}<b class="vt-hp">${h.v} / ${h.m}</b>${h.edit?'<button class="vt-s" data-a="hp+1">+1</button><button class="vt-s" data-a="hp+5">+5</button>':''}</div>`:''}
  ${M?`<div class="vt-trow"><span class="mu">Tamanho</span><div class="seg">${[.5,1,2,3,4].map(n=>`<button class="sg${t.size==n?' on':''}" data-a="tsize" data-v="${n}">${n===.5?'½':n}</button>`).join('')}</div><span class="mu">Formato</span><div class="seg"><button class="sg${t.shape==='circle'?' on':''}" data-a="tshape" data-v="circle">Círculo</button><button class="sg${t.shape==='square'?' on':''}" data-a="tshape" data-v="square">Quadrado</button><button class="sg${t.shape==='image'?' on':''}" data-a="tshape" data-v="image" title="Usa a silhueta da própria imagem (PNG com fundo transparente)">Imagem</button></div></div>`:''}
- <div class="vt-trow">${t.kind==='char'&&chars.some(c=>c.id===t.char_id&&vis(c))?'<button data-a="tficha">Abrir ficha</button>':''}${M&&t.kind==='threat'&&t.combat_ref&&hpOf(t)?'<button data-a="tbest">Abrir no bestiário</button>':''}${M?`<button data-a="timg">Imagem…</button><button class="eye${t.hidden?' on':''}" data-a="thide">${t.hidden?'Mostrar aos jogadores':'Ocultar dos jogadores'}</button><button class="x" data-a="tdel">Remover</button><input type="file" id="vtimg" accept="image/*" hidden>`:''}</div>`}
+ <div class="vt-trow">${t.kind==='char'&&chars.some(c=>c.id===t.char_id&&vis(c))?'<button data-a="tficha">Abrir ficha</button>':''}${M&&t.kind==='threat'&&t.combat_ref&&hpOf(t)?'<button data-a="tbest">Abrir no bestiário</button>':''}${M?`<button data-a="timg">Imagem…</button><button class="eye${t.hidden?' on':''}" data-a="thide">${t.hidden?'Mostrar aos jogadores':'Ocultar dos jogadores'}</button><button class="x" data-a="tdel">Remover</button><input type="file" id="vtimg" accept="image/*" hidden>`:''}</div>
+ ${M&&S.mok?`<div class="vt-trow"><button data-a="tsave" title="Guarda imagem, formato e tamanho deste token para reutilizar">Salvar como modelo</button>${t.kind==='char'&&t.image?'<button data-a="tclr" title="Volta a usar a foto da ficha">Usar foto da ficha</button>':''}${t.kind==='char'?(vers=>vers.length?'<span class="mu">Versões</span>'+vers.map(m=>`<button class="vt-s" data-a="tvar" data-id="${m.id}">${esc(m.name)}</button>`).join(''):'')(S.models.filter(m=>m.kind==='char'&&m.char_id===t.char_id)):''}</div>`:''}`}
 function uiPop(){const el=q('#vpop');if(!el)return;
  if(el.contains(document.activeElement)&&document.activeElement.tagName==='INPUT')return;
  if(scene()&&DRAWT.includes(S.tool)&&S.dok){el.hidden=false;el.innerHTML=`<div class="row"><b class="sp">Desenho</b></div><div class="vt-grow"><span>Cor</span><div class="seg">${[['#e0b84a','Âmbar'],['#ff5a4d','Vermelho'],['#5bd17a','Verde'],['#5aa9ff','Azul'],['#ffffff','Branco']].map(([c,n])=>`<button class="sg${S.dcolor===c?' on':''}" data-a="dc" data-v="${c}" style="color:${c}">${n}</button>`).join('')}</div></div><div class="vt-grow"><span>Espessura</span><div class="seg">${[[2,'Fina'],[4,'Média'],[8,'Grossa']].map(([w,n])=>`<button class="sg${S.dw===w?' on':''}" data-a="dw" data-v="${w}">${n}</button>`).join('')}</div></div><p class="mu">Todos da mesa veem o que você desenha. Desfazer apaga o seu último desenho.</p>`;return}
@@ -448,7 +451,7 @@ function uiPop(){const el=q('#vpop');if(!el)return;
  el.hidden=false;el.innerHTML=`<div class="row"><b class="sp">Grade</b><button class="x" data-a="grid">Fechar</button></div><div class="tiles1">${tg('gt-show','Mostrar grade',g.show)}${tg('gt-snap','Encaixar tokens nas casas',g.snap)}${tg('gt-edit','Alinhar arrastando o mapa',S.gridEdit)}</div>
  ${st('size','Tamanho da casa (px)',[-10,-1,1,10])}${st('ox','Deslocamento X',[-10,-1,1,10])}${st('oy','Deslocamento Y',[-10,-1,1,10])}${st('opacity','Opacidade',[-.05,.05])}${st('m','Metros por casa',[-.5,.5])}
  <div class="vt-grow"><span>Cor</span><div class="seg">${[['#ffffff','Branca'],['#000000','Preta'],['#b3261e','Vermelha'],['#e0b84a','Âmbar']].map(([c,n])=>`<button class="sg${g.color===c?' on':''}" data-a="gc" data-v="${c}">${n}</button>`).join('')}</div></div>`}
-function onUi(e){const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a,M=isMaster(),t=tokById(S.sel);
+async function onUi(e){const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a,M=isMaster(),t=tokById(S.sel);
  if(a.startsWith('t-')){const k=a.slice(2);S.tool=k;S.ruler=null;S.dnew=null;S.popup=k==='fog'?'fog':(S.popup==='fog'?'':S.popup);if(k!=='fog')S.fcur=null;return refresh()}
  if(a==='undo')return undoDraw();if(a==='dclear')return clearDraws();
  if(a==='dc'){S.dcolor=b.dataset.v;return refresh()}if(a==='dw'){S.dw=+b.dataset.v;return refresh()}
@@ -471,6 +474,11 @@ function onUi(e){const b=e.target.closest('[data-a]');if(!b)return;const a=b.dat
  if(a==='tficha')return go('agentes',t.char_id);
  if(a==='tbest'){const r=sK('combate')[0];return r&&cbAbrir(cbData(r),t.combat_ref)}
  if(a==='tsize'){const n=+b.dataset.v,s=snapPos(t.x,t.y,{...t,size:n});return tokPatch(t,{size:n,x:s.x,y:s.y}).then(()=>sendPos(t))}
+if(a==='tsave'){const isC=t.kind==='char',n=S.models.filter(m=>isC&&m.char_id===t.char_id).length,nm=prompt('Nome do modelo',isC?t.name+' (versão '+(n+1)+')':t.name);if(!nm||!nm.trim())return;
+  const r=await sb.from('token_modelos').insert({campaign_id:camp.id,name:nm.trim(),kind:isC?'char':'generic',char_id:isC?t.char_id:null,image:tokSrc(t)||null,shape:t.shape,size:t.size}).select().single();
+  if(r.error)return notice('Erro ao salvar o modelo: '+r.error.message);S.models.push(r.data);uiKey='';refresh();return notice('Modelo salvo: '+nm.trim())}
+ if(a==='tvar'){const m=S.models.find(x=>x.id===b.dataset.id);if(m)return tokPatch(t,{image:m.image,shape:m.shape,size:m.size});return}
+ if(a==='tclr')return tokPatch(t,{image:null});
  if(a==='tshape')return tokPatch(t,{shape:b.dataset.v});
  if(a==='thide')return setHidden(t,!t.hidden);
  if(a==='tdel')return ask(`Remover o token "${t.name}"?`).then(ok=>ok&&delTok(t));
@@ -520,21 +528,25 @@ function scenesModal(){const o=document.createElement('div');o.className='modal'
 
 /* ---------------- adicionar tokens (modal do mestre) ---------------- */
 function addTokModal(){const sc=scene();if(!sc)return;const o=document.createElement('div');o.className='modal';
- let tab='char',pc=new Set(),pt=[],qs='',hid=false,gimg='';
+ let tab='char',pc=new Set(),pt=[],qs='',hid=false,gimg='',mq={};const MS=isMaster();
  const onMap=id=>S.tokens.some(t=>t.char_id===id);
  const cbItems=()=>{const r=sK('combate')[0];return r?cbData(r).itens.filter(i=>i.tipo==='ameaca'):[]};
  const draw=()=>{const body=tab==='char'?`<p class="mu">Usa a foto da ficha. O dono do personagem poderá mover o token.</p><div class="tiles">${chars.map(c=>`<button class="tile${pc.has(c.id)?' on':''}" data-pc="${c.id}" ${onMap(c.id)?'disabled':''}><span>${esc(c.name)}${onMap(c.id)?' <small class="mu">já no mapa</small>':''}</span><i class="mk"></i></button>`).join('')||'<p class="mu">Nenhum personagem na campanha.</p>'}</div>`
   :tab==='threat'?`${cbItems().length?`<label>No combate agora</label><div class="tiles">${cbItems().map(i=>`<button class="tile${pt.some(x=>x.ref===i.id)?' on':''}" data-pci="${i.id}"><span>${esc(i.n)}</span><i class="mk"></i></button>`).join('')}</div>`:''}
    <label>Do bestiário</label><input id="vtq" placeholder="Buscar pelo nome…" value="${esc(qs)}"><div class="tiles pick">${(typeof BEST!=='undefined'?BEST:[]).filter(x=>(x.n+' '+x.fam).toLowerCase().includes(qs.toLowerCase())).slice(0,40).map(x=>`<button class="tile${pt.some(p=>!p.ref&&p.n===x.n)?' on':''}" data-pb="${esc(x.n)}"><span>${esc(x.n)}<br><small class="mu">${esc(x.fam||'')}</small></span><i class="mk"></i></button>`).join('')}</div>
    <label>Ou digite um nome</label><div class="row"><input id="vtn" class="sp" placeholder="Nome do token"><button data-pn="1">Adicionar à lista</button></div>${pt.length?`<p class="mu">Na lista: ${pt.map(x=>esc(x.n)).join(', ')}</p>`:''}`
+  :tab==='mod'?(!S.mok?'<p class="mu">Para usar modelos, rode o arquivo <b>08_tabuleiro_v3.sql</b> no Supabase (SQL Editor) uma vez e recarregue o site.</p>':!S.models.length?'<p class="mu">Nenhum modelo salvo ainda. Selecione um token no mapa e use <b>Salvar como modelo</b>. Serve para tokens genéricos (Zumbi, Guarda) e para versões de um personagem (com capa, ferido, transformado).</p>':`<p class="mu">Use + para adicionar cópias. Versões de personagem só entram se o personagem ainda não estiver no mapa.</p><div class="vt-list">${S.models.map(m=>{const ch=m.kind==='char'?chars.find(c=>c.id===m.char_id):null;return `<div class="vt-sc"><span class="vt-th" style="${m.image?`background-image:url('${m.image}')`:''};border-radius:${m.shape==='square'?'4px':'50%'}">${m.image?'':esc((m.name||'?')[0])}</span><span class="sp"><b>${esc(m.name)}</b><br><small class="mu">${ch?'Versão de '+esc(ch.name):'Genérico'} · tamanho ${m.size==.5?'½':m.size}</small></span><button data-pmm="${m.id}">−</button><b>${mq[m.id]||0}</b><button data-pmp="${m.id}">+</button><button class="x" data-pmd="${m.id}" title="Apagar o modelo">✕</button></div>`}).join('')}</div>`)
   :`<label>Nome</label><input id="vgn" placeholder="Ex.: Cultista, Carro, Porta"><div class="row" style="margin-top:8px"><button data-gimg="1">${gimg?'Imagem escolhida ✓':'Escolher imagem (opcional)…'}</button></div><input type="file" id="vgf" accept="image/*" hidden>`;
-  o.innerHTML=`<div class="mbox card"><h3>Adicionar token</h3><div class="tabs" id="vta">${[['char','Personagens'],['threat','Ameaças'],['gen','Genérico']].map(([k,t])=>`<a data-t="${k}" class="${tab===k?'on':''}">${t}</a>`).join('')}</div><div style="margin-top:10px">${body}</div>
+  o.innerHTML=`<div class="mbox card"><h3>Adicionar token</h3><div class="tabs" id="vta">${[['char','Personagens'],['threat','Ameaças'],['gen','Genérico'],...(MS?[['mod','Modelos']]:[])].map(([k,t])=>`<a data-t="${k}" class="${tab===k?'on':''}">${t}</a>`).join('')}</div><div style="margin-top:10px">${body}</div>
   <div class="tiles1" style="margin-top:10px"><button class="tile${hid?' on':''}" data-hid="1"><span>Criar oculto aos jogadores</span><i class="mk"></i></button></div>
   <div class="row" style="margin-top:12px"><span class="sp"></span><button data-k="0">Cancelar</button><button class="pr" data-k="1">Adicionar</button></div></div>`};
  o.addEventListener('input',e=>{if(e.target.id==='vtq'){qs=e.target.value;const pos=e.target.selectionStart;draw();const n=o.querySelector('#vtq');n.focus();n.setSelectionRange(pos,pos)}});
  o.addEventListener('change',async e=>{if(e.target.id==='vgf'&&e.target.files[0]){try{gimg=await fotoResize(e.target.files[0]);draw()}catch(er){alert(er.message)}}});
  o.onclick=async e=>{const a=e.target.closest('a[data-t]');if(a){tab=a.dataset.t;hid=tab==='threat';return draw()}
   const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+  if(d.pmp){mq[d.pmp]=(mq[d.pmp]||0)+1;return draw()}
+  if(d.pmm){mq[d.pmm]=Math.max(0,(mq[d.pmm]||0)-1);return draw()}
+  if(d.pmd){const m=S.models.find(x=>x.id===d.pmd);if(m&&await ask('Apagar o modelo "'+m.name+'"?')){const r=await sb.from('token_modelos').delete().eq('id',m.id);if(r.error)notice(r.error.message);else{S.models=S.models.filter(x=>x.id!==m.id);delete mq[m.id];uiKey='';draw()}}return}
   if(d.pc){pc.has(d.pc)?pc.delete(d.pc):pc.add(d.pc);return draw()}
   if(d.pci){const i=cbItems().find(x=>x.id===d.pci),k=pt.findIndex(x=>x.ref===d.pci);k>=0?pt.splice(k,1):pt.push({n:i.n,ref:i.id});return draw()}
   if(d.pb){const k=pt.findIndex(x=>!x.ref&&x.n===d.pb);k>=0?pt.splice(k,1):pt.push({n:d.pb});return draw()}
@@ -545,10 +557,13 @@ function addTokModal(){const sc=scene();if(!sc)return;const o=document.createEle
   if(d.k==='1'){const list=[];
    if(tab==='char')chars.filter(c=>pc.has(c.id)).forEach(c=>list.push({name:c.name,kind:'char',char_id:c.id,owner_id:c.owner}));
    else if(tab==='threat')pt.forEach(x=>list.push({name:x.n,kind:'threat',combat_ref:x.ref||null}));
+   else if(tab==='mod'){S.models.forEach(m=>{const q=mq[m.id]||0;if(!q)return;
+     if(m.kind==='char'){const c=chars.find(x=>x.id===m.char_id);if(!c)return;if(onMap(c.id)){notice(c.name+' já está no mapa.');return}list.push({name:c.name,kind:'char',char_id:c.id,owner_id:c.owner,image:m.image,shape:m.shape,size:m.size})}
+     else for(let i=1;i<=q;i++)list.push({name:q>1?m.name+' '+i:m.name,kind:'generic',image:m.image,shape:m.shape,size:m.size})})}
    else{const n=(o.querySelector('#vgn').value||'').trim();if(n)list.push({name:n,kind:'generic',image:gimg||null})}
    o.remove();if(!list.length)return;const c0=viewCenter();let k=0;
    for(const it of list){const s=snapPos(c0.x+k*gsz(),c0.y,{size:1});k++;
-    const r=await sb.from('scene_tokens').insert({scene_id:sc.id,campaign_id:camp.id,size:1,shape:'circle',hidden:hid,x:s.x,y:s.y,...it}).select().single();
+    const r=await sb.from('scene_tokens').insert({scene_id:sc.id,campaign_id:camp.id,size:1,shape:'circle',hidden:hid,x:snapPos(c0.x+k*gsz(),c0.y,{size:it.size||1}).x,y:s.y,...it}).select().single();
     if(r.error){notice('Erro ao criar o token: '+r.error.message);continue}if(!S.tokens.some(t=>t.id===r.data.id))S.tokens.push(r.data)}
    need();refresh()}};
  document.body.append(o);draw()}

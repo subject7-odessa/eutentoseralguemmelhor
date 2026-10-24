@@ -2,7 +2,7 @@
 const uid=()=>'id'+Math.random().toString(36).slice(2,10);
 const U='u1';
 window.__db={campaigns:[{id:'c1',name:'Campanha Teste',master:U,code:'ABC123',created_at:'2026-10-01T00:00:00Z'}],
- members:[{campaign_id:'c1',user_id:U}],profiles:[{id:U,name:'Mestre Teste'}],threats:[],rolls:[],characters:[],session_items:[],scenes:[],scene_tokens:[],conteudo_mestre:[],scene_drawings:[]};window.__storage={};
+ members:[{campaign_id:'c1',user_id:U}],profiles:[{id:U,name:'Mestre Teste'}],threats:[],rolls:[],characters:[],session_items:[],scenes:[],scene_tokens:[],conteudo_mestre:[],scene_drawings:[],token_modelos:[]};window.__storage={};
 window.__log=[];window.__cb=[];
 const legacy=(name,attrs,pts,extra)=>({id:uid(),campaign_id:'c1',owner:U,name,created_at:'2026-10-11T00:00:00Z',data:{player:'Jogador',prof:'Policial',esp:'Policial',attrs,extra:extra||{},defPts:0,vidaAtual:14,pressao:0,
  skills:[['Armas de Fogo','COO'],['Corpo a Corpo','COO'],['Defesa','COO'],['Tática','RAC'],['Investigação','RAC'],['Observação','PER'],['Perícia Forense','RAC'],['Pesquisa','RAC'],['Ocultismo','RAC'],['Religião','RAC'],['Medicina','RAC'],['Mecânica','RAC'],['Eletrônica','RAC'],['Computação','RAC'],['Direção','COO'],['Sobrevivência','PER'],['Furtividade','COO'],['Persuasão','RAC'],['Intimidação','CON'],['Enganação','CON'],['Empatia','PER']].map(([n,a])=>({n,attr:a,pts:(pts[n]||0)})).concat([{n:'Idioma: Latim',attr:'RAC',pts:7}]),
