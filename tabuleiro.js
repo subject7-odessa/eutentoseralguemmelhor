@@ -204,6 +204,39 @@ function pick(){let id=null;
  if(isMaster()){try{id=localStorage.getItem(KEY+camp.id)}catch(e){}if(!S.scenes.some(s=>s.id===id))id=(S.scenes.find(s=>s.active)||S.scenes[0]||{}).id||null}
  else id=(S.scenes.find(s=>s.active)||{}).id||null;
  S.cur=id}
+const isGif=src=>typeof src==='string'&&src.startsWith('data:image/gif');
+const GIF_MAX=500*1024;
+function bgRemove(cv,rgb,tol){const w=cv.width,h=cv.height,x=cv.getContext('2d'),im=x.getImageData(0,0,w,h),d=im.data,N=w*h,seen=new Uint8Array(N),st=[];
+ const dist=i=>Math.hypot(d[i*4]-rgb[0],d[i*4+1]-rgb[1],d[i*4+2]-rgb[2]);
+ const push=i=>{if(!seen[i]&&dist(i)<tol){seen[i]=1;st.push(i)}};
+ for(let i=0;i<w;i++){push(i);push((h-1)*w+i)}for(let j=0;j<h;j++){push(j*w);push(j*w+w-1)}
+ while(st.length){const i=st.pop(),cx0=i%w,cy0=(i/w)|0;d[i*4+3]=0;if(cx0>0)push(i-1);if(cx0<w-1)push(i+1);if(cy0>0)push(i-w);if(cy0<h-1)push(i+w)}
+ for(let i=0;i<N;i++){if(seen[i])continue;const cx0=i%w,cy0=(i/w)|0;if((cx0>0&&seen[i-1])||(cx0<w-1&&seen[i+1])||(cy0>0&&seen[i-w])||(cy0<h-1&&seen[i+w])){const k=dist(i);if(k<tol*1.9)d[i*4+3]=Math.round(255*Math.max(0,Math.min(1,(k-tol)/(tol*.9))))}}
+ x.putImageData(im,0,0)}
+function tokImg(f){return new Promise((res,rej)=>{
+ if(!/^image\//.test(f.type))return rej(new Error('Escolha um arquivo de imagem.'));
+ if(f.type==='image/gif'){if(f.size>GIF_MAX)return rej(new Error('GIF muito grande ('+Math.round(f.size/1024)+' KB). O limite é 500 KB. Reduza o tamanho em ezgif.com/optimize e tente de novo.'));
+  const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(new Error('Não foi possível ler o GIF.'));return r.readAsDataURL(f)}
+ const im=new Image(),u=URL.createObjectURL(f);
+ im.onload=async()=>{try{const M=384,k=Math.min(1,M/Math.max(im.width,im.height)),w=Math.max(1,Math.round(im.width*k)),h=Math.max(1,Math.round(im.height*k)),cv=document.createElement('canvas');cv.width=w;cv.height=h;const x=cv.getContext('2d',{willReadFrequently:true});x.drawImage(im,0,0,w,h);URL.revokeObjectURL(u);
+  let alpha=false,d=null;try{d=x.getImageData(0,0,w,h).data;for(let i=3;i<d.length;i+=4)if(d[i]<250){alpha=true;break}}catch(e){}
+  if(!alpha&&d){const px=(a,b)=>{const i=(b*w+a)*4;return [d[i],d[i+1],d[i+2]]},C=[px(0,0),px(w-1,0),px(0,h-1),px(w-1,h-1)],m=C[0],same=C.every(c=>Math.hypot(c[0]-m[0],c[1]-m[1],c[2]-m[2])<28),lum=(m[0]+m[1]+m[2])/3;
+   if(same&&(lum<40||lum>225)){const nome=lum<40?'preto':'branco';if(await ask('Esta imagem tem fundo '+nome+'. Deixar o fundo transparente? (só o que está ligado às bordas some)')){bgRemove(cv,m,lum<40?48:42);alpha=true}}}
+  let out;if(alpha){out=cv.toDataURL('image/webp',.9);if(!out.startsWith('data:image/webp'))out=cv.toDataURL('image/png')}else out=cv.toDataURL('image/jpeg',.88);
+  res(out)}catch(e){rej(e)}};
+ im.onerror=()=>{URL.revokeObjectURL(u);rej(new Error('Não foi possível ler a imagem.'))};im.src=u})}
+const tokKc=t=>t.cor||(t.kind==='char'?(css('--ye')||'#e0b84a'):t.kind==='threat'?(css('--rd')||'#b3261e'):'#9a9086');
+const gifEls=new Map();
+function syncGifs(){const L=q('#vgif');if(!L)return;const sc=scene(),z=S.cam.z,f=fogOf(),M=isMaster(),fc=sc&&f.on&&!M?fogCircles():null,live=new Set();
+ if(sc)S.tokens.forEach(t=>{const src=tokSrc(t);if(!isGif(src))return;live.add(t.id);
+  let el=gifEls.get(t.id);if(!el){el=new Image();el.draggable=false;el.onload=need;L.append(el);gifEls.set(t.id,el)}
+  if(el._src!==src){el.src=src;el._src=src}
+  const r=rad(t),sx=(t.x-S.cam.x)*z,sy=(t.y-S.cam.y)*z,D=r*2*z,vis=!(fc&&!fc.some(([x,y,rr])=>Math.hypot(x-t.x,y-t.y)<rr+r));
+  el.style.display=vis?'block':'none';el.style.opacity=t.hidden?'.5':'1';
+  if(t.shape==='image'){const nw=el.naturalWidth||1,nh=el.naturalHeight||1,k=Math.min(D/nw,D/nh),w=nw*k,h=nh*k;
+   Object.assign(el.style,{left:(sx-w/2)+'px',top:(sy-h/2)+'px',width:w+'px',height:h+'px',objectFit:'contain',borderRadius:'0',border:'0',background:'none',boxSizing:'content-box',filter:t.cor?'drop-shadow(0 0 5px '+t.cor+') drop-shadow(0 0 2px '+t.cor+')':'drop-shadow(0 3px 5px #000a)',outline:t.id===S.sel?'2px solid #ffffffcc':'none',outlineOffset:'2px'})}
+  else{const bw=Math.max(2.5,r*.06*z);Object.assign(el.style,{left:(sx-D/2)+'px',top:(sy-D/2)+'px',width:D+'px',height:D+'px',boxSizing:'border-box',objectFit:'cover',borderRadius:t.shape==='square'?(D*.12)+'px':'50%',border:bw+'px '+(t.hidden?'dashed':'solid')+' '+tokKc(t),background:'#17120f',filter:'none',outline:t.id===S.sel?'2px solid #ffffffcc':'none',outlineOffset:'3px'})}});
+ gifEls.forEach((el,id)=>{if(!live.has(id)){el.remove();gifEls.delete(id)}})}
 const PAL=['#e0b84a','#e0352b','#ff9f40','#5bd17a','#5aa9ff','#b07cff','#ffffff','#111111'];
 const baseName=n=>String(n||'').replace(/\s+\d+$/,'').trim().toLowerCase();
 const versOf=t=>t.kind==='char'?S.models.filter(m=>m.kind==='char'&&m.char_id===t.char_id):S.models.filter(m=>m.kind!=='char'&&baseName(m.grupo||m.name)===baseName(t.name));
@@ -270,7 +303,7 @@ function hpOf(t){
 function size(){if(!root||!cv)return;dpr=Math.min(2,window.devicePixelRatio||1);const r=root.getBoundingClientRect();const W=Math.max(1,Math.round(r.width*dpr)),H=Math.max(1,Math.round(r.height*dpr));if(cv.width!==W)cv.width=W;if(cv.height!==H)cv.height=H;need()}
 function pathTok(t,r){cx.beginPath();if(t.shape==='square'){const k=Math.min(r*.18,14);cx.roundRect?cx.roundRect(t.x-r,t.y-r,r*2,r*2,k):cx.rect(t.x-r,t.y-r,r*2,r*2)}else cx.arc(t.x,t.y,r,0,Math.PI*2)}
 function draw(){dirty=false;if(!cv||!cx)return;const sc=scene(),z=S.cam.z;
- cx.setTransform(1,0,0,1,0,0);cx.fillStyle=css('--bg')||'#120f0d';cx.fillRect(0,0,cv.width,cv.height);if(!sc)return;
+ cx.setTransform(1,0,0,1,0,0);cx.fillStyle=css('--bg')||'#120f0d';cx.fillRect(0,0,cv.width,cv.height);if(!sc){syncGifs();return}
  cx.setTransform(dpr*z,0,0,dpr*z,-S.cam.x*z*dpr,-S.cam.y*z*dpr);
  if(S.img)cx.drawImage(S.img,0,0,sc.map_w,sc.map_h);else{cx.fillStyle='#1d1814';cx.fillRect(0,0,sc.map_w,sc.map_h)}
  cx.lineWidth=2/z;cx.strokeStyle='#00000099';cx.strokeRect(0,0,sc.map_w,sc.map_h);
@@ -279,7 +312,7 @@ if(S.dok||S.dnew)drawDraws(sc);
  const list=[...S.tokens].sort((a,b)=>(a.id===S.sel)-(b.id===S.sel)||(S.drag?.id===a.id)-(S.drag?.id===b.id));
  if(S.drag?.type==='tok'&&S.drag.ghost){const t=tokById(S.drag.id),r=rad(t);cx.save();cx.globalAlpha=.35;cx.fillStyle=css('--ye')||'#e0b84a';pathTok({...t,x:S.drag.ghost.x,y:S.drag.ghost.y},r);cx.fill();cx.restore()}
 list.forEach(drawTok);
- drawFog(sc);drawRuler(sc)}
+ drawFog(sc);drawRuler(sc);syncGifs()}
 function strokeShape(d,z){const c=d.color||'#e0b84a',w=(d.width||4),p=d.pts||[];if(!p.length)return;cx.save();cx.strokeStyle=c;cx.lineWidth=w;cx.lineCap='round';cx.lineJoin='round';cx.beginPath();
  if(d.kind==='pen'){cx.moveTo(p[0][0],p[0][1]);for(let i=1;i<p.length;i++)cx.lineTo(p[i][0],p[i][1]);if(p.length===1)cx.lineTo(p[0][0]+.1,p[0][1])}
  else if(p.length>1){const [a,b]=[p[0],p[p.length-1]];if(d.kind==='line'){cx.moveTo(a[0],a[1]);cx.lineTo(b[0],b[1])}else if(d.kind==='rect')cx.rect(Math.min(a[0],b[0]),Math.min(a[1],b[1]),Math.abs(b[0]-a[0]),Math.abs(b[1]-a[1]));else cx.arc(a[0],a[1],Math.hypot(b[0]-a[0],b[1]-a[1]),0,Math.PI*2)}
@@ -316,7 +349,7 @@ function drawGrid(sc){const g=grid();if(!g.show)return;const z=S.cam.z,{w,h}=vp(
  for(let y=Math.ceil((y0-g.oy)/s)*s+g.oy;y<=y1;y+=s){cx.moveTo(x0,y);cx.lineTo(x1,y)}
  cx.stroke();cx.restore()}
 function drawTokImg(t,r,sel,kc,z){const im=imgOf(tokSrc(t));cx.save();if(t.hidden)cx.globalAlpha=.5;
- if(im){const k=Math.min(r*2/im.naturalWidth,r*2/im.naturalHeight),w=im.naturalWidth*k,h=im.naturalHeight*k;cx.save();cx.shadowColor=t.cor||'#000c';cx.shadowBlur=(t.cor?16:10)/z;cx.shadowOffsetY=t.cor?0:3/z;cx.drawImage(im,t.x-w/2,t.y-h/2,w,h);if(t.cor)cx.drawImage(im,t.x-w/2,t.y-h/2,w,h);cx.restore();if(sel){cx.lineWidth=2/z;cx.strokeStyle='#ffffffcc';cx.strokeRect(t.x-w/2,t.y-h/2,w,h)}}
+ if(im&&!isGif(tokSrc(t))){const k=Math.min(r*2/im.naturalWidth,r*2/im.naturalHeight),w=im.naturalWidth*k,h=im.naturalHeight*k;cx.save();cx.shadowColor=t.cor||'#000c';cx.shadowBlur=(t.cor?16:10)/z;cx.shadowOffsetY=t.cor?0:3/z;cx.drawImage(im,t.x-w/2,t.y-h/2,w,h);if(t.cor)cx.drawImage(im,t.x-w/2,t.y-h/2,w,h);cx.restore();if(sel){cx.lineWidth=2/z;cx.strokeStyle='#ffffffcc';cx.strokeRect(t.x-w/2,t.y-h/2,w,h)}}
  cx.restore()}
 function drawTok(t){const z=S.cam.z,r=rad(t),sel=t.id===S.sel,kc=t.cor||(t.kind==='char'?(css('--ye')||'#e0b84a'):t.kind==='threat'?(css('--rd')||'#b3261e'):'#9a9086');
  if(t.shape==='image'&&imgOf(tokSrc(t)))drawTokImg(t,r,sel,kc,z);else{
@@ -324,7 +357,7 @@ function drawTok(t){const z=S.cam.z,r=rad(t),sel=t.id===S.sel,kc=t.cor||(t.kind=
  cx.save();cx.shadowColor='#000b';cx.shadowBlur=10/z;cx.shadowOffsetY=3/z;pathTok(t,r);cx.fillStyle='#17120f';cx.fill();cx.restore();
  const im=imgOf(tokSrc(t));
  cx.save();pathTok(t,r);cx.clip();
- if(im){const k=Math.max(r*2/im.naturalWidth,r*2/im.naturalHeight),w=im.naturalWidth*k,h=im.naturalHeight*k;cx.drawImage(im,t.x-w/2,t.y-h/2,w,h)}
+ if(im&&!isGif(tokSrc(t))){const k=Math.max(r*2/im.naturalWidth,r*2/im.naturalHeight),w=im.naturalWidth*k,h=im.naturalHeight*k;cx.drawImage(im,t.x-w/2,t.y-h/2,w,h)}
  else{cx.fillStyle='#2a221c';cx.fillRect(t.x-r,t.y-r,r*2,r*2);cx.fillStyle='#d8cdbf';cx.font=`600 ${r*.9}px "Libre Baskerville",Georgia,serif`;cx.textAlign='center';cx.textBaseline='middle';cx.fillText(ini(t.name),t.x,t.y+r*.04)}
  cx.restore();
  pathTok(t,r);cx.lineWidth=Math.max(2.5/z,r*.06);cx.strokeStyle=kc;if(t.hidden)cx.setLineDash([r*.18,r*.12]);cx.stroke();cx.setLineDash([]);
@@ -400,7 +433,7 @@ const IC={sel:'<path d="M5 3l14 8-6 1.5L10 19z"/>',pan:'<path d="M8 12V5a1.5 1.5
 const svg=n=>`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${IC[n]}</svg>`;
 function build(){
  root=document.createElement('div');root.id='vtt';root.hidden=true;
- root.innerHTML=`<canvas id="vc"></canvas><div class="vt-top" id="vtop"></div><div class="vt-tools" id="vtools"></div><div class="vt-zoom" id="vzoom"></div><div class="vt-pop" id="vpop" hidden></div><div class="vt-tok" id="vtok" hidden></div><div class="vt-msg" id="vmsg" hidden></div>`;
+ root.innerHTML=`<canvas id="vc"></canvas><div id="vgif"></div><div class="vt-top" id="vtop"></div><div class="vt-tools" id="vtools"></div><div class="vt-zoom" id="vzoom"></div><div class="vt-pop" id="vpop" hidden></div><div class="vt-tok" id="vtok" hidden></div><div class="vt-msg" id="vmsg" hidden></div>`;
  document.body.append(root);cv=q('#vc');cx=cv.getContext('2d');bind();
  root.addEventListener('click',onUi);
  root.addEventListener('change',onUiChange);
@@ -440,7 +473,7 @@ function uiTok(){const el=q('#vtok');if(!el)return;const t=tokById(S.sel);
  uiKey=key;el.hidden=false;
  el.innerHTML=`<div class="vt-trow">${M?`<input data-tn="${t.id}" value="${esc(t.name)}" aria-label="Nome do token">`:`<b>${esc(t.name)}</b>`}<span class="tag${t.kind==='threat'?' hidt':''}">${t.kind==='char'?'Personagem':t.kind==='threat'?'Ameaça':'Token'}</span>${canMove(t)?'':'<span class="mu">só leitura</span>'}</div>
  ${h&&h.m>0?`<div class="vt-trow"><span class="mu">Vida</span>${h.edit?'<button class="vt-s" data-a="hp-5">−5</button><button class="vt-s" data-a="hp-1">−1</button>':''}<b class="vt-hp">${h.v} / ${h.m}</b>${h.edit?'<button class="vt-s" data-a="hp+1">+1</button><button class="vt-s" data-a="hp+5">+5</button>':''}</div>`:''}
- ${M?`<div class="vt-trow"><span class="mu">Tamanho</span><div class="seg">${[.5,1,2,3,4].map(n=>`<button class="sg${t.size==n?' on':''}" data-a="tsize" data-v="${n}">${n===.5?'½':n}</button>`).join('')}</div><span class="mu">Formato</span><div class="seg"><button class="sg${t.shape==='circle'?' on':''}" data-a="tshape" data-v="circle">Círculo</button><button class="sg${t.shape==='square'?' on':''}" data-a="tshape" data-v="square">Quadrado</button><button class="sg${t.shape==='image'?' on':''}" data-a="tshape" data-v="image" title="Usa a silhueta da própria imagem (PNG com fundo transparente)">Imagem</button></div></div><div class="vt-trow"><span class="mu">Borda</span>${PAL.map(c=>`<button class="vt-sw${t.cor===c?' on':''}" data-a="tcor" data-v="${c}" style="background:${c}" aria-label="Cor ${c}"></button>`).join('')}<input type="color" id="vtcor" value="${t.cor||'#9a9086'}" aria-label="Outra cor"><button class="vt-s" data-a="tcor" data-v="">Padrão</button></div>`:''}
+ ${M?`<div class="vt-trow"><span class="mu">Tamanho</span><div class="seg">${[.5,1,2,3,4].map(n=>`<button class="sg${t.size==n?' on':''}" data-a="tsize" data-v="${n}">${n===.5?'½':n}</button>`).join('')}</div><span class="mu">Formato</span><div class="seg"><button class="sg${t.shape==='circle'?' on':''}" data-a="tshape" data-v="circle">Círculo</button><button class="sg${t.shape==='square'?' on':''}" data-a="tshape" data-v="square">Quadrado</button><button class="sg${t.shape==='image'?' on':''}" data-a="tshape" data-v="image" title="Usa a silhueta da própria imagem: PNG com fundo transparente ou GIF animado (até 500 KB)">Imagem</button></div></div><div class="vt-trow"><span class="mu">Borda</span>${PAL.map(c=>`<button class="vt-sw${t.cor===c?' on':''}" data-a="tcor" data-v="${c}" style="background:${c}" aria-label="Cor ${c}"></button>`).join('')}<input type="color" id="vtcor" value="${t.cor||'#9a9086'}" aria-label="Outra cor"><button class="vt-s" data-a="tcor" data-v="">Padrão</button></div>`:''}
  <div class="vt-trow">${t.kind==='char'&&chars.some(c=>c.id===t.char_id&&vis(c))?'<button data-a="tficha">Abrir ficha</button>':''}${M&&t.kind==='threat'&&t.combat_ref&&hpOf(t)?'<button data-a="tbest">Abrir no bestiário</button>':''}${M?`<button data-a="timg">Imagem…</button><button class="eye${t.hidden?' on':''}" data-a="thide">${t.hidden?'Mostrar aos jogadores':'Ocultar dos jogadores'}</button><button class="x" data-a="tdel">Remover</button><input type="file" id="vtimg" accept="image/*" hidden>`:''}</div>
  ${M&&S.mok?`<div class="vt-trow"><button data-a="tsave" title="Guarda imagem, formato e tamanho deste token para reutilizar">Salvar como modelo</button>${t.kind==='char'&&t.image?'<button data-a="tclr" title="Volta a usar a foto da ficha">Usar foto da ficha</button>':''}${(vers=>vers.length?'<span class="mu">Versões</span>'+vers.map(m=>`<button class="vt-s" data-a="tvar" data-id="${m.id}">${esc(m.name)}</button>`).join(''):'')(versOf(t))}</div>`:''}`}
 function uiPop(){const el=q('#vpop');if(!el)return;
@@ -494,7 +527,7 @@ if(a==='tsave'){const isC=t.kind==='char';let grupo=null,nm;
 async function onUiChange(e){const t=tokById(S.sel);
  if(e.target.id==='vtcor'&&t&&isMaster())return tokPatch(t,{cor:e.target.value});
  if(e.target.dataset.tn&&t&&isMaster()){const n=e.target.value.trim()||t.name;return tokPatch(t,{name:n})}
- if(e.target.id==='vtimg'&&t&&e.target.files[0]){try{const im=await fotoResize(e.target.files[0]);await tokPatch(t,{image:im})}catch(er){alert(er.message)}}}
+ if(e.target.id==='vtimg'&&t&&e.target.files[0]){const f=e.target.files[0];e.target.value='';try{const im=await tokImg(f);await tokPatch(t,{image:im})}catch(er){alert(er.message)}}}
 
 /* ---------------- cenas e mapas (modal do mestre) ---------------- */
 const dims=du=>new Promise((res,rej)=>{const im=new Image();im.onload=()=>res([im.naturalWidth,im.naturalHeight]);im.onerror=()=>rej(new Error('Imagem inválida.'));im.src=du});
@@ -550,7 +583,7 @@ function addTokModal(){const sc=scene();if(!sc)return;const o=document.createEle
   <div class="tiles1" style="margin-top:10px"><button class="tile${hid?' on':''}" data-hid="1"><span>Criar oculto aos jogadores</span><i class="mk"></i></button></div>
   <div class="row" style="margin-top:12px"><span class="sp"></span><button data-k="0">Cancelar</button><button class="pr" data-k="1">Adicionar</button></div></div>`};
  o.addEventListener('input',e=>{if(e.target.id==='vtq'){qs=e.target.value;const pos=e.target.selectionStart;draw();const n=o.querySelector('#vtq');n.focus();n.setSelectionRange(pos,pos)}});
- o.addEventListener('change',async e=>{if(e.target.id==='vgf'&&e.target.files[0]){try{gimg=await fotoResize(e.target.files[0]);draw()}catch(er){alert(er.message)}}});
+ o.addEventListener('change',async e=>{if(e.target.id==='vgf'&&e.target.files[0]){const f=e.target.files[0];e.target.value='';try{gimg=await tokImg(f);draw()}catch(er){alert(er.message)}}});
  o.onclick=async e=>{const a=e.target.closest('a[data-t]');if(a){tab=a.dataset.t;hid=tab==='threat';return draw()}
   const b=e.target.closest('button');if(!b)return;const d=b.dataset;
   if(d.pmp){mq[d.pmp]=(mq[d.pmp]||0)+1;return draw()}
