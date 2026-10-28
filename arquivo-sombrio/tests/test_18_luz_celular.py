@@ -1,0 +1,35 @@
+import os,sys,tempfile
+HERE=os.path.dirname(os.path.abspath(__file__))
+INDEX=os.path.abspath(os.path.join(HERE,'..','site','index.html'))
+MAPA=os.path.join(HERE,'mapa.png')
+TMP=tempfile.gettempdir()
+import asyncio
+from playwright.async_api import async_playwright
+async def main():
+    async with async_playwright() as p:
+        b=await p.chromium.launch(args=['--no-sandbox'])
+        ctx=await b.new_context(viewport={'width':390,'height':844},device_scale_factor=2,is_mobile=True,has_touch=True)
+        pg=await ctx.new_page()
+        errs=[];pg.on('pageerror',lambda e:errs.append('PE:'+str(e)))
+        pg.on('dialog',lambda d:asyncio.ensure_future(d.accept('x')))
+        mock=open(os.path.join(HERE,'mock_supabase.js'),encoding='utf8').read()
+        await pg.route('**/@supabase/supabase-js@2',lambda r:r.fulfill(body=mock,content_type='application/javascript'))
+        await pg.route('**/fonts.googleapis.com/**',lambda r:r.abort())
+        await pg.goto('file://'+INDEX)
+        await pg.wait_for_selector('[data-e]');await pg.tap('[data-e]');await pg.wait_for_selector('#nav')
+        await pg.evaluate("go('tabuleiro')");await pg.wait_for_selector('#vtt:not([hidden])')
+        await pg.tap('[data-a=scenes]');await pg.fill('#vsn','T');await pg.set_input_files('#vsfile',MAPA);await pg.tap('[data-create]');await pg.wait_for_timeout(1500)
+        await pg.tap('[data-a=addtok]');await pg.tap('.modal [data-pc]');await pg.tap('.modal [data-k="1"]');await pg.wait_for_timeout(500)
+        await pg.evaluate("document.querySelector('[data-a=t-luz]').scrollIntoView({inline:'center'})")
+        await pg.tap('[data-a=t-luz]');await pg.wait_for_selector('[data-a=ltema]');await pg.tap('[data-a=ltema][data-v=tarde]');await pg.wait_for_timeout(300)
+        await pg.screenshot(path=os.path.join(TMP,'mob/40_luz.png'))
+        # jogador: só vê o que o token dele enxerga
+        await pg.tap('[data-a=lon]')
+        await pg.evaluate("(()=>{VTT.state.tokens[0].owner_id='u3'})()")
+        await pg.evaluate("user={id:'u3'};window.__who='jogador'");await pg.wait_for_timeout(100)
+        t=await pg.evaluate("VTT.state.tokens[0]")
+        await pg.evaluate("VTT.state.lcKey='';VTT.fit()");await pg.wait_for_timeout(300)
+        print('jogador vê o próprio token (escuridão):',round(await pg.evaluate(f"VTT.lumAt({t['x']},{t['y']})"),2),'| longe:',round(await pg.evaluate(f"VTT.lumAt({t['x']-900},{t['y']})"),2))
+        print('ERRS',errs)
+        await b.close()
+asyncio.run(main())

@@ -1,0 +1,36 @@
+import os,sys
+HERE=os.path.dirname(os.path.abspath(__file__))
+INDEX=os.path.abspath(os.path.join(HERE,'..','site','index.html'))
+MESTRE=os.path.abspath(os.path.join(HERE,'..','privado','mestre.json'))
+MAPA=os.path.join(HERE,'mapa.png')
+import asyncio
+from playwright.async_api import async_playwright
+async def main():
+    async with async_playwright() as p:
+        b=await p.chromium.launch(args=['--no-sandbox'])
+        pg=await b.new_page(viewport={'width':1280,'height':900})
+        errs=[]
+        pg.on('pageerror',lambda e:errs.append('PE:'+str(e)))
+        pg.on('dialog',lambda d:asyncio.ensure_future(d.accept()))
+        mock=open(os.path.join(HERE,'mock_supabase.js'),encoding='utf8').read()
+        await pg.route('**/@supabase/supabase-js@2',lambda r:r.fulfill(body=mock,content_type='application/javascript'))
+        await pg.route('**/fonts.googleapis.com/**',lambda r:r.abort())
+        await pg.goto('file://'+INDEX)
+        await pg.wait_for_selector('[data-e]');await pg.click('[data-e]')
+        await pg.click('#nav a[data-v=livro]');await pg.wait_for_selector('#lvc',state='attached')
+        await pg.click('[data-lt=bld]');await pg.wait_for_selector('#bldout')
+        await pg.fill('[data-b=n]','Palhaço');await pg.fill('[data-ba=COO]','4');await pg.wait_for_timeout(100)
+        await pg.click('[data-badd=cap]');await pg.fill('[data-bc="0:n"]','Invisibilidade');await pg.fill('[data-bc="0:v"]','80')
+        await pg.click('[data-badd=atk]');await pg.fill('[data-ba2="0:n"]','Garras')
+        await pg.fill('[data-b=sin]','cheiro\nfrio\nanimais inquietos')
+        await pg.fill('[data-b=vul]','sal')
+        await pg.click('[data-bsug]')
+        print((await pg.inner_text('#bldout'))[:700]);print('--- avisos:',(await pg.inner_text('#bldav')).replace('\n',' | '))
+        await pg.click('[data-bact=combat]');await pg.wait_for_timeout(300)
+        print('combate:',await pg.evaluate("JSON.stringify(sess.find(x=>x.kind==='combate').data.itens.map(i=>[i.n,i.ini,i.vida,i.def]))"))
+        await pg.click('[data-bact=save]');await pg.wait_for_timeout(200)
+        print('ameacas db:',await pg.evaluate("window.__db.threats.map(t=>t.name)"))
+        await pg.screenshot(path=os.path.join(__import__('tempfile').gettempdir(),'b1.png'),full_page=True)
+        print('ERRS',errs)
+        await b.close()
+asyncio.run(main())

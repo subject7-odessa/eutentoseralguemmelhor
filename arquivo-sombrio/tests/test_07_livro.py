@@ -1,0 +1,35 @@
+import os,sys
+HERE=os.path.dirname(os.path.abspath(__file__))
+INDEX=os.path.abspath(os.path.join(HERE,'..','site','index.html'))
+MESTRE=os.path.abspath(os.path.join(HERE,'..','privado','mestre.json'))
+MAPA=os.path.join(HERE,'mapa.png')
+import asyncio
+from playwright.async_api import async_playwright
+async def main():
+    async with async_playwright() as p:
+        b=await p.chromium.launch(args=['--no-sandbox'])
+        pg=await b.new_page(viewport={'width':1280,'height':900})
+        errs=[]
+        pg.on('pageerror',lambda e:errs.append('PE:'+str(e)))
+        mock=open(os.path.join(HERE,'mock_supabase.js'),encoding='utf8').read()
+        await pg.route('**/@supabase/supabase-js@2',lambda r:r.fulfill(body=mock,content_type='application/javascript'))
+        await pg.route('**/fonts.googleapis.com/**',lambda r:r.abort())
+        await pg.goto('file://'+INDEX)
+        await pg.wait_for_selector('[data-e]');await pg.click('[data-e]')
+        await pg.wait_for_selector('#nav a[data-v=livro]');await pg.click('#nav a[data-v=livro]')
+        await pg.wait_for_selector('#lvc',state='attached',timeout=15000)
+        print('capitulos:',await pg.eval_on_selector_all('#lvc option','e=>e.length'))
+        await pg.evaluate("(()=>{const s=document.querySelector('#lvc');s.value='10';s.dispatchEvent(new Event('change',{bubbles:true}))})()");await pg.wait_for_timeout(200)
+        print('secoes cap10:',await pg.eval_on_selector_all('details.xc','e=>e.length'))
+        await pg.screenshot(path=os.path.join(__import__('tempfile').gettempdir(),'lv1.png'))
+        await pg.fill('#lvq','cobertura');await pg.wait_for_timeout(300)
+        print('busca:',(await pg.inner_text('#app'))[:120].replace('\n',' | '))
+        await pg.fill('#lvq','')
+        await pg.click('[data-lt=tab]');await pg.click('[data-roll="0"]');await pg.wait_for_timeout(100)
+        print('d20:',(await pg.inner_text('#lr0')))
+        await pg.click('[data-lt=nom]');await pg.click('[data-nm=f]');await pg.click('[data-nm=e]')
+        print('nomes:',(await pg.inner_text('#lvn')).replace('\n',' | '))
+        await pg.click('[data-lt=cap]');await pg.evaluate("(()=>{const s=document.querySelector('#lvc');s.value='18';s.dispatchEvent(new Event('change',{bubbles:true}))})()");await pg.screenshot(path=os.path.join(__import__('tempfile').gettempdir(),'lv2.png'))
+        print('ERRS',errs)
+        await b.close()
+asyncio.run(main())

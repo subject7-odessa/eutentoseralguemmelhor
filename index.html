@@ -481,6 +481,8 @@ body.vtt-on #app{display:none}
 .vt-list{display:flex;flex-direction:column;gap:8px;max-height:40vh;overflow:auto}
 .vt-sc{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--p2);border:1px solid var(--ln);padding:8px 10px}
 .vt-sc.on{border-color:var(--rd);box-shadow:inset 3px 0 0 var(--rd)}
+.vt-pop h4{margin:12px 0 4px;color:var(--rd);font-size:11px;letter-spacing:.12em;text-transform:uppercase}.vt-pop input[type=range]{width:52%;accent-color:var(--rd)}.vt-pop input[type=color]{width:42px;height:30px;padding:0;border:1px solid var(--ln);background:none}
+.vt-chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}.vt-ch{padding:4px 10px;font-size:12px;min-height:0;display:inline-flex;align-items:center;gap:6px}.vt-ch i{display:inline-block;width:11px;height:11px;border-radius:50%;background:var(--c);border:1px solid #000a}.vt-ch.on{background:var(--rd2);border-color:var(--rd);color:#fff}
 .vt-sw{width:26px;height:26px;min-height:0;padding:0;border-radius:50%;border:2px solid #000a;cursor:pointer}.vt-sw.on{outline:2px solid #fff;outline-offset:1px}.vt-trow input[type=color]{width:34px;height:30px;padding:0;border:1px solid var(--ln);background:none}
 .vt-th{flex:none;width:38px;height:38px;display:flex;align-items:center;justify-content:center;background:#2a1214 center/cover no-repeat;border:1px solid var(--ln);font-size:16px}
 .vt-sc .sp{min-width:180px}.vt-sc input{width:100%;margin-bottom:2px}
@@ -496,8 +498,8 @@ body.vtt-on #app{display:none}
  .vt-pop{left:8px;right:8px;top:auto;bottom:66px;width:auto;max-width:none;max-height:46%}
  .vt-tok{bottom:66px;width:calc(100% - 16px)}.vt-trow input{width:100%}
  .vt-msg{width:calc(100% - 16px)}
- .vt-pop{padding:8px;max-height:38%}.vt-pop p.mu{display:none}.vt-pop .vt-grow{margin-top:6px}.vt-pop .seg .sg{padding:5px 8px;min-width:0}
- body.vtt-on #logbtn{bottom:calc(150px + env(safe-area-inset-bottom));width:44px;height:44px;min-height:44px;padding:0;font-size:0}body.vtt-on #logbtn::before{content:'🎲';font-size:20px}
+ .vt-pop{padding:8px;max-height:54%}.vt-pop p.mu{display:none}.vt-pop .vt-grow{margin-top:6px}.vt-pop .seg .sg{padding:5px 8px;min-width:0}
+ body.vtt-on #logbtn{bottom:calc(150px + env(safe-area-inset-bottom))}body.vtt-on:has(.vt-pop:not([hidden])) #logbtn{display:none}
 }
 }
 </style></head><body>
