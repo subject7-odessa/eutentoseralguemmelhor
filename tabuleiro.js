@@ -165,7 +165,7 @@ exception when duplicate_object then null;
 end $$;
 `;
 const KEY='as-vtt-';
-const S={ok:true,loaded:false,scenes:[],cur:null,tokens:[],sel:null,cam:{x:0,y:0,z:1},img:null,imgPath:'',imgErr:'',tool:'sel',gridEdit:false,drag:null,popup:'',camp:null,draws:[],models:[],mok:false,lmode:'wall',lr:6,lcolor:'#ffd9a0',lprev:false,wnew:null,lcKey:'',lc:null,lcDone:false,dok:false,dcolor:'#e0b84a',dw:4,dnew:null,ruler:null,fbrush:3,fmode:'rev'};
+const S={ok:true,loaded:false,scenes:[],cur:null,tokens:[],sel:null,cam:{x:0,y:0,z:1},img:null,imgPath:'',imgErr:'',tool:'sel',gridEdit:false,drag:null,popup:'',camp:null,draws:[],models:[],mok:false,lmode:'wall',wopn:100,lr:6,lcolor:'#ffd9a0',lprev:false,wnew:null,lcKey:'',lc:null,lcDone:false,dok:false,dcolor:'#e0b84a',dw:4,dnew:null,ruler:null,fbrush:3,fmode:'rev'};
 const imgs=new Map(),ptrs=new Map();
 let root=null,cv=null,cx=null,dpr=1,dirty=true,raf=0,uiKey='',gridTimer=0,poll=0,pinch=null,chan=null,loading=false,fogCv=null;
 const q=s=>root&&root.querySelector(s);
@@ -247,7 +247,7 @@ function syncGifs(){const L=q('#vgif');if(!L)return;const sc=scene(),z=S.cam.z,f
  gifEls.forEach((el,id)=>{if(!live.has(id)){el.remove();gifEls.delete(id)}})}
 
 /* ---------------- iluminação: ambiente (brilho e tema de cor) e luz dinâmica (paredes, portas, luzes, visão) ---------------- */
-const LZ0={on:false,amb:.85,vis:6,walls:[],lights:[],bri:100,cor:'#ffffff',forca:0,tema:''};
+const LZ0={on:false,amb:.85,vis:6,walls:[],lights:[],bri:100,cor:'#ffffff',forca:0,tema:'',wop:100};
 const TEMAS=[['','Nenhum','#ffffff',0],['dia','Dia claro','#fff1c9',22],['tarde','Entardecer','#ff9a52',55],['noite','Noite','#3550c8',68],['luar','Luar','#8fb4ff',45],['vela','Luz de vela','#ff7a2a',52],['alarme','Alarme','#ff2a2a',55],['pantano','Pântano','#4fb36a',52],['neon','Neon','#b24bff',52]];
 const luzAv=()=>{const sc=scene();return !!sc&&sc.luz!==undefined};
 const luzOf=()=>({...LZ0,...(scene()?.luz||{})});
@@ -266,24 +266,37 @@ function visPoly(ox,oy,R,segs){const b=[[ox-R,oy-R,ox+R,oy-R],[ox+R,oy-R,ox+R,oy
  an.sort((p,q)=>p-q);const pts=[];
  for(const a of an){const dx=Math.cos(a),dy=Math.sin(a);let best=Infinity;for(const s of all){const t=raySeg(ox,oy,dx,dy,s);if(t<best)best=t}if(best<Infinity)pts.push([ox+dx*best,oy+dy*best])}
  return pts}
-function lumData(){const sc=scene(),L=luzOf(),M=isMaster(),G=gsz(),segs=L.walls.filter(w=>w[4]!==2).map(w=>[w[0],w[1],w[2],w[3]]),R=Math.max(sc.map_w,sc.map_h)*1.5;
+const wallE=(w,L)=>clamp(((w[5]==null?100:+w[5])/100)*((L.wop==null?100:+L.wop)/100),0,1);
+function lumData(){const sc=scene(),L=luzOf(),M=isMaster(),G=gsz(),R=Math.max(sc.map_w,sc.map_h)*1.5;
+ const ws=L.walls.filter(w=>w[4]!==2).map(w=>({s:[w[0],w[1],w[2],w[3]],e:Math.round(wallE(w,L)*10)/10})).filter(w=>w.e>0);
+ const lv=[...new Set(ws.map(w=>w.e).concat([1]))].sort((a,b)=>a-b);
  const viewers=S.tokens.filter(t=>t.kind==='char'&&!t.hidden&&(M||t.owner_id===user.id)),lights=[];
  L.lights.forEach(l=>lights.push({x:l[0],y:l[1],r:l[2]*G,cor:l[3]||'#ffd9a0'}));
  S.tokens.forEach(t=>{if(!t.hidden&&+t.luz>0)lights.push({x:t.x,y:t.y,r:t.luz*G,cor:'#ffd9a0'})});
- const key=JSON.stringify([segs,viewers.map(v=>[v.x,v.y,v.visao]),lights.map(l=>[l.x,l.y,l.r,l.cor]),R,L.vis,G]);
- if(S.lcKey!==key){S.lcKey=key;S.lc={vs:viewers.map(v=>({x:v.x,y:v.y,rv:(v.visao!=null&&v.visao!==''?+v.visao:L.vis)*G,poly:visPoly(v.x,v.y,R,segs)})),ls:lights.map(l=>({...l,poly:visPoly(l.x,l.y,l.r,segs)}))}}
+ const key=JSON.stringify([ws,viewers.map(v=>[v.x,v.y,v.visao]),lights.map(l=>[l.x,l.y,l.r,l.cor]),R,L.vis,G]);
+ if(S.lcKey!==key){S.lcKey=key;let prev=0;S.lc=lv.map(l=>{const w=l-prev;prev=l;const segs=ws.filter(x=>x.e>=l-1e-9).map(x=>x.s);
+  return {w,vs:viewers.map(v=>({x:v.x,y:v.y,rv:(v.visao!=null&&v.visao!==''?+v.visao:L.vis)*G,poly:visPoly(v.x,v.y,R,segs)})),ls:lights.map(l2=>({...l2,poly:visPoly(l2.x,l2.y,l2.r,segs)}))}})}
  return S.lc}
-function drawTint(sc){if(!luzAv())return;const L=luzOf(),fr=clamp((+L.forca||0)/100,0,1),bri=+L.bri||100,z=S.cam.z,W=cv.width,H=cv.height,wt=()=>cx.setTransform(dpr*z,0,0,dpr*z,-S.cam.x*z*dpr,-S.cam.y*z*dpr);
- if(fr>0){const t=offc('tint'),c=t.ctx;c.setTransform(1,0,0,1,0,0);c.globalCompositeOperation='source-over';c.clearRect(0,0,W,H);c.fillStyle=mixW(L.cor,fr);c.fillRect(0,0,W,H);
-  if(L.on){const D=lumData();c.globalCompositeOperation='destination-out';c.setTransform(dpr*z,0,0,dpr*z,-S.cam.x*z*dpr,-S.cam.y*z*dpr);D.ls.forEach(li=>{c.save();poly(c,li.poly);c.clip();lg(c,li.x,li.y,li.r);c.restore()})}
+function drawTint(sc){if(!luzAv())return;const L=luzOf(),fr=clamp((+L.forca||0)/100,0,1),bri=+L.bri||100,z=S.cam.z,W=cv.width,H=cv.height,wtc=c=>c.setTransform(dpr*z,0,0,dpr*z,-S.cam.x*z*dpr,-S.cam.y*z*dpr);
+ if(fr>0){const t=offc('tint'),c=t.ctx;c.setTransform(1,0,0,1,0,0);c.globalCompositeOperation='source-over';c.globalAlpha=1;c.clearRect(0,0,W,H);c.fillStyle=mixW(L.cor,fr);c.fillRect(0,0,W,H);
+  if(L.on){const LD=lumData(),lm=offc('lm'),m=lm.ctx,tp=offc('tmp'),t2=tp.ctx;m.setTransform(1,0,0,1,0,0);m.globalCompositeOperation='source-over';m.globalAlpha=1;m.clearRect(0,0,W,H);
+   LD.forEach(lev=>{t2.setTransform(1,0,0,1,0,0);t2.clearRect(0,0,W,H);wtc(t2);lev.ls.forEach(li=>{t2.save();poly(t2,li.poly);t2.clip();lg(t2,li.x,li.y,li.r);t2.restore()});m.setTransform(1,0,0,1,0,0);m.globalCompositeOperation='lighter';m.globalAlpha=lev.w;m.drawImage(tp,0,0)});
+   m.globalAlpha=1;c.setTransform(1,0,0,1,0,0);c.globalCompositeOperation='destination-out';c.drawImage(lm,0,0);c.globalCompositeOperation='source-over'}
   cx.save();cx.setTransform(1,0,0,1,0,0);cx.globalCompositeOperation='multiply';cx.drawImage(t,0,0);cx.restore()}
- if(L.on){const D=lumData();cx.save();wt();cx.globalCompositeOperation='screen';D.ls.forEach(li=>{if(/^#?f{2}d9a0$/i.test(li.cor)&&false)return;cx.save();poly(cx,li.poly);cx.clip();const g=cx.createRadialGradient(li.x,li.y,0,li.x,li.y,li.r),[r,gg,b]=hex2(li.cor);g.addColorStop(0,'rgba('+r+','+gg+','+b+',.30)');g.addColorStop(1,'rgba('+r+','+gg+','+b+',0)');cx.fillStyle=g;cx.beginPath();cx.arc(li.x,li.y,li.r,0,7);cx.fill();cx.restore()});cx.restore()}
+ if(L.on){const LD=lumData();cx.save();wtc(cx);cx.globalCompositeOperation='screen';
+  LD.forEach(lev=>lev.ls.forEach(li=>{cx.save();poly(cx,li.poly);cx.clip();const g=cx.createRadialGradient(li.x,li.y,0,li.x,li.y,li.r),[r,gg,b]=hex2(li.cor),a=.30*lev.w;g.addColorStop(0,'rgba('+r+','+gg+','+b+','+a+')');g.addColorStop(1,'rgba('+r+','+gg+','+b+',0)');cx.fillStyle=g;cx.beginPath();cx.arc(li.x,li.y,li.r,0,7);cx.fill();cx.restore()}));cx.restore()}
  if(bri<100){cx.save();cx.setTransform(1,0,0,1,0,0);cx.fillStyle='rgba(0,0,0,'+((100-bri)/100*.85)+')';cx.fillRect(0,0,W,H);cx.restore()}
  else if(bri>100){cx.save();cx.setTransform(1,0,0,1,0,0);cx.globalCompositeOperation='screen';cx.fillStyle='rgba(255,255,255,'+((bri-100)/100*.5)+')';cx.fillRect(0,0,W,H);cx.restore()}}
-function drawLum(sc){const L=luzOf();if(!L.on)return;const M=isMaster(),D=lumData(),z=S.cam.z,W=cv.width,H=cv.height,wt=c=>c.setTransform(dpr*z,0,0,dpr*z,-S.cam.x*z*dpr,-S.cam.y*z*dpr);
- const V=offc('vis'),v=V.ctx;v.setTransform(1,0,0,1,0,0);v.clearRect(0,0,W,H);wt(v);v.fillStyle='#fff';D.vs.forEach(vw=>{poly(v,vw.poly);v.fill()});
- const Lc=offc('lit'),l=Lc.ctx;l.setTransform(1,0,0,1,0,0);l.clearRect(0,0,W,H);wt(l);
- D.vs.forEach(vw=>{l.save();poly(l,vw.poly);l.clip();if(vw.rv>0)lg(l,vw.x,vw.y,vw.rv);D.ls.forEach(li=>{l.save();poly(l,li.poly);l.clip();lg(l,li.x,li.y,li.r);l.restore()});l.restore()});
+function drawLum(sc){const L=luzOf();if(!L.on)return;const M=isMaster(),LD=lumData(),z=S.cam.z,W=cv.width,H=cv.height,wtc=c=>c.setTransform(dpr*z,0,0,dpr*z,-S.cam.x*z*dpr,-S.cam.y*z*dpr);
+ const V=offc('vis'),v=V.ctx,Lc=offc('lit'),l=Lc.ctx,tp=offc('tmp'),t2=tp.ctx;
+ [v,l].forEach(c=>{c.setTransform(1,0,0,1,0,0);c.globalCompositeOperation='source-over';c.globalAlpha=1;c.clearRect(0,0,W,H)});
+ LD.forEach(lev=>{
+  t2.setTransform(1,0,0,1,0,0);t2.globalCompositeOperation='source-over';t2.globalAlpha=1;t2.clearRect(0,0,W,H);wtc(t2);t2.fillStyle='#fff';lev.vs.forEach(vw=>{poly(t2,vw.poly);t2.fill()});
+  v.setTransform(1,0,0,1,0,0);v.globalCompositeOperation='lighter';v.globalAlpha=lev.w;v.drawImage(tp,0,0);
+  t2.setTransform(1,0,0,1,0,0);t2.clearRect(0,0,W,H);wtc(t2);
+  lev.vs.forEach(vw=>{t2.save();poly(t2,vw.poly);t2.clip();if(vw.rv>0)lg(t2,vw.x,vw.y,vw.rv);lev.ls.forEach(li=>{t2.save();poly(t2,li.poly);t2.clip();lg(t2,li.x,li.y,li.r);t2.restore()});t2.restore()});
+  l.setTransform(1,0,0,1,0,0);l.globalCompositeOperation='lighter';l.globalAlpha=lev.w;l.drawImage(tp,0,0)});
+ v.globalAlpha=1;l.globalAlpha=1;
  const Dk=offc('dark'),d=Dk.ctx;d.setTransform(1,0,0,1,0,0);d.globalCompositeOperation='source-over';d.globalAlpha=1;d.clearRect(0,0,W,H);d.fillStyle='#000';d.fillRect(0,0,W,H);
  d.globalCompositeOperation='destination-out';d.globalAlpha=1-clamp(+L.amb,0,1);d.drawImage(V,0,0);d.globalAlpha=1;d.drawImage(Lc,0,0);d.globalCompositeOperation='source-over';
  S.lcDone=true;cx.save();cx.setTransform(1,0,0,1,0,0);cx.globalAlpha=(M&&!S.lprev)?.55:1;cx.drawImage(Dk,0,0);cx.restore()}
@@ -296,13 +309,14 @@ function snapWall(w){const z=S.cam.z,g=grid(),sc=scene();let p={x:w.x,y:w.y},bd=
  if(bd===14/z&&g.snap){const sz=Math.max(10,g.size);p={x:Math.round((w.x-g.ox)/sz)*sz+g.ox,y:Math.round((w.y-g.oy)/sz)*sz+g.oy}}
  if(sc){p.x=clamp(p.x,0,sc.map_w);p.y=clamp(p.y,0,sc.map_h)}return p}
 function luzDown(w){const L=luzOf(),z=S.cam.z;
+ if(S.lmode==='adj'){let wi=-1,bd=16/z;L.walls.forEach((s,i)=>{const d=dSeg(w.x,w.y,s);if(d<bd){bd=d;wi=i}});if(wi>=0){const ww=L.walls.map(x=>x.slice());ww[wi][5]=S.wopn;return setLuz({walls:ww})}return}
  if(S.lmode==='wall'||S.lmode==='door'){S.wnew={a:snapWall(w),b:snapWall(w),door:S.lmode==='door'};S.drag={type:'wall'};return need()}
  if(S.lmode==='light'){return setLuz({lights:[...L.lights,[Math.round(w.x),Math.round(w.y),S.lr,S.lcolor]]})}
  if(S.lmode==='erase'){let li=-1,bd=20/z;L.lights.forEach((l,i)=>{const d=Math.hypot(l[0]-w.x,l[1]-w.y);if(d<bd){bd=d;li=i}});
   if(li>=0)return setLuz({lights:L.lights.filter((_,i)=>i!==li)});
   let wi=-1;bd=14/z;L.walls.forEach((s,i)=>{const d=dSeg(w.x,w.y,s);if(d<bd){bd=d;wi=i}});if(wi>=0)return setLuz({walls:L.walls.filter((_,i)=>i!==wi)})}}
 function drawLumEdit(sc){if(!isMaster()||S.tool!=='luz'||!luzAv())return;const L=luzOf(),z=S.cam.z;cx.save();cx.lineCap='round';
- L.walls.forEach(s=>{cx.beginPath();cx.moveTo(s[0],s[1]);cx.lineTo(s[2],s[3]);cx.lineWidth=(s[4]?4:3)/z;cx.setLineDash(s[4]===2?[8/z,6/z]:[]);cx.strokeStyle=s[4]?(s[4]===2?'#4fd1ff88':'#4fd1ff'):'#ff9f40';cx.stroke()});
+ L.walls.forEach(s=>{cx.beginPath();cx.moveTo(s[0],s[1]);cx.lineTo(s[2],s[3]);cx.lineWidth=(s[4]?4:3)/z;cx.setLineDash(s[4]===2?[8/z,6/z]:[]);cx.globalAlpha=.3+.7*clamp((s[5]==null?100:+s[5])/100,0,1);cx.strokeStyle=s[4]?(s[4]===2?'#4fd1ff88':'#4fd1ff'):'#ff9f40';cx.stroke();cx.globalAlpha=1});
  cx.setLineDash([]);if(S.wnew){cx.beginPath();cx.moveTo(S.wnew.a.x,S.wnew.a.y);cx.lineTo(S.wnew.b.x,S.wnew.b.y);cx.lineWidth=3/z;cx.strokeStyle=S.wnew.door?'#4fd1ff':'#ffd27a';cx.stroke()}
  L.lights.forEach(l=>{const r=l[2]*gsz();cx.beginPath();cx.arc(l[0],l[1],r,0,7);cx.lineWidth=1.5/z;cx.setLineDash([6/z,5/z]);cx.strokeStyle=(l[3]||'#ffd9a0')+'aa';cx.stroke();cx.setLineDash([]);cx.beginPath();cx.arc(l[0],l[1],8/z,0,7);cx.fillStyle=l[3]||'#ffd9a0';cx.fill();cx.lineWidth=2/z;cx.strokeStyle='#000';cx.stroke()});
  cx.restore()}
@@ -490,7 +504,7 @@ function bind(){
   else if(d.type==='tok'){const t=tokById(d.id);if(!t)return;const w=toWorld(p),nx=w.x-d.dx,ny=w.y-d.dy;if(!d.moved&&Math.hypot(nx-t.x,ny-t.y)*S.cam.z<4)return;
    d.moved=true;t.x=nx;t.y=ny;d.ghost=snapPos(nx,ny,t);need();if(Date.now()-d.last>220&&!grid().snap){d.last=Date.now();sendPos(t)}}});
  const up=e=>{ptrs.delete(e.pointerId);if(ptrs.size<2)pinch=null;const d=S.drag;cv.style.cursor='default';if(!d||ptrs.size)return;S.drag=null;
-  if(d.type==='wall'&&S.wnew){const n=S.wnew;S.wnew=null;if(Math.hypot(n.b.x-n.a.x,n.b.y-n.a.y)>6)setLuz({walls:[...luzOf().walls,[Math.round(n.a.x),Math.round(n.a.y),Math.round(n.b.x),Math.round(n.b.y),n.door?1:0]]});need()}
+  if(d.type==='wall'&&S.wnew){const n=S.wnew;S.wnew=null;if(Math.hypot(n.b.x-n.a.x,n.b.y-n.a.y)>6)setLuz({walls:[...luzOf().walls,[Math.round(n.a.x),Math.round(n.a.y),Math.round(n.b.x),Math.round(n.b.y),n.door?1:0,S.wopn]]});need()}
   if(d.type==='draw'&&S.dnew){const nd=S.dnew;S.dnew=null;nd.pts=nd.pts.map(q=>[Math.round(q[0]),Math.round(q[1])]);nd.width=Math.round(nd.width*10)/10;
    if(nd.pts.length>1||nd.kind==='pen'){const tmp={...nd,id:'tmp'+Date.now(),author:user.id};S.draws.push(tmp);need();pushDraw(nd).then(r=>{S.draws=S.draws.filter(x=>x.id!==tmp.id);if(r.error)notice(r.error.message);else if(!S.draws.some(x=>x.id===r.data.id))S.draws.push(r.data);need()})}}
   if(d.type==='tok'&&d.moved){const t=tokById(d.id);if(t){const s=snapPos(t.x,t.y,t);t.x=s.x;t.y=s.y;sendPos(t)}}need();refresh()};
@@ -561,11 +575,13 @@ function luzPop(){const L=luzOf(),sw=['#ffd9a0','#ffffff','#ff9f40','#ff5a4d','#
  <div class="tiles1"><button class="tile${L.on?' on':''}" data-a="lon"><span>Ligada: jogadores só veem o que está à vista e iluminado</span><i class="mk"></i></button></div>
  <div class="vt-grow"><span>Escuridão <b class="vt-val">${Math.round(L.amb*100)}%</b></span><input type="range" min="0" max="100" step="5" value="${Math.round(L.amb*100)}" data-lz="amb"></div>
  <div class="vt-grow"><span>Visão padrão (casas)</span><div class="seg"><button class="sg" data-a="lvis" data-d="-1">−</button><b class="sg vt-val">${L.vis}</b><button class="sg" data-a="lvis" data-d="1">+</button></div></div>
- <div class="vt-grow"><span>Ferramenta</span><div class="seg">${[['wall','Parede'],['door','Porta'],['light','Luz'],['erase','Apagar']].map(([k,n])=>`<button class="sg${S.lmode===k?' on':''}" data-a="lmode" data-v="${k}">${n}</button>`).join('')}</div></div>
+ <div class="vt-grow"><span>Opacidade das paredes <b class="vt-val">${Math.round(L.wop==null?100:L.wop)}%</b></span><input type="range" min="0" max="100" step="5" value="${L.wop==null?100:L.wop}" data-lz="wop"></div>
+ <div class="vt-grow"><span>Ferramenta</span><div class="seg">${[['wall','Parede'],['door','Porta'],['adj','Ajustar'],['light','Luz'],['erase','Apagar']].map(([k,n])=>`<button class="sg${S.lmode===k?' on':''}" data-a="lmode" data-v="${k}">${n}</button>`).join('')}</div></div>
+ <div class="vt-grow"><span>Opacidade da parede nova ou ajustada</span><div class="seg">${[100,75,50,25,10].map(n=>`<button class="sg${S.wopn===n?' on':''}" data-a="wopn" data-v="${n}">${n}%</button>`).join('')}</div></div>
  <div class="vt-grow"><span>Luz nova: raio (casas)</span><div class="seg"><button class="sg" data-a="lr" data-d="-1">−</button><b class="sg vt-val">${S.lr}</b><button class="sg" data-a="lr" data-d="1">+</button></div></div>
  <div class="vt-grow"><span>Cor da luz</span><div class="vt-chips">${sw.map(c=>`<button class="vt-sw${S.lcolor===c?' on':''}" data-a="lcor" data-v="${c}" style="background:${c}" aria-label="${c}"></button>`).join('')}</div></div>
  <div class="vt-grow"><button data-a="lprev" class="${S.lprev?'on':''}">${S.lprev?'Voltar à minha visão':'Ver como os jogadores'}</button><button data-a="lclear">Apagar paredes e luzes</button></div>
- <p class="mu">Parede e Porta: arraste no mapa. Porta fechada é a linha azul; com a seleção, toque numa porta para abrir ou fechar. Cada token pode ter Luz (tocha) e Visão no painel dele.</p>`}
+ <p class="mu">Menos opacidade deixa a sombra atrás da parede menos escura (vidro, cortina, grade). Parede e Porta: arraste no mapa; Ajustar: toque numa parede para trocar a opacidade dela. Porta fechada é a linha azul; com a seleção, toque numa porta para abrir ou fechar. Cada token pode ter Luz (tocha) e Visão no painel dele.</p>`}
 function uiPop(){const el=q('#vpop');if(!el)return;
  if(el.contains(document.activeElement)&&document.activeElement.tagName==='INPUT')return;
  if(scene()&&DRAWT.includes(S.tool)&&S.dok){el.hidden=false;el.innerHTML=`<div class="row"><b class="sp">Desenho</b></div><div class="vt-grow"><span>Cor</span><div class="seg">${[['#e0b84a','Âmbar'],['#ff5a4d','Vermelho'],['#5bd17a','Verde'],['#5aa9ff','Azul'],['#ffffff','Branco']].map(([c,n])=>`<button class="sg${S.dcolor===c?' on':''}" data-a="dc" data-v="${c}" style="color:${c}">${n}</button>`).join('')}</div></div><div class="vt-grow"><span>Espessura</span><div class="seg">${[[2,'Fina'],[4,'Média'],[8,'Grossa']].map(([w,n])=>`<button class="sg${S.dw===w?' on':''}" data-a="dw" data-v="${w}">${n}</button>`).join('')}</div></div><p class="mu">Todos da mesa veem o que você desenha. Desfazer apaga o seu último desenho.</p>`;return}
@@ -590,6 +606,7 @@ async function onUi(e){const b=e.target.closest('[data-a]');if(!b)return;const a
  if(a==='lon')return setLuz({on:!luzOf().on});
  if(a==='lvis')return setLuz({vis:clamp((+luzOf().vis||0)+(+b.dataset.d),0,30)});
  if(a==='lmode'){S.lmode=b.dataset.v;return refresh()}
+ if(a==='wopn'){S.wopn=+b.dataset.v;return refresh()}
  if(a==='lr'){S.lr=clamp(S.lr+(+b.dataset.d),1,30);return refresh()}
  if(a==='lcor'){S.lcolor=b.dataset.v;return refresh()}
  if(a==='lprev'){S.lprev=!S.lprev;need();return refresh()}
